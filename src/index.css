@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
+
 
 /* ---------- base layer: variables & resets ---------- */
 @layer base {
@@ -12,7 +14,22 @@
     --page-bg:#f5f6fb;
     --border:#e7e7f1;
     --sidebar-w: 260px;
+    
   }
+
+  *{ box-sizing: border-box; }
+  html,body,#root{ height:100%; }
+
+  /* Global font → Poppins */
+  body{
+    @apply m-0 bg-[var(--page-bg)] text-[#1b1b1f];
+    font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+                 Roboto, Arial, "Noto Sans", "Apple Color Emoji",
+                 "Segoe UI Emoji", "Segoe UI Symbol";
+  }
+
+  a{ color: inherit; text-decoration: none; }
+  button{ font: inherit; }
 
   *{ box-sizing: border-box; }
   html,body,#root{ height:100%; }

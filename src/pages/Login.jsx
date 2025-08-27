@@ -17,8 +17,8 @@ export default function Login() {
   const { login } = useAuth();
 
   const [location, setLocation] = useState("");
-  const [username, setUsername] = useState("onimta");      // default
-  const [password, setPassword] = useState("samudra@123"); // default
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const submit = (e) => {
@@ -29,26 +29,25 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
-      {/* Left side: form */}
-      <div className="flex flex-col">
-        {/* Brand row — centered and same width as the form */}
-        <div className="w-11/12 md:w-3/4 max-w-[560px] mx-auto pt-8 flex justify-center">
-          <img
-            src="https://samudrabooks.com/wp-content/themes/book-store/images/default-logo.png"
-            alt="Samudra"
-            className="h-12 object-contain"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-          />
-        </div>
-
+    <div className="min-h-screen grid grid-cols-1 md:grid-cols-5">
+      {/* Left side: form (40%) */}
+      <div className="flex flex-col md:col-span-2">
         {/* Form card area */}
         <div className="flex-1 flex items-center">
           <form
             onSubmit={submit}
-            className="w-11/12 md:w-3/4 max-w-[560px] mx-auto bg-white rounded-2xl border border-[var(--border)] shadow p-8"
+            className="w-10/12 md:w-4/5 max-w-[480px] mx-auto bg-white rounded-2xl border border-[var(--border)] shadow p-6"
           >
-            <h3 className="text-2xl font-bold mb-6 text-center">Welcome Back</h3>
+            {/* Logo INSIDE form */}
+            <div className="flex flex-col items-center mb-6">
+              <img
+                src="https://samudrabooks.com/wp-content/themes/book-store/images/default-logo.png"
+                alt="Samudra"
+                className="h-14 object-contain mb-3"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+              <h3 className="text-2xl font-bold text-center">Welcome Back</h3>
+            </div>
 
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700">Location</label>
@@ -118,12 +117,12 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right side: image */}
-      <div className="hidden md:block">
+      {/* Right side: image (60%) */}
+      <div className="hidden md:block md:col-span-3 min-h-screen">
         <img
-          src="https://netinsight.net/wp-content/uploads/2024/03/DALL%C2%B7E-2024-03-04-13.00.08-Create-a-modern-and-professional-image-for-a-tech-blog-post-about-seamless-media-integration.-The-image-should-depict-a-digital-landscape-with-flowing.webp"
+          src="https://images.pexels.com/photos/2199293/pexels-photo-2199293.jpeg?cs=srgb&dl=pexels-quintingellar-2199293.jpg&fm=jpg"
           alt="Login visual"
-          className="w-full h-full object-cover object-left"
+          className="w-full h-full object-cover object-center"
         />
       </div>
     </div>
