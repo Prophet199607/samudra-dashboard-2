@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/* ---------- base layer: variables & resets ---------- */
+@layer base {
+  :root{
+    --sidebar-bg:#131375;
+    --sidebar-bg-2:#1f1fb9;
+    --sidebar-text:#e9e7ff;
+    --sidebar-dim:#b7b4d0;
+    --primary:#101167;
+    --card:#ffffff;
+    --page-bg:#f5f6fb;
+    --border:#e7e7f1;
+    --sidebar-w: 260px;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body,#root{ height:100%; }
+  body{
+    @apply m-0 bg-[var(--page-bg)] text-[#1b1b1f];
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+
+  a{ color: inherit; text-decoration: none; }
+  button{ font: inherit; }
+}
+
+/* ---------- components layer: your classes ---------- */
+@layer components {
+  .app{
+    @apply min-h-screen grid bg-[var(--page-bg)];
+    grid-template-columns: var(--sidebar-w) 1fr;
+  }
+  .app.collapsed{ --sidebar-w: 80px; }
+
+  .sidebar{
+    background: linear-gradient(180deg,var(--sidebar-bg),var(--sidebar-bg-2));
+    @apply text-white/95 p-3 sticky top-0 h-screen overflow-auto;
+    color: var(--sidebar-text);
+  }
+
+  .brand{ @apply flex items-center gap-2 px-3 pt-3 pb-4; }
+  .brandDot{ @apply w-7 h-7 rounded-lg grid place-items-center font-extrabold text-white; background: var(--primary); }
+
+  .menuTitle{ @apply mx-3 mt-4 mb-2 text-[11px] uppercase tracking-[0.12em]; color: var(--sidebar-dim); }
+  .menuItem{ @apply flex items-center gap-3 px-3 py-3 rounded-xl transition-colors; color: var(--sidebar-text); }
+  .menuItem:hover{ background: rgba(255,255,255,.06); }
+  .menuItem.active{ background: rgba(255,255,255,.12); }
+  .chev{ margin-left:auto; opacity:.8; }
+
+  .subWrap{ @apply pl-4; }
+  .subItem{ @apply flex items-center gap-2 px-3 py-2 rounded-lg; color: var(--sidebar-dim); }
+  .subItem:hover{ background: rgba(255,255,255,.06); color:#fff; }
+  .subItem.active{ background: rgba(255,255,255,.12); color:#fff; }
+
+  .app.collapsed .label{ display:none; }
+  .app.collapsed .menuTitle{ display:none; }
+  .app.collapsed .chev{ display:none; }
+  .app.collapsed .subWrap{ display:none; }
+
+  
+
+  .main{ @apply min-w-0 flex flex-col; }
+  .navbar{ @apply h-16 bg-white border-b sticky top-0 z-20 flex items-center justify-between px-4; border-color: var(--border); }
+  .iconBtn{ @apply border-0 bg-[#f2f1fb] p-2 rounded-xl cursor-pointer; }
+  .iconBtn:hover{ @apply bg-[#e9e8ff]; }
+  .pageTitle{ @apply font-bold; }
+  .user{ color: var(--primary); font-weight: 700; cursor: pointer; }
+
+  .dropdown{ @apply absolute right-4 top-16 bg-white rounded-xl shadow; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,.08); min-width: 180px; overflow: hidden; }
+  .dropItem{ @apply px-4 py-3 flex items-center gap-2; }
+  .dropItem:hover{ @apply bg-[#f4f3fb]; }
+
+  .content{ @apply p-4 max-w-[1400px] mx-auto w-full; }
+
+  /* renamed to avoid clashing with Tailwind's .grid utility */
+  .cardsGrid{
+    @apply grid gap-4 my-[10px] mb-[18px];
+    grid-template-columns: repeat(4, minmax(220px, 1fr));
+  }
+  .card{ @apply bg-white rounded-2xl p-4 border; border-color: var(--border); }
+  .cardTitle{ @apply text-[13px] text-[#6b6a74] mb-2; }
+  .cardValue{ @apply text-[28px] font-extrabold; }
+
+  .list{ @apply bg-white rounded-2xl p-2 border; border-color: var(--border); }
+  .listItem{ @apply flex items-center gap-2 p-3 rounded-xl; }
+  .listItem:hover{ @apply bg-[#f6f6ff]; }
+
+  .chart{ @apply bg-white rounded-2xl h-80 flex items-center justify-center font-semibold; border: 1px solid var(--border); color: #86839a; }
+
+  .row{ @apply grid gap-4; grid-template-columns: 2fr 1fr; }
+
+  .h-12 object-contain{
+    object-position: center;
+  }
+}
