@@ -1,39 +1,73 @@
-import React, { createContext, useContext, useMemo, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
+import api from "../services/api";
 
-const AuthCtx = createContext(null);
+const AuthContext = createContext();
 
-const DEFAULT_USERS = {
-  1: "1",
-  admin: "admin123",
-};
+export const AuthProvider = ({ children }) => {
+  const hasFetched = useRef(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null); // { username, location }
+  const checkAuth = async () => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const res = await api.get("/auth/user");
+        setUser(res.data.user);
+      } catch (err) {
+        localStorage.removeItem("token");
+      }
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const saved = localStorage.getItem("samudra_auth");
-    if (saved) setUser(JSON.parse(saved));
+    checkAuth();
   }, []);
 
-  const login = (username, password, location) => {
-    const ok = DEFAULT_USERS[username] && DEFAULT_USERS[username] === password;
-    if (!ok) return { ok: false, message: "Invalid username or password." };
-    if (!location) return { ok: false, message: "Please select a location." };
-    const u = { username, location };
-    setUser(u);
-    localStorage.setItem("samudra_auth", JSON.stringify(u));
-    return { ok: true };
+  const login = async (username, password, loca_code) => {
+    try {
+      const res = await api.post("/login", {
+        username,
+        password,
+        location: loca_code,
+      });
+
+      localStorage.setItem("token", res.data.access_token);
+      setUser(res.data.user);
+
+      return { ok: true };
+    } catch (err) {
+      return {
+        ok: false,
+        message: err.response?.data?.error || "Login failed",
+      };
+    }
   };
 
   const logout = () => {
+    localStorage.removeItem("token");
     setUser(null);
-    localStorage.removeItem("samudra_auth");
   };
 
-  const value = useMemo(() => ({ user, login, logout }), [user]);
-  return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
-}
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-export function useAuth() {
-  return useContext(AuthCtx);
-}
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);

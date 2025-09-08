@@ -1,31 +1,38 @@
-import React, { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-
-const LOCATIONS = [
-  "SAMUDRA PUBLISHERS",
-  "SAMUDRA BOOK SHOP – KURUNEGALA",
-  "SAMUDRA BOOK SHOP – KURUNEGALA NEW",
-  "SAMUDRA BOOK SHOP – KANDY",
-  "SAMUDRA BOOK SHOP – MATARA",
-  "SAMUDRA BOOK SHOP – BORELLA",
-  "KURUNEGALA",
-];
+import api from "../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [location, setLocation] = useState("");
+  const calledRef = useRef(false);
+  const [locations, setLocations] = useState([]);
+  const [locationId, setLocationId] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const submit = (e) => {
+  // Load locations from backend
+  useEffect(() => {
+    if (calledRef.current) return;
+    calledRef.current = true;
+
+    api
+      .get("/locations")
+      .then((res) => setLocations(res.data))
+      .catch(() => setError("Failed to load locations"));
+  }, []);
+
+  const submit = async (e) => {
     e.preventDefault();
-    const res = login(username.trim(), password, location);
+    if (!locationId) return setError("Please select a location");
+
+    const res = await login(username.trim(), password, locationId);
     if (!res.ok) return setError(res.message);
-    navigate("/", { replace: true });
+
+    navigate("/dashboard", { replace: true });
   };
 
   return (
@@ -44,27 +51,35 @@ export default function Login() {
                 src="https://samudrabooks.com/wp-content/themes/book-store/images/default-logo.png"
                 alt="Samudra"
                 className="h-14 object-contain mb-3"
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
               />
               <h3 className="text-2xl font-bold text-center">Welcome Back</h3>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700">Location</label>
+              <label className="block text-sm font-semibold text-gray-700">
+                Location
+              </label>
               <select
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                value={locationId}
+                onChange={(e) => setLocationId(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[#6f3dc5] focus:border-transparent px-3 py-2"
               >
                 <option value="">Select a location</option>
-                {LOCATIONS.map((loc) => (
-                  <option key={loc} value={loc}>{loc}</option>
+                {locations.map((loc) => (
+                  <option key={loc.loca_code} value={loc.loca_code}>
+                    {loc.loca_name}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700">Username</label>
+              <label className="block text-sm font-semibold text-gray-700">
+                Username
+              </label>
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -74,7 +89,9 @@ export default function Login() {
             </div>
 
             <div className="mb-2">
-              <label className="block text-sm font-semibold text-gray-700">Password</label>
+              <label className="block text-sm font-semibold text-gray-700">
+                Password
+              </label>
               <input
                 type="password"
                 value={password}
@@ -107,7 +124,10 @@ export default function Login() {
               Don’t have an account?{" "}
               <a
                 href="#!"
-                onClick={(e) => { e.preventDefault(); alert('Registration is disabled in this demo.'); }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  alert("Registration is disabled in this demo.");
+                }}
                 className="text-[#0ea5e9]"
               >
                 Register here
