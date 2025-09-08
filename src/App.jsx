@@ -4,8 +4,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import Sidebar from "./layout/Sidebar";
 import Navbar from "./layout/Navbar";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import Login from "./pages/Auth/Login";
 
 function Private({ children }) {
   const { user } = useAuth();
