@@ -37,15 +37,15 @@ const OrderManagementSystem = () => {
       label: "Status",
       render: (value) => {
         const statusColors = {
-          1: "bg-blue-500",
-          2: "bg-purple-500",
-          3: "bg-indigo-500",
-          4: "bg-teal-500",
-          5: "bg-green-500",
-          6: "bg-yellow-500",
-          7: "bg-orange-500",
-          8: "bg-red-500",
-          9: "bg-pink-500",
+          1: "bg-blue-600",
+          2: "bg-purple-600",
+          3: "bg-indigo-600",
+          4: "bg-teal-600",
+          5: "bg-green-600",
+          6: "bg-yellow-600",
+          7: "bg-orange-600",
+          8: "bg-red-600",
+          9: "bg-pink-600",
         };
 
         // Get the tab title from TAB_CONFIG
@@ -263,15 +263,15 @@ const OrderManagementSystem = () => {
                 const canNavigate = savedSteps.has(tab.id - 1) || tab.id === 1;
 
                 const statusColors = {
-                  1: "bg-blue-500",
-                  2: "bg-purple-500",
-                  3: "bg-indigo-500",
-                  4: "bg-teal-500",
-                  5: "bg-green-500",
-                  6: "bg-yellow-500",
-                  7: "bg-orange-500",
-                  8: "bg-red-500",
-                  9: "bg-pink-500",
+                  1: "bg-blue-600",
+                  2: "bg-purple-600",
+                  3: "bg-indigo-600",
+                  4: "bg-teal-600",
+                  5: "bg-green-600",
+                  6: "bg-yellow-600",
+                  7: "bg-orange-600",
+                  8: "bg-red-600",
+                  9: "bg-pink-600",
                 };
 
                 return (
