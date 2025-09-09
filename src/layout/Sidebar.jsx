@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { MdSpaceDashboard, MdInventory2, MdExpandMore, MdExpandLess } from "react-icons/md";
+import {
+  MdSpaceDashboard,
+  MdShoppingCart,
+  MdInventory2,
+  MdExpandMore,
+  MdExpandLess,
+} from "react-icons/md";
 import { TbFileLike } from "react-icons/tb";
 import { FaBuildingColumns, FaCircleCheck } from "react-icons/fa6";
 import { GiWallet } from "react-icons/gi";
@@ -30,6 +36,16 @@ export default function Sidebar() {
       >
         <MdSpaceDashboard size={20} />
         <span className="label">Dashboard</span>
+      </NavLink>
+
+      <NavLink
+        end
+        to="/order-management"
+        className={({ isActive }) => "menuItem" + (isActive ? " active" : "")}
+        title="Order Management"
+      >
+        <MdShoppingCart size={20} />
+        <span className="label">Order Management</span>
       </NavLink>
 
       {/*<SectionTitle>Procurement</SectionTitle>

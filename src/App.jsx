@@ -6,49 +6,63 @@ import Sidebar from "./layout/Sidebar";
 import Navbar from "./layout/Navbar";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Auth/Login";
+import OrderManagementSystem from "./components/OrderManagementSystem";
 
+// Protect routes
 function Private({ children }) {
   const { user } = useAuth();
   return user ? children : <Navigate to="/login" replace />;
 }
 
-export default function App() {
+// Shared layout for authenticated pages
+function PrivateLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
+
+  return (
+    <div className={`app ${collapsed ? "collapsed" : ""}`}>
+      <Sidebar />
+      <div className="main">
+        <Navbar onToggle={() => setCollapsed((v) => !v)} />
+        <div className="content">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
   const { user } = useAuth();
 
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Public */}
       <Route path="/login" element={<Login />} />
 
-      {/* Authenticated layout */}
+      {/* Private */}
       <Route
         path="/dashboard"
         element={
           <Private>
-            <div className={`app ${collapsed ? "collapsed" : ""}`}>
-              <Sidebar />
-              <div className="main">
-                <Navbar onToggle={() => setCollapsed((v) => !v)} />
-                <div className="content">
-                  <Dashboard />
-                </div>
-              </div>
-            </div>
+            <PrivateLayout>
+              <Dashboard />
+            </PrivateLayout>
+          </Private>
+        }
+      />
+      <Route
+        path="/order-management"
+        element={
+          <Private>
+            <PrivateLayout>
+              <OrderManagementSystem />
+            </PrivateLayout>
           </Private>
         }
       />
 
-      {/* Redirect root → dashboard if logged in */}
+      {/* Redirect root */}
       <Route
         path="/"
-        element={
-          user ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
+        element={<Navigate to={user ? "/dashboard" : "/login"} replace />}
       />
 
       {/* Catch-all */}

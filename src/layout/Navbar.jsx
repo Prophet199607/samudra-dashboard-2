@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { MdMenu } from "react-icons/md";
-import { FaPowerOff, FaPaperPlane } from "react-icons/fa";
+import { FaPowerOff } from "react-icons/fa";
 import useOnClickOutside from "../hooks/useOnClickOutside";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
@@ -21,14 +21,18 @@ export default function Navbar({ onToggle }) {
   return (
     <header className="navbar">
       <div className="flex items-center gap-3">
-        <button className="iconBtn" onClick={onToggle} aria-label="Toggle sidebar">
+        <button
+          className="iconBtn"
+          onClick={onToggle}
+          aria-label="Toggle sidebar"
+        >
           <MdMenu size={20} />
         </button>
         <div className="pageTitle">Welcome, Samudra Team</div>
       </div>
 
       <div className="relative" ref={ref}>
-        <button onClick={() => setOpen(v => !v)} className="user">
+        <button onClick={() => setOpen((v) => !v)} className="user">
           {user?.username ?? "onimta"} ▾
         </button>
 
@@ -36,9 +40,6 @@ export default function Navbar({ onToggle }) {
           <div className="dropdown">
             <button className="dropItem w-full text-left" onClick={doLogout}>
               <FaPowerOff /> Logout
-            </button>
-            <button className="dropItem w-full text-left" onClick={() => alert("Go Away")}>
-              <FaPaperPlane /> Go Away
             </button>
           </div>
         )}
