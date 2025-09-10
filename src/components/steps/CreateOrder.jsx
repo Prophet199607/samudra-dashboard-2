@@ -6,7 +6,7 @@ import SelectField from "../common/Input/SelectField";
 import TextAreaField from "../common/Input/TextAreaField";
 import { DROPDOWN_OPTIONS } from "../../constants/dropdownOptions";
 
-const CreateOrder = ({ formData, updateField }) => {
+const CreateOrder = ({ formData, updateField, isNewOrder }) => {
   const formatThousand = (value) => {
     if (!value) return "";
     const num = value.toString().replace(/,/g, "");
@@ -21,7 +21,7 @@ const CreateOrder = ({ formData, updateField }) => {
   return (
     <div className="space-y-6">
       {/* Order Summary */}
-      <OrderSummary formData={formData} />
+      {!isNewOrder && <OrderSummary formData={formData} />}
 
       {/* <InfoPanel title="Create New Order Request" color="blue">
       <p className="text-sm text-blue-700">
