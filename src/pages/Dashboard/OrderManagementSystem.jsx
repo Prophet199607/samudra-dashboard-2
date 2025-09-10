@@ -119,36 +119,8 @@ const OrderManagementSystem = () => {
     }
   }, [formData, activeTab, validation]);
 
-  const handleReset = useCallback(() => {
-    if (
-      window.confirm(
-        "Are you sure you want to reset all data? This action cannot be undone."
-      )
-    ) {
-      resetForm();
-      setSavedSteps(new Set());
-      setActiveTab(1);
-      alert("All data has been reset successfully!");
-    }
-  }, [resetForm]);
-
-  const handleExportData = useCallback(() => {
-    const dataStr = JSON.stringify(formData, null, 2);
-    const dataUri =
-      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-
-    const exportFileDefaultName = `order_${formData.ornNumber || "draft"}_${
-      new Date().toISOString().split("T")[0]
-    }.json`;
-
-    const linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", exportFileDefaultName);
-    linkElement.click();
-  }, [formData]);
-
   const renderStepContent = () => {
-    const stepProps = { formData, updateField };
+    const stepProps = { formData, updateField, isNewOrder: !selectedOrder };
 
     switch (activeTab) {
       case 1:
@@ -176,17 +148,14 @@ const OrderManagementSystem = () => {
 
   if (showOrdersList) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2 sm:p-4 w-full">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 w-full">
         <div className="w-full mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+          <div className="bg-white rounded-xl shadow-lg p-5 mb-5 border border-gray-100">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl sm:text-3x2 font-bold text-gray-900 mb-2">
                   Order Management
                 </h1>
-                <p className="text-gray-600">
-                  View and manage all orders in the system
-                </p>
               </div>
               <button
                 onClick={() => {
@@ -203,7 +172,7 @@ const OrderManagementSystem = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <div className="bg-white rounded-xl shadow-lg p-5 border border-gray-100">
             <DataTable
               data={mockOrders}
               columns={tableColumns}
@@ -216,19 +185,14 @@ const OrderManagementSystem = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2 sm:p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-1 sm:p-4">
       <div className="max-full mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-lg p-5 mb-5 border border-gray-100">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl sm:text-3x2 font-bold text-gray-900 mb-2">
                 {selectedOrder ? `Order ${selectedOrder.id}` : "New Order"}
               </h1>
-              <p className="text-gray-600">
-                {selectedOrder
-                  ? `Managing order for ${selectedOrder.customerName}`
-                  : "Create a new order"}
-              </p>
             </div>
             <div className="flex gap-2">
               <button
@@ -237,18 +201,6 @@ const OrderManagementSystem = () => {
               >
                 ← Back to Orders
               </button>
-              <button
-                onClick={handleExportData}
-                className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 transition-colors"
-              >
-                📥 Export Data
-              </button>
-              <button
-                onClick={handleReset}
-                className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
-              >
-                🔄 Reset All
-              </button>
             </div>
           </div>
         </div>
@@ -256,7 +208,7 @@ const OrderManagementSystem = () => {
         {/* Tab Navigation */}
         <div className="bg-white rounded-xl shadow-lg mb-6 border border-gray-100">
           <div className="border-b border-gray-200 p-4">
-            <nav className="flex items-center justify-center overflow-x-auto scrollbar-hide">
+            <nav className="flex items-center justify-center scrollbar-hide">
               {TAB_CONFIG.map((tab, index) => {
                 const isCompleted = savedSteps.has(tab.id);
                 const isActive = activeTab === tab.id;
@@ -292,7 +244,7 @@ const OrderManagementSystem = () => {
                         isActive
                           ? `${
                               statusColors[tab.id]
-                            } text-white border-2 border-gray-700 shadow-lg`
+                            } text-white border-2 border-gray-700 shadow-lg outline-2 outline-offset-3 outline-black`
                           : isCompleted
                           ? `${
                               statusColors[tab.id]
