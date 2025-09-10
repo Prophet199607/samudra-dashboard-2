@@ -1,10 +1,12 @@
 import React, { useRef, useEffect, useState } from "react";
+import { useAuth } from "../../auth/AuthContext";
 import api from "../../services/api";
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const hasFetched = useRef(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (hasFetched.current) return;
@@ -17,7 +19,7 @@ export default function Dashboard() {
   }, []);
 
   if (error) return <p className="text-red-600">{error}</p>;
-  if (!data) return <p>Loading...</p>;
+  if (!data) return null;
 
   return (
     <div className="content-inner space-y-4">

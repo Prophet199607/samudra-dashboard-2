@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from "react";
 import api from "../services/api";
+import { ClipLoader } from "react-spinners";
 
 const AuthContext = createContext();
 
@@ -19,13 +20,24 @@ export const AuthProvider = ({ children }) => {
     hasFetched.current = true;
 
     const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const res = await api.get("/auth/user");
-        setUser(res.data.user);
-      } catch (err) {
-        localStorage.removeItem("token");
-      }
+    const [authResult] = await Promise.all([
+      (async () => {
+        if (token) {
+          try {
+            const res = await api.get("/auth/user");
+            return res.data.user;
+          } catch (err) {
+            localStorage.removeItem("token");
+            return null;
+          }
+        }
+        return null;
+      })(),
+      new Promise((resolve) => setTimeout(resolve, 1000)),
+    ]);
+
+    if (authResult) {
+      setUser(authResult);
     }
     setLoading(false);
   };
@@ -60,7 +72,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <ClipLoader color="#3B82F6" size={50} speedMultiplier={0.5} />
+          <p className="text-gray-600 mt-4">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
