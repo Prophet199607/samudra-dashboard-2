@@ -6,7 +6,7 @@ import Sidebar from "./layout/Sidebar";
 import Navbar from "./layout/Navbar";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Auth/Login";
-import OrderManagementSystem from "./components/OrderManagementSystem";
+import OrderManagementSystem from "./pages/Dashboard/OrderManagementSystem";
 
 // Protect routes
 function Private({ children }) {
