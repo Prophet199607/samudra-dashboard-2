@@ -6,7 +6,9 @@ import Sidebar from "./layout/Sidebar";
 import Navbar from "./layout/Navbar";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Auth/Login";
-import OrderManagementSystem from "./pages/Dashboard/OrderManagementSystem";
+// import OrderManagementSystem from "./pages/Dashboard/OrderManagementSystem";
+import Orders from "./pages/Dashboard/Orders/Orders";
+import OrderDetail from "./pages/Dashboard/Orders/OrderDetail";
 
 // Protect routes
 function Private({ children }) {
@@ -49,11 +51,21 @@ export default function App() {
         }
       />
       <Route
-        path="/order-management"
+        path="/orders"
         element={
           <Private>
             <PrivateLayout>
-              <OrderManagementSystem />
+              <Orders />
+            </PrivateLayout>
+          </Private>
+        }
+      />
+      <Route
+        path="/order/:id"
+        element={
+          <Private>
+            <PrivateLayout>
+              <OrderDetail />
             </PrivateLayout>
           </Private>
         }

@@ -40,7 +40,7 @@ export default function Sidebar() {
 
       <NavLink
         end
-        to="/order-management"
+        to="/orders"
         className={({ isActive }) => "menuItem" + (isActive ? " active" : "")}
         title="Order Management"
       >
