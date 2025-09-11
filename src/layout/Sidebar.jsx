@@ -1,15 +1,10 @@
 import React, { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import {
-  MdSpaceDashboard,
-  MdShoppingCart,
-  MdInventory2,
-  MdExpandMore,
-  MdExpandLess,
-} from "react-icons/md";
-import { TbFileLike } from "react-icons/tb";
-import { FaBuildingColumns, FaCircleCheck } from "react-icons/fa6";
-import { GiWallet } from "react-icons/gi";
+import { MdSpaceDashboard } from "react-icons/md";
+import { FaTruck } from "react-icons/fa";
+// import { TbFileLike } from "react-icons/tb";
+// import { FaBuildingColumns, FaCircleCheck } from "react-icons/fa6";
+// import { GiWallet } from "react-icons/gi";
 
 function SectionTitle({ children }) {
   return <div className="menuTitle">{children}</div>;
@@ -23,11 +18,13 @@ export default function Sidebar() {
     <aside className="sidebar">
       {/* Brand */}
       <div className="brand">
-        <div className="brandDot">S</div>
-        <span className="label">Samudra Dashboard</span>
+        {/* <div className="brandDot">S</div> */}
+        <h1 className="text-2xl font-bold text-center text-capitalize">
+          Samudra Order Management
+        </h1>
       </div>
 
-      <SectionTitle>Dashboard</SectionTitle>
+      {/* <SectionTitle>Dashboard</SectionTitle> */}
       <NavLink
         end
         to="/dashboard"
@@ -44,8 +41,8 @@ export default function Sidebar() {
         className={({ isActive }) => "menuItem" + (isActive ? " active" : "")}
         title="Order Management"
       >
-        <MdShoppingCart size={20} />
-        <span className="label">Order Management</span>
+        <FaTruck size={20} />
+        <span className="label">Distribution WIP</span>
       </NavLink>
 
       {/*<SectionTitle>Procurement</SectionTitle>
