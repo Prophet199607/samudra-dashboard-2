@@ -1,14 +1,11 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFormState } from "../../../hooks/useFormState";
-import { useFormValidation } from "../../../hooks/useFormValidation";
 import { TAB_CONFIG } from "../../../constants/dropdownOptions";
 import DataTable from "../../../components/common/DataTable";
 import { mockOrders } from "../../../services/mockData";
 
 const Orders = () => {
   const navigate = useNavigate();
-  const [showOrdersList, setShowOrdersList] = useState(true);
 
   const tableColumns = [
     { key: "id", label: "Order ID" },
