@@ -30,7 +30,7 @@ export default function Sidebar() {
       <SectionTitle>Dashboard</SectionTitle>
       <NavLink
         end
-        to="/"
+        to="/dashboard"
         className={({ isActive }) => "menuItem" + (isActive ? " active" : "")}
         title="Dashboard"
       >
