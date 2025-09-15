@@ -6,7 +6,6 @@ import Sidebar from "./layout/Sidebar";
 import Navbar from "./layout/Navbar";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Auth/Login";
-// import OrderManagementSystem from "./pages/Dashboard/OrderManagementSystem";
 import Orders from "./pages/Dashboard/Orders/Orders";
 import OrderDetail from "./pages/Dashboard/Orders/OrderDetail";
 
@@ -22,7 +21,7 @@ function PrivateLayout({ children }) {
 
   return (
     <div className={`app ${collapsed ? "collapsed" : ""}`}>
-      <Sidebar />
+      <Sidebar collapsed={collapsed} />
       <div className="main">
         <Navbar onToggle={() => setCollapsed((v) => !v)} />
         <div className="content">{children}</div>

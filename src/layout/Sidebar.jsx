@@ -10,7 +10,7 @@ function SectionTitle({ children }) {
   return <div className="menuTitle">{children}</div>;
 }
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed }) {
   const [openItemReq, setOpenItemReq] = useState(true);
   const location = useLocation();
 
@@ -18,10 +18,11 @@ export default function Sidebar() {
     <aside className="sidebar">
       {/* Brand */}
       <div className="brand">
-        {/* <div className="brandDot">S</div> */}
-        <h1 className="text-2xl font-bold text-center text-capitalize">
-          Samudra Order Management
-        </h1>
+        {!collapsed && (
+          <h1 className="text-2xl font-bold text-center text-capitalize">
+            Samudra Order Management
+          </h1>
+        )}
       </div>
 
       {/* <SectionTitle>Dashboard</SectionTitle> */}
