@@ -21,8 +21,16 @@ export default function Login() {
 
     api
       .get("/locations")
-      .then((res) => setLocations(res.data))
-      .catch(() => setError("Failed to load locations"));
+      .then((res) => {
+        if (res.data && Array.isArray(res.data)) {
+          setLocations(res.data);
+        } else {
+          setError("Invalid data received from server");
+        }
+      })
+      .catch((err) => {
+        setError(err.response?.data?.error || "Failed to load locations");
+      });
   }, []);
 
   const submit = async (e) => {
