@@ -5,6 +5,7 @@ import DatePicker from "../common/Input/DatePicker";
 import SelectField from "../common/Input/SelectField";
 import TextAreaField from "../common/Input/TextAreaField";
 import { DROPDOWN_OPTIONS } from "../../constants/dropdownOptions";
+import { useApiData } from "../../hooks/useApiData";
 
 const CreateOrder = ({ formData, updateField, isNewOrder }) => {
   const formatThousand = (value) => {
@@ -18,17 +19,34 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
     return value.replace(/,/g, "");
   };
 
+  // Fetch data using React Query
+  const {
+    data: customers = [],
+    isLoading: customersLoading,
+    error: customersError,
+  } = useApiData("/customers");
+
+  const {
+    data: customerGroups = [],
+    isLoading: groupsLoading,
+    error: groupsError,
+  } = useApiData("/customer-groups");
+
+  // Format dropdown options
+  const customerOptions = customers.map((customer) => ({
+    value: customer.Cust_Name,
+    label: customer.Cust_Name,
+  }));
+
+  const customerGroupOptions = customerGroups.map((group) => ({
+    value: group.Description,
+    label: group.Description,
+  }));
+
   return (
     <div className="space-y-6">
       {/* Order Summary */}
       {!isNewOrder && <OrderSummary formData={formData} />}
-
-      {/* <InfoPanel title="Create New Order Request" color="blue">
-      <p className="text-sm text-blue-700">
-        Enter the basic order information and customer details to initiate a new
-        order request.
-      </p>
-    </InfoPanel> */}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
@@ -44,17 +62,32 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
             label="Customer Name"
             value={formData.customerName}
             onChange={(e) => updateField("customerName", e.target.value)}
-            options={DROPDOWN_OPTIONS.customerNames}
-            placeholder="Select a customer"
+            options={customerOptions}
+            placeholder={
+              customersLoading ? "Loading customers..." : "Select a customer"
+            }
             required
+            disabled={customersLoading}
           />
+          {customersError && (
+            <div className="text-red-600 text-sm">{customersError}</div>
+          )}
+
           <SelectField
             label="Customer Group"
             value={formData.customerGroup}
             onChange={(e) => updateField("customerGroup", e.target.value)}
-            options={DROPDOWN_OPTIONS.customerGroups}
-            placeholder="Select customer group"
+            options={customerGroupOptions}
+            placeholder={
+              groupsLoading ? "Loading groups..." : "Select a customer group"
+            }
+            required
+            disabled={groupsLoading}
           />
+          {groupsError && (
+            <div className="text-red-600 text-sm">{groupsError}</div>
+          )}
+
           <SelectField
             label="Customer's Branch"
             value={formData.customerBranch}
