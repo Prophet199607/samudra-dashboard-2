@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import OrderSummary from "../common/OrderSummary";
 import InputField from "../common/Input/InputField";
 import DatePicker from "../common/Input/DatePicker";
@@ -17,6 +17,17 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
 
   const parseThousand = (value) => {
     return value.replace(/,/g, "");
+  };
+
+  // Format the date in YYYY-MM-DD format for the backend
+  const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toISOString().split("T")[0];
+  };
+
+  // Update the DatePicker onChange handler
+  const handleDateChange = (date) => {
+    updateField("order_request_date", formatDate(date));
   };
 
   // Fetch data using React Query
@@ -43,25 +54,48 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
     label: group.Description,
   }));
 
+  // Map database fields to form fields
+  useEffect(() => {
+    if (!isNewOrder && formData.customer_name) {
+      // Ensure form fields are populated from database data
+      const fieldMappings = {
+        customer_name: "customerName",
+        customer_group: "customerGroup",
+        customer_branch: "customerBranch",
+        customer_po_no: "customerPONo",
+        po_amount: "poAmount",
+        orn_number: "ornNumber",
+        order_request_date: "ordReqDate",
+        remarks: "orderRemark",
+      };
+
+      Object.entries(fieldMappings).forEach(([dbField, formField]) => {
+        if (formData[dbField] && !formData[formField]) {
+          updateField(formField, formData[dbField]);
+        }
+      });
+    }
+  }, [isNewOrder, formData, updateField]);
+
   return (
     <div className="space-y-6">
-      {/* Order Summary */}
+      {/* Order Summary - shows data from both form and database */}
       {!isNewOrder && <OrderSummary formData={formData} />}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
           <DatePicker
             label="Order Request Date"
-            value={formData.ordReqDate}
-            selectedDate={formData.ordReqDate}
-            setSelectedDate={(date) => updateField("ordReqDate", date)}
+            value={formData.order_request_date || formData.ordReqDate}
+            selectedDate={formData.order_request_date || formData.ordReqDate}
+            setSelectedDate={handleDateChange}
             required
           />
 
           <SelectField
             label="Customer Name"
-            value={formData.customerName}
-            onChange={(e) => updateField("customerName", e.target.value)}
+            value={formData.customer_name || formData.customerName}
+            onChange={(value) => updateField("customerName", value)}
             options={customerOptions}
             placeholder={
               customersLoading ? "Loading customers..." : "Select a customer"
@@ -75,8 +109,8 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
 
           <SelectField
             label="Customer Group"
-            value={formData.customerGroup}
-            onChange={(e) => updateField("customerGroup", e.target.value)}
+            value={formData.customer_group || formData.customerGroup}
+            onChange={(value) => updateField("customerGroup", value)}
             options={customerGroupOptions}
             placeholder={
               groupsLoading ? "Loading groups..." : "Select a customer group"
@@ -90,7 +124,7 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
 
           <SelectField
             label="Customer's Branch"
-            value={formData.customerBranch}
+            value={formData.customer_branch || formData.customerBranch}
             onChange={(e) => updateField("customerBranch", e.target.value)}
             options={DROPDOWN_OPTIONS.customerBranches}
             placeholder="Select customer branch"
@@ -100,21 +134,22 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
         <div className="space-y-4">
           <InputField
             label="ORN Number"
-            value={formData.ornNumber}
+            value={formData.orn_number || formData.ornNumber}
             onChange={(e) => updateField("ornNumber", e.target.value)}
             placeholder="Enter Order Request Number"
             required
+            disabled={!isNewOrder} // Disable editing for existing orders
           />
           <InputField
             label="Customer PO Number"
-            value={formData.customerPONo}
+            value={formData.customer_po_no || formData.customerPONo}
             onChange={(e) => updateField("customerPONo", e.target.value)}
             placeholder="Enter customer purchase order number"
           />
           <InputField
             label="PO Amount"
             type="text"
-            value={formatThousand(formData.poAmount)}
+            value={formatThousand(formData.po_amount || formData.poAmount)}
             onChange={(e) => {
               const rawValue = parseThousand(e.target.value);
               updateField("poAmount", rawValue);
@@ -124,7 +159,7 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
           />
           <TextAreaField
             label="Remarks"
-            value={formData.orderRemark}
+            value={formData.remarks || formData.orderRemark}
             onChange={(e) => updateField("orderRemark", e.target.value)}
             placeholder="Enter any additional remarks or notes"
             rows={3}

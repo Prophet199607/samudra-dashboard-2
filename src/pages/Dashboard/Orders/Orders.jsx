@@ -1,24 +1,49 @@
-import React, { useState, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { TAB_CONFIG } from "../../../constants/dropdownOptions";
 import DataTable from "../../../components/common/DataTable";
-import { mockOrders } from "../../../services/mockData";
+import api from "../../../services/api";
 
 const Orders = () => {
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
+  const [orders, setOrders] = useState([]);
 
   const tableColumns = [
-    { key: "id", label: "Order ID" },
-    { key: "customerName", label: "Customer Name" },
     {
-      key: "date",
-      label: "Date",
+      key: "orn_number",
+      label: "ORN Number",
+      sortable: true,
+    },
+    {
+      key: "customer_name",
+      label: "Customer Name",
+      sortable: true,
+    },
+    {
+      key: "customer_po_no",
+      label: "PO Number",
+      sortable: true,
+      render: (value) => value || "-",
+    },
+    {
+      key: "order_request_date",
+      label: "Request Date",
+      sortable: true,
       render: (value) => new Date(value).toLocaleDateString(),
+    },
+    {
+      key: "po_amount",
+      label: "Amount",
+      sortable: true,
+      render: (value) => `LKR ${parseFloat(value).toLocaleString()}`,
     },
     {
       key: "status",
       label: "Status",
+      sortable: true,
       render: (value) => {
+        const tab = TAB_CONFIG.find((tab) => tab.id === value);
         const statusColors = {
           1: "bg-blue-600",
           2: "bg-purple-600",
@@ -31,10 +56,6 @@ const Orders = () => {
           9: "bg-pink-600",
         };
 
-        // Get the tab title from TAB_CONFIG
-        const tabTitle =
-          TAB_CONFIG.find((tab) => tab.id === value)?.title || `Step ${value}`;
-
         return (
           <div className="flex items-center">
             <div
@@ -42,35 +63,55 @@ const Orders = () => {
                 statusColors[value] || "bg-gray-500"
               }`}
             ></div>
-            <span>{tabTitle}</span>
+            <span>{tab?.title || `Step ${value}`}</span>
           </div>
         );
       },
     },
-    {
-      key: "totalAmount",
-      label: "Amount",
-      render: (value) => `LKR ${parseFloat(value).toFixed(2)}`,
-    },
   ];
+
+  useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const response = await api.get("/orders");
+      if (response.data.success) {
+        setOrders(response.data.orders || []);
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
+
+  const handleCreateNewOrder = async () => {
+    try {
+      // Navigate directly to new order page, ORN will be generated there
+      navigate("/order/new");
+    } catch (error) {
+      console.error("Error creating new order:", error);
+      alert("Failed to create new order");
+    }
+  };
 
   const handleOrderClick = (order) => {
     navigate(`/order/${order.id}`);
   };
 
-  const handleCreateNewOrder = () => {
-    navigate("/order/new");
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 w-full">
-      <div className="w-full mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4">
+      <div className="max-w-[1600px] mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-5 mb-5 border border-gray-100">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3x2 font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 Order Management
               </h1>
+              <p className="text-gray-600">Total Orders: {orders.length}</p>
             </div>
             <button
               onClick={handleCreateNewOrder}
@@ -83,7 +124,7 @@ const Orders = () => {
 
         <div className="bg-white rounded-xl shadow-lg p-5 border border-gray-100">
           <DataTable
-            data={mockOrders}
+            data={orders}
             columns={tableColumns}
             onRowClick={handleOrderClick}
           />

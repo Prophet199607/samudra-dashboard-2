@@ -14,84 +14,154 @@ export const useFormState = () => {
 
     // Step 2: Branch Assignment
     salesBranch: "",
+    branchRemark: "",
 
     // Step 3: Approval Info
     approvedDate: "",
     approveRemark: "",
     paymentType: "",
+    approvedBy: "",
 
     // Step 4: Sales Order Info
     salesOrderNumber: "",
     salesOrderDate: "",
+    salesPerson: "",
 
     // Step 5: Quotation Info
     quotationNumber: "",
     quotationDate: "",
+    quotationAmount: "",
 
-    // Step 6: Payment Attachment
+    // Step 6: Payment Info
     cashPaymentAttachment: null,
+    paymentDate: "",
+    cashChequeNo: "",
+    cashChequeAmount: "",
 
     // Step 7: Invoice Info
     invoiceNumber: "",
     invoiceAmount: "",
+    invoiceDate: "",
 
     // Step 8: Delivery Info
     vehicleNo: "",
     driver: "",
     noOfBoxes: "",
+    deliveryDate: "",
 
     // Step 9: Final Details
     cashInNo: "",
     wayBillNo: "",
     handOverTo: "",
-
-    // Additional fields from document analysis
-    billNo: "",
-    busNo: "",
-    cashChequeNo: "",
-    cashChequeAmount: "",
-    paymentDate: "",
+    completionRemark: "",
   });
 
   const updateField = useCallback((field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const newData = { ...prev, [field]: value };
+
+      // Handle special cases
+      if (
+        field === "poAmount" ||
+        field === "invoiceAmount" ||
+        field === "cashChequeAmount"
+      ) {
+        newData[field] = value
+          ? parseFloat(value.toString().replace(/,/g, ""))
+          : "";
+      }
+
+      return newData;
+    });
   }, []);
+
+  const updateStepData = useCallback((step, data) => {
+    setFormData((prev) => ({
+      ...prev,
+      ...data,
+    }));
+  }, []);
+
+  const getStepData = useCallback(
+    (step) => {
+      const stepFields = {
+        1: [
+          "ordReqDate",
+          "ornNumber",
+          "customerName",
+          "customerPONo",
+          "poAmount",
+          "customerGroup",
+          "orderRemark",
+          "customerBranch",
+        ],
+        2: ["salesBranch", "branchRemark"],
+        3: ["approvedDate", "approveRemark", "paymentType", "approvedBy"],
+        4: ["salesOrderNumber", "salesOrderDate", "salesPerson"],
+        5: ["quotationNumber", "quotationDate", "quotationAmount"],
+        6: [
+          "cashPaymentAttachment",
+          "paymentDate",
+          "cashChequeNo",
+          "cashChequeAmount",
+        ],
+        7: ["invoiceNumber", "invoiceAmount", "invoiceDate"],
+        8: ["vehicleNo", "driver", "noOfBoxes", "deliveryDate"],
+        9: ["cashInNo", "wayBillNo", "handOverTo", "completionRemark"],
+      };
+
+      return Object.fromEntries(
+        stepFields[step].map((field) => [field, formData[field]])
+      );
+    },
+    [formData]
+  );
 
   const resetForm = useCallback(() => {
     setFormData({
-      date: "",
+      ordReqDate: "",
       ornNumber: "",
       customerName: "",
       customerPONo: "",
       poAmount: "",
       customerGroup: "",
-      remark: "",
+      orderRemark: "",
       customerBranch: "",
       salesBranch: "",
+      branchRemark: "",
       approvedDate: "",
       approveRemark: "",
       paymentType: "",
+      approvedBy: "",
       salesOrderNumber: "",
       salesOrderDate: "",
+      salesPerson: "",
       quotationNumber: "",
       quotationDate: "",
+      quotationAmount: "",
       cashPaymentAttachment: null,
+      paymentDate: "",
+      cashChequeNo: "",
+      cashChequeAmount: "",
       invoiceNumber: "",
       invoiceAmount: "",
+      invoiceDate: "",
       vehicleNo: "",
       driver: "",
       noOfBoxes: "",
+      deliveryDate: "",
+      cashInNo: "",
       wayBillNo: "",
       handOverTo: "",
-      cashInNo: "",
-      finalHandoverTo: "",
-      billNo: "",
-      busNo: "",
-      cashChequeNo: "",
-      cashChequeAmount: "",
-      paymentDate: "",
+      completionRemark: "",
     });
   }, []);
 
-  return [formData, updateField, resetForm];
+  return {
+    formData,
+    updateField,
+    updateStepData,
+    getStepData,
+    resetForm,
+  };
 };
