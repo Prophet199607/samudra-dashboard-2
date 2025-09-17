@@ -1,10 +1,4 @@
 export const DROPDOWN_OPTIONS = {
-  customerGroups: [
-    { value: "Retail Customer", label: "Retail Customer" },
-    { value: "Wholesale Customer", label: "Wholesale Customer" },
-    { value: "Corporate Customer", label: "Corporate Customer" },
-    { value: "Government Customer", label: "Government Customer" },
-  ],
   salesBranches: [
     { value: "Colombo", label: "Colombo Branch" },
     { value: "Kandy", label: "Kandy Branch" },
@@ -13,23 +7,11 @@ export const DROPDOWN_OPTIONS = {
     { value: "Kurunegala", label: "Kurunegala Branch" },
     { value: "Anuradhapura", label: "Anuradhapura Branch" },
   ],
-  paymentTypes: [
-    { value: "Cash", label: "Cash Payment" },
-    { value: "Credit", label: "Credit Payment" },
-    { value: "Cheque", label: "Cheque Payment" },
-    { value: "Bank Transfer", label: "Bank Transfer" },
-  ],
   customerBranches: [
     { value: "Head Office", label: "Head Office" },
     { value: "Branch 1", label: "Branch 1" },
     { value: "Branch 2", label: "Branch 2" },
     { value: "Warehouse", label: "Warehouse" },
-  ],
-  customerNames: [
-    { value: "John Doe", label: "John Doe" },
-    { value: "Jane Smith", label: "Jane Smith" },
-    { value: "Alice Wilson", label: "Alice Wilson" },
-    { value: "Bob Johnson", label: "Bob Johnson" },
   ],
 };
 
