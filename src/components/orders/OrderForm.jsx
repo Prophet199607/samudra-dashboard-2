@@ -1,4 +1,5 @@
 import React from "react";
+import OrderSummary from "../common/OrderSummary";
 
 const OrderForm = ({
   title,
@@ -8,9 +9,9 @@ const OrderForm = ({
   setActiveTab,
   renderStepContent,
   handleSubmit,
-  validation,
   handleBackToList,
   TAB_CONFIG,
+  formData,
 }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-1 sm:p-4">
@@ -19,8 +20,19 @@ const OrderForm = ({
         <div className="bg-white rounded-xl shadow-lg p-5 mb-5 border border-gray-100">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3x2 font-bold text-gray-900 mb-2">
-                {selectedOrder ? `Order ${selectedOrder.id}` : title}
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                {selectedOrder ? (
+                  <>
+                    Order:{" "}
+                    <span className="text-2xl sm:text-2xl font-bold text-gray-700">
+                      {selectedOrder.orn_number}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-2xl sm:text-2xl font-bold text-gray-700">
+                    {title}
+                  </span>
+                )}
               </h1>
             </div>
             <div className="flex gap-2">
@@ -120,7 +132,6 @@ const OrderForm = ({
             </div>
           </div>
 
-          {/* Show OrderSummary for steps after Step 1 */}
           {activeTab > 1 && <OrderSummary formData={formData} />}
 
           <div className="mb-8">{renderStepContent()}</div>
@@ -158,13 +169,19 @@ const OrderForm = ({
 
             <div className="flex space-x-2">
               <button
-                onClick={handleSubmit}
-                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2bg-blue-600 text-white bg-blue-700 shadow-md hover:shadow-lg`}
+                onClick={() => {
+                  const nextTab = activeTab + 1;
+                  handleSubmit();
+
+                  // Then go to next tab if possible
+                  if (savedSteps.has(activeTab) && nextTab <= 9) {
+                    setActiveTab(nextTab);
+                  }
+                }}
+                disabled={activeTab === 1 || !savedSteps.has(activeTab - 1)}
+                className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-blue-700 text-white shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span>
-                  {savedSteps.has(activeTab) ? "Update" : "Save"} Step{" "}
-                  {activeTab}
-                </span>
+                <span>Save Step {activeTab}</span>
               </button>
 
               {activeTab === 9 && savedSteps.size === 9 && (

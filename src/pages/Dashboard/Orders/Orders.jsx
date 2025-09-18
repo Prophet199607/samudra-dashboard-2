@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { TAB_CONFIG } from "../../../constants/dropdownOptions";
 import DataTable from "../../../components/common/DataTable";
 import api from "../../../services/api";
+import { showErrorToast } from "../../../components/alert/ToastAlert";
 
 const Orders = () => {
   const navigate = useNavigate();
@@ -85,6 +86,7 @@ const Orders = () => {
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
+      showErrorToast("Failed to fetch orders");
     }
   };
 
@@ -94,12 +96,13 @@ const Orders = () => {
       navigate("/order/new");
     } catch (error) {
       console.error("Error creating new order:", error);
-      alert("Failed to create new order");
+      showErrorToast("Failed to create new order");
     }
   };
 
   const handleOrderClick = (order) => {
-    navigate(`/order/${order.id}`);
+    const targetStep = order.status < 9 ? order.status + 1 : order.status;
+    navigate(`/order/${order.orn_number}?status=${targetStep}`);
   };
 
   return (

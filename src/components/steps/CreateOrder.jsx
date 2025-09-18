@@ -27,7 +27,17 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
 
   // Update the DatePicker onChange handler
   const handleDateChange = (date) => {
-    updateField("order_request_date", formatDate(date));
+    updateField("ordReqDate", formatDate(date));
+  };
+
+  // Handle input changes
+  const handleInputChange = (field, value) => {
+    updateField(field, value);
+  };
+
+  // Handle select changes
+  const handleSelectChange = (field, value) => {
+    updateField(field, value);
   };
 
   // Fetch data using React Query
@@ -86,16 +96,16 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
         <div className="space-y-4">
           <DatePicker
             label="Order Request Date"
-            value={formData.order_request_date || formData.ordReqDate}
-            selectedDate={formData.order_request_date || formData.ordReqDate}
+            value={formData.ordReqDate || ""}
+            selectedDate={formData.ordReqDate || ""}
             setSelectedDate={handleDateChange}
             required
           />
 
           <SelectField
             label="Customer Name"
-            value={formData.customer_name || formData.customerName}
-            onChange={(value) => updateField("customerName", value)}
+            value={formData.customerName || ""}
+            onChange={(e) => handleSelectChange("customerName", e.target.value)}
             options={customerOptions}
             placeholder={
               customersLoading ? "Loading customers..." : "Select a customer"
@@ -109,8 +119,10 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
 
           <SelectField
             label="Customer Group"
-            value={formData.customer_group || formData.customerGroup}
-            onChange={(value) => updateField("customerGroup", value)}
+            value={formData.customerGroup || ""}
+            onChange={(e) =>
+              handleSelectChange("customerGroup", e.target.value)
+            }
             options={customerGroupOptions}
             placeholder={
               groupsLoading ? "Loading groups..." : "Select a customer group"
@@ -124,8 +136,10 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
 
           <SelectField
             label="Customer's Branch"
-            value={formData.customer_branch || formData.customerBranch}
-            onChange={(e) => updateField("customerBranch", e.target.value)}
+            value={formData.customerBranch || ""}
+            onChange={(e) =>
+              handleSelectChange("customerBranch", e.target.value)
+            }
             options={DROPDOWN_OPTIONS.customerBranches}
             placeholder="Select customer branch"
           />
@@ -134,33 +148,33 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
         <div className="space-y-4">
           <InputField
             label="ORN Number"
-            value={formData.orn_number || formData.ornNumber}
-            onChange={(e) => updateField("ornNumber", e.target.value)}
+            value={formData.ornNumber || ""}
+            onChange={(e) => handleInputChange("ornNumber", e.target.value)}
             placeholder="Enter Order Request Number"
             required
-            disabled={!isNewOrder} // Disable editing for existing orders
+            disabled={!isNewOrder}
           />
           <InputField
             label="Customer PO Number"
-            value={formData.customer_po_no || formData.customerPONo}
-            onChange={(e) => updateField("customerPONo", e.target.value)}
+            value={formData.customerPONo || ""}
+            onChange={(e) => handleInputChange("customerPONo", e.target.value)}
             placeholder="Enter customer purchase order number"
           />
           <InputField
             label="PO Amount"
             type="text"
-            value={formatThousand(formData.po_amount || formData.poAmount)}
+            value={formatThousand(formData.poAmount) || ""}
             onChange={(e) => {
               const rawValue = parseThousand(e.target.value);
-              updateField("poAmount", rawValue);
+              handleInputChange("poAmount", rawValue);
             }}
             inputMode="decimal"
             placeholder="Enter purchase order amount"
           />
           <TextAreaField
             label="Remarks"
-            value={formData.remarks || formData.orderRemark}
-            onChange={(e) => updateField("orderRemark", e.target.value)}
+            value={formData.orderRemark || ""}
+            onChange={(e) => handleInputChange("orderRemark", e.target.value)}
             placeholder="Enter any additional remarks or notes"
             rows={3}
           />
