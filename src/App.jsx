@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Auth/Login";
 import Orders from "./pages/Dashboard/Orders/Orders";
 import OrderDetail from "./pages/Dashboard/Orders/OrderDetail";
+import { ToastContainer } from "./components/alert/ToastAlert";
 
 // Protect routes
 function Private({ children }) {
@@ -25,6 +26,11 @@ function PrivateLayout({ children }) {
       <div className="main">
         <Navbar onToggle={() => setCollapsed((v) => !v)} />
         <div className="content">{children}</div>
+      </div>
+      <div className="fixed top-0 right-0 z-[99999] pointer-events-none">
+        <div className="pointer-events-auto">
+          <ToastContainer />
+        </div>
       </div>
     </div>
   );
