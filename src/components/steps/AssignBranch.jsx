@@ -5,9 +5,6 @@ import { DROPDOWN_OPTIONS } from "../../constants/dropdownOptions";
 
 const AssignBranch = ({ formData, updateField }) => (
   <div className="space-y-6">
-    {/* Order Summary */}
-    <OrderSummary formData={formData} />
-
     <div className="max-w-md">
       <SelectField
         label="Select Sales Branch"

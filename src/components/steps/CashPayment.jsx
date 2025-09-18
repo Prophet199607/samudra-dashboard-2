@@ -4,9 +4,6 @@ import FileUpload from "../common/Input/FileUpload";
 
 const CashPayment = ({ formData, updateField }) => (
   <div className="space-y-6">
-    {/* Order Summary */}
-    <OrderSummary formData={formData} />
-
     <div className="max-w-md">
       <FileUpload
         label="Payment Receipt Attachment"
