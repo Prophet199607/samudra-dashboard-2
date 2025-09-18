@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import OrderSummary from "../common/OrderSummary";
 import InputField from "../common/Input/InputField";
 import DatePicker from "../common/Input/DatePicker";
 import SelectField from "../common/Input/SelectField";
@@ -89,9 +88,6 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
 
   return (
     <div className="space-y-6">
-      {/* Order Summary - shows data from both form and database */}
-      {!isNewOrder && <OrderSummary formData={formData} />}
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
           <DatePicker
