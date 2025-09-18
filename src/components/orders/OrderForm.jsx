@@ -142,11 +142,11 @@ const OrderForm = ({
               <button
                 onClick={() => {
                   const prevTab = activeTab - 1;
-                  if (prevTab >= 1 && savedSteps.has(prevTab)) {
+                  if (prevTab >= 1) {
                     setActiveTab(prevTab);
                   }
                 }}
-                disabled={activeTab === 1 || !savedSteps.has(activeTab - 1)}
+                disabled={activeTab === 1}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
               >
                 <span>←</span>
@@ -155,7 +155,7 @@ const OrderForm = ({
               <button
                 onClick={() => {
                   const nextTab = activeTab + 1;
-                  if (savedSteps.has(activeTab) && nextTab <= 9) {
+                  if (nextTab <= 9) {
                     setActiveTab(nextTab);
                   }
                 }}
@@ -168,25 +168,23 @@ const OrderForm = ({
             </div>
 
             <div className="flex space-x-2">
-              <button
-                onClick={() => {
-                  const nextTab = activeTab + 1;
-                  handleSubmit();
-
-                  // Then go to next tab if possible
-                  if (savedSteps.has(activeTab) && nextTab <= 9) {
-                    setActiveTab(nextTab);
-                  }
-                }}
-                disabled={activeTab === 1 || !savedSteps.has(activeTab - 1)}
-                className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-blue-700 text-white shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span>Save Step {activeTab}</span>
-              </button>
-
-              {activeTab === 9 && savedSteps.size === 9 && (
+              {/* Only show Save button for current step, not previous steps */}
+              {!savedSteps.has(activeTab) && (
                 <button
-                  onClick={() => alert("Order completed successfully!")}
+                  onClick={() => {
+                    handleSubmit();
+                  }}
+                  className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-blue-700 text-white shadow-md hover:shadow-lg"
+                >
+                  <span>Save Step {activeTab}</span>
+                </button>
+              )}
+
+              {activeTab === 9 && savedSteps.has(9) && (
+                <button
+                  onClick={() => {
+                    handleSubmit(true);
+                  }}
                   className="px-6 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center space-x-2 shadow-md hover:shadow-lg"
                 >
                   <span>🎉</span>

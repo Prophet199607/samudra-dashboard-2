@@ -14,7 +14,6 @@ export const useFormState = () => {
 
     // Step 2: Branch Assignment
     salesBranch: "",
-    branchRemark: "",
 
     // Step 3: Approval Info
     approvedDate: "",

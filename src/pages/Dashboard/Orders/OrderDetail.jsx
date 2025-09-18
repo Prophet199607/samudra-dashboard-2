@@ -76,12 +76,12 @@ const OrderDetail = () => {
     }
   }, [searchParams, selectedOrder, savedSteps, isNewOrder]);
 
-  const fetchOrderDetails = async (orderId) => {
+  const fetchOrderDetails = async (ornNumber) => {
     try {
       if (hasFetched.current) return;
       hasFetched.current = true;
 
-      const response = await api.get(`/orders/${orderId}`);
+      const response = await api.get(`/orders/${ornNumber}`);
       const order = response.data.order;
       setSelectedOrder(order);
 
@@ -104,7 +104,6 @@ const OrderDetail = () => {
         order_request_date: "ordReqDate",
         remarks: "orderRemark",
         sales_branch: "salesBranch",
-        branch_remark: "branchRemark",
         approved_date: "approvedDate",
         approve_remark: "approveRemark",
         payment_type: "paymentType",
@@ -144,60 +143,108 @@ const OrderDetail = () => {
     }
   };
 
-  const handleSubmit = useCallback(async () => {
-    let loadingToastId;
-    try {
-      loadingToastId = showLoadingToast("Saving step...");
+  const handleSubmit = useCallback(
+    async (completeOrder = false) => {
+      let loadingToastId;
+      try {
+        loadingToastId = showLoadingToast("Saving step...");
 
-      // Prepare data for API
-      const orderData = {
-        customer_name: formData.customerName,
-        customer_group: formData.customerGroup,
-        customer_branch: formData.customerBranch,
-        customer_po_no: formData.customerPONo,
-        po_amount: parseFloat(formData.poAmount || 0),
-        orn_number: formData.ornNumber,
-        order_request_date: formData.ordReqDate,
-        remarks: formData.orderRemark,
-        status: activeTab,
-      };
-
-      if (isNewOrder && activeTab === 1) {
-        const response = await api.post("/orders/new", orderData);
-        if (response.data.success) {
-          setSelectedOrder(response.data.order);
-          setSavedSteps(new Set([1]));
-          showSuccessToast("Order created successfully!", loadingToastId);
-
-          navigate(`/order/${response.data.order.id}`, { replace: true });
-        }
-      } else if (selectedOrder) {
-        const response = await api.put(`/orders/${selectedOrder.id}`, {
-          ...orderData,
+        // Prepare base data for API
+        const baseData = {
+          customer_name: formData.customerName,
+          customer_group: formData.customerGroup,
+          customer_branch: formData.customerBranch,
+          customer_po_no: formData.customerPONo,
+          po_amount: parseFloat(formData.poAmount || 0),
+          orn_number: formData.ornNumber,
+          order_request_date: formData.ordReqDate,
+          remarks: formData.orderRemark,
+          status: activeTab,
           currentStep: activeTab,
-        });
+        };
 
-        if (response.data.success) {
-          setSelectedOrder(response.data.order);
-          setSavedSteps((prev) => new Set([...prev, activeTab]));
-          showSuccessToast(
-            `Step ${activeTab} saved successfully!`,
-            loadingToastId
+        // Add step-specific data
+        let stepData = {};
+        switch (activeTab) {
+          case 2: // Assign Branch
+            stepData = {
+              sales_branch: formData.salesBranch,
+            };
+            break;
+          case 3: // Approval Info
+            stepData = {
+              approved_date: formData.approvedDate,
+              approve_remark: formData.approveRemark,
+              payment_type: formData.paymentType,
+              approved_by: formData.approvedBy,
+            };
+            break;
+          // Add cases for other steps as needed
+          default:
+            // Include all fields for other steps
+            stepData = {
+              sales_branch: formData.salesBranch,
+              approved_date: formData.approvedDate,
+              approve_remark: formData.approveRemark,
+              payment_type: formData.paymentType,
+              approved_by: formData.approvedBy,
+              // Add other step fields here
+            };
+            break;
+        }
+
+        const orderData = { ...baseData, ...stepData };
+
+        if (isNewOrder && activeTab === 1) {
+          const response = await api.post("/orders/new", orderData);
+          if (response.data.success) {
+            setSelectedOrder(response.data.order);
+            setSavedSteps(new Set([1]));
+            showSuccessToast("Order created successfully!", loadingToastId);
+
+            setTimeout(() => {
+              resetForm();
+              navigate("/orders");
+            }, 1000);
+          }
+        } else if (selectedOrder) {
+          const response = await api.put(
+            `/orders/${selectedOrder.orn_number}`,
+            orderData
           );
 
-          if (activeTab < 9) {
-            setActiveTab(activeTab + 1);
+          if (response.data.success) {
+            setSelectedOrder(response.data.order);
+            setSavedSteps((prev) => new Set([...prev, activeTab]));
+            showSuccessToast(
+              `Step ${activeTab} saved successfully!`,
+              loadingToastId
+            );
+            setTimeout(() => {
+              resetForm();
+              navigate("/orders");
+            }, 1000);
+
+            if (activeTab === 9 || completeOrder) {
+              setTimeout(() => {
+                resetForm();
+                navigate("/orders");
+              }, 1000);
+            } else if (activeTab < 9) {
+              setActiveTab(activeTab + 1);
+            }
           }
         }
+      } catch (error) {
+        console.error("Error saving order:", error);
+        showErrorToast(
+          error.response?.data?.message || "Failed to save order",
+          loadingToastId
+        );
       }
-    } catch (error) {
-      console.error("Error saving order:", error);
-      showErrorToast(
-        error.response?.data?.message || "Failed to save order",
-        loadingToastId
-      );
-    }
-  }, [activeTab, formData, isNewOrder, selectedOrder, navigate]);
+    },
+    [activeTab, formData, isNewOrder, selectedOrder, navigate, resetForm]
+  );
 
   const handleBackToList = useCallback(() => {
     navigate("/orders");
