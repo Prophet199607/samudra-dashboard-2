@@ -18,15 +18,26 @@ const ApproveOrder = ({ formData, updateField }) => {
     label: payment.Description,
   }));
 
+  // Format the date in YYYY-MM-DD format for the backend
+  const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toISOString().split("T")[0];
+  };
+
+  // Update the DatePicker onChange handler
+  const handleDateChange = (date) => {
+    updateField("approvalDate", formatDate(date));
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
           <DatePicker
             label="Approval Date"
-            value={formData.approvedDate}
-            selectedDate={formData.approvedDate}
-            setSelectedDate={(date) => updateField("approvedDate", date)}
+            value={formData.approvalDate}
+            selectedDate={formData.approvalDate}
+            setSelectedDate={handleDateChange}
             required
           />
           <SelectField
@@ -50,8 +61,8 @@ const ApproveOrder = ({ formData, updateField }) => {
         <div className="space-y-4">
           <TextAreaField
             label="Approval Remarks"
-            value={formData.approveRemark}
-            onChange={(e) => updateField("approveRemark", e.target.value)}
+            value={formData.approvalRemark}
+            onChange={(e) => updateField("approvalRemark", e.target.value)}
             placeholder="Enter approval comments or conditions"
             rows={4}
           />

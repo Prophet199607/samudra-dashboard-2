@@ -16,10 +16,9 @@ export const useFormState = () => {
     salesBranch: "",
 
     // Step 3: Approval Info
-    approvedDate: "",
-    approveRemark: "",
     paymentType: "",
-    approvedBy: "",
+    approvalDate: "",
+    approvalRemark: "",
 
     // Step 4: Sales Order Info
     salesOrderNumber: "",
@@ -95,7 +94,7 @@ export const useFormState = () => {
           "customerBranch",
         ],
         2: ["salesBranch", "branchRemark"],
-        3: ["approvedDate", "approveRemark", "paymentType", "approvedBy"],
+        3: ["approvalDate", "approvalRemark", "paymentType"],
         4: ["salesOrderNumber", "salesOrderDate", "salesPerson"],
         5: ["quotationNumber", "quotationDate", "quotationAmount"],
         6: [
@@ -128,10 +127,9 @@ export const useFormState = () => {
       customerBranch: "",
       salesBranch: "",
       branchRemark: "",
-      approvedDate: "",
-      approveRemark: "",
       paymentType: "",
-      approvedBy: "",
+      approvalDate: "",
+      approvalRemark: "",
       salesOrderNumber: "",
       salesOrderDate: "",
       salesPerson: "",

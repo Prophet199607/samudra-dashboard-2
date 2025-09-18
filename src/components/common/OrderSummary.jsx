@@ -78,31 +78,30 @@ const OrderSummary = ({ formData }) => {
         )}
 
         {/* Step 3: Approval Info */}
-        {(formData.approvedDate ||
+        {(formData.approvalDate ||
           formData.paymentType ||
-          formData.approveRemark) && (
+          formData.approvalRemark) && (
           <>
-            {formData.approvedDate && (
-              <div>
-                <span className="font-medium text-gray-600">
-                  Approved Date:
-                </span>
-                <p className="text-gray-900">{formData.approvedDate}</p>
-              </div>
-            )}
-
             {formData.paymentType && (
               <div>
                 <span className="font-medium text-gray-600">Payment Type:</span>
                 <p className="text-gray-900">{formData.paymentType}</p>
               </div>
             )}
-            {formData.approveRemark && (
+            {formData.approvalDate && (
+              <div>
+                <span className="font-medium text-gray-600">
+                  Approval Date:
+                </span>
+                <p className="text-gray-900">{formData.approvalDate}</p>
+              </div>
+            )}
+            {formData.approvalRemark && (
               <div>
                 <span className="font-medium text-gray-600">
                   Approval Remark:
                 </span>
-                <p className="text-gray-900">{formData.approveRemark}</p>
+                <p className="text-gray-900">{formData.approvalRemark}</p>
               </div>
             )}
           </>

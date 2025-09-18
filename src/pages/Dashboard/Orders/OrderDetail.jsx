@@ -103,11 +103,13 @@ const OrderDetail = () => {
         orn_number: "ornNumber",
         order_request_date: "ordReqDate",
         remarks: "orderRemark",
+
         sales_branch: "salesBranch",
-        approved_date: "approvedDate",
-        approve_remark: "approveRemark",
+
         payment_type: "paymentType",
-        approved_by: "approvedBy",
+        approval_date: "approvalDate",
+        approval_remark: "approvalRemark",
+
         sales_order_number: "salesOrderNumber",
         sales_order_date: "salesOrderDate",
         sales_person: "salesPerson",
@@ -173,10 +175,9 @@ const OrderDetail = () => {
             break;
           case 3: // Approval Info
             stepData = {
-              approved_date: formData.approvedDate,
-              approve_remark: formData.approveRemark,
               payment_type: formData.paymentType,
-              approved_by: formData.approvedBy,
+              approval_date: formData.approvalDate,
+              approval_remark: formData.approvalRemark,
             };
             break;
           // Add cases for other steps as needed
@@ -184,10 +185,9 @@ const OrderDetail = () => {
             // Include all fields for other steps
             stepData = {
               sales_branch: formData.salesBranch,
-              approved_date: formData.approvedDate,
-              approve_remark: formData.approveRemark,
               payment_type: formData.paymentType,
-              approved_by: formData.approvedBy,
+              approval_date: formData.approvalDate,
+              approval_remark: formData.approvalRemark,
               // Add other step fields here
             };
             break;
