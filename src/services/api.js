@@ -30,4 +30,22 @@ api.interceptors.response.use(
   }
 );
 
+// Override the default put method to handle FormData
+const originalPut = api.put.bind(api);
+api.put = async (url, data, config = {}) => {
+  if (data instanceof FormData) {
+    data.append("_method", "PUT");
+    return api.post(url, data, {
+      ...config,
+      headers: {
+        ...config.headers,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  }
+
+  // Regular PUT request for non-FormData
+  return originalPut(url, data, config);
+};
+
 export default api;
