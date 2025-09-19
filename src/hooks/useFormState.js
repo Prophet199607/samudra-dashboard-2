@@ -34,19 +34,16 @@ export const useFormState = () => {
     // Step 7: Invoice Info
     invoiceNumber: "",
     invoiceAmount: "",
-    invoiceDate: "",
 
     // Step 8: Delivery Info
     vehicleNo: "",
-    driver: "",
+    driverName: "",
     noOfBoxes: "",
-    deliveryDate: "",
 
     // Step 9: Final Details
     cashInNo: "",
     wayBillNo: "",
     handOverTo: "",
-    completionRemark: "",
   });
 
   const updateField = useCallback((field, value) => {
@@ -93,9 +90,9 @@ export const useFormState = () => {
         4: ["salesOrderNumber", "salesOrderDate"],
         5: ["quotationNumber", "quotationDate"],
         6: ["paymentAttachment"],
-        7: ["invoiceNumber", "invoiceAmount", "invoiceDate"],
-        8: ["vehicleNo", "driver", "noOfBoxes", "deliveryDate"],
-        9: ["cashInNo", "wayBillNo", "handOverTo", "completionRemark"],
+        7: ["invoiceNumber", "invoiceAmount"],
+        8: ["vehicleNo", "driverName", "noOfBoxes"],
+        9: ["cashInNo", "wayBillNo", "handOverTo"],
       };
 
       return Object.fromEntries(
@@ -127,15 +124,12 @@ export const useFormState = () => {
       paymentAttachment: null,
       invoiceNumber: "",
       invoiceAmount: "",
-      invoiceDate: "",
       vehicleNo: "",
-      driver: "",
+      driverName: "",
       noOfBoxes: "",
-      deliveryDate: "",
       cashInNo: "",
       wayBillNo: "",
       handOverTo: "",
-      completionRemark: "",
     });
   }, []);
 
