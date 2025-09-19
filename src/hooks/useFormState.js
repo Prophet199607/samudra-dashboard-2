@@ -23,12 +23,10 @@ export const useFormState = () => {
     // Step 4: Sales Order Info
     salesOrderNumber: "",
     salesOrderDate: "",
-    salesPerson: "",
 
     // Step 5: Quotation Info
     quotationNumber: "",
     quotationDate: "",
-    quotationAmount: "",
 
     // Step 6: Payment Info
     cashPaymentAttachment: null,
@@ -95,8 +93,8 @@ export const useFormState = () => {
         ],
         2: ["salesBranch", "branchRemark"],
         3: ["approvalDate", "approvalRemark", "paymentType"],
-        4: ["salesOrderNumber", "salesOrderDate", "salesPerson"],
-        5: ["quotationNumber", "quotationDate", "quotationAmount"],
+        4: ["salesOrderNumber", "salesOrderDate"],
+        5: ["quotationNumber", "quotationDate"],
         6: [
           "cashPaymentAttachment",
           "paymentDate",
@@ -132,10 +130,8 @@ export const useFormState = () => {
       approvalRemark: "",
       salesOrderNumber: "",
       salesOrderDate: "",
-      salesPerson: "",
       quotationNumber: "",
       quotationDate: "",
-      quotationAmount: "",
       cashPaymentAttachment: null,
       paymentDate: "",
       cashChequeNo: "",

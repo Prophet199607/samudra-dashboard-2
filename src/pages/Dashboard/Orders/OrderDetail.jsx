@@ -110,12 +110,12 @@ const OrderDetail = () => {
         approval_date: "approvalDate",
         approval_remark: "approvalRemark",
 
-        sales_order_number: "salesOrderNumber",
+        sales_order_no: "salesOrderNumber",
         sales_order_date: "salesOrderDate",
-        sales_person: "salesPerson",
-        quotation_number: "quotationNumber",
+
+        quotation_no: "quotationNumber",
         quotation_date: "quotationDate",
-        quotation_amount: "quotationAmount",
+
         payment_date: "paymentDate",
         cash_cheque_no: "cashChequeNo",
         cash_cheque_amount: "cashChequeAmount",
@@ -180,15 +180,32 @@ const OrderDetail = () => {
               approval_remark: formData.approvalRemark,
             };
             break;
-          // Add cases for other steps as needed
+          case 4: // Sales Order Info
+            stepData = {
+              sales_order_no: formData.salesOrderNumber,
+              sales_order_date: formData.salesOrderDate,
+            };
+            break;
+          case 5: // Quotation Info
+            stepData = {
+              quotation_no: formData.quotationNumber,
+              quotation_date: formData.quotationDate,
+            };
+            break;
           default:
             // Include all fields for other steps
             stepData = {
               sales_branch: formData.salesBranch,
+
               payment_type: formData.paymentType,
               approval_date: formData.approvalDate,
               approval_remark: formData.approvalRemark,
-              // Add other step fields here
+
+              sales_order_no: formData.salesOrderNumber,
+              sales_order_date: formData.salesOrderDate,
+
+              quotation_no: formData.quotationNumber,
+              quotation_date: formData.quotationDate,
             };
             break;
         }
