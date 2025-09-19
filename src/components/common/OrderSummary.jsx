@@ -176,7 +176,7 @@ const OrderSummary = ({ formData }) => {
         )}
 
         {/* Step 8: Delivery Info */}
-        {(formData.vehicleNo || formData.driver || formData.noOfBoxes) && (
+        {(formData.vehicleNo || formData.driverName || formData.noOfBoxes) && (
           <>
             {formData.vehicleNo && (
               <div>
@@ -184,10 +184,10 @@ const OrderSummary = ({ formData }) => {
                 <p className="text-gray-900">{formData.vehicleNo}</p>
               </div>
             )}
-            {formData.driver && (
+            {formData.driverName && (
               <div>
-                <span className="font-medium text-gray-600">Driver:</span>
-                <p className="text-gray-900">{formData.driver}</p>
+                <span className="font-medium text-gray-600">Driver Name:</span>
+                <p className="text-gray-900">{formData.driverName}</p>
               </div>
             )}
             {formData.noOfBoxes && (
