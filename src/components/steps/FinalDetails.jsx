@@ -13,6 +13,11 @@ const FinalDetails = ({ formData, updateField }) => {
     return value.replace(/,/g, "");
   };
 
+  // Handle input changes
+  const handleInputChange = (field, value) => {
+    updateField(field, value);
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
