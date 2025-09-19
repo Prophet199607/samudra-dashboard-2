@@ -116,6 +116,8 @@ const OrderDetail = () => {
         quotation_no: "quotationNumber",
         quotation_date: "quotationDate",
 
+        payment_receipt: "paymentAttachment",
+
         payment_date: "paymentDate",
         cash_cheque_no: "cashChequeNo",
         cash_cheque_amount: "cashChequeAmount",
@@ -135,7 +137,14 @@ const OrderDetail = () => {
       // Populate form data from database
       Object.entries(fieldMappings).forEach(([dbField, formField]) => {
         if (order[dbField] !== null && order[dbField] !== undefined) {
-          updateField(formField, order[dbField]);
+          let value = order[dbField];
+
+          // Clean up payment_receipt path (remove escaped slashes)
+          if (dbField === "payment_receipt" && typeof value === "string") {
+            value = value.replace(/\\/g, "");
+          }
+
+          updateField(formField, value);
         }
       });
     } catch (error) {
@@ -150,6 +159,9 @@ const OrderDetail = () => {
       let loadingToastId;
       try {
         loadingToastId = showLoadingToast("Saving step...");
+
+        // Create FormData for file upload
+        const formDataToSend = new FormData();
 
         // Prepare base data for API
         const baseData = {
@@ -192,6 +204,8 @@ const OrderDetail = () => {
               quotation_date: formData.quotationDate,
             };
             break;
+          case 6: // Payment Info (File upload step)
+            break;
           default:
             // Include all fields for other steps
             stepData = {
@@ -212,8 +226,39 @@ const OrderDetail = () => {
 
         const orderData = { ...baseData, ...stepData };
 
+        // Add all order data to FormData
+        Object.keys(orderData).forEach((key) => {
+          if (
+            orderData[key] !== null &&
+            orderData[key] !== undefined &&
+            orderData[key] !== ""
+          ) {
+            formDataToSend.append(key, orderData[key]);
+          }
+        });
+
+        // Add file if it exists and it's step 6 or later
+        if (
+          activeTab >= 6 &&
+          formData.paymentAttachment &&
+          formData.paymentAttachment instanceof File
+        ) {
+          formDataToSend.append("payment_receipt", formData.paymentAttachment);
+        }
+
+        // Set appropriate headers for FormData
+        const config = {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        };
+
         if (isNewOrder && activeTab === 1) {
-          const response = await api.post("/orders/new", orderData);
+          const response = await api.post(
+            "/orders/new",
+            formDataToSend,
+            config
+          );
           if (response.data.success) {
             setSelectedOrder(response.data.order);
             setSavedSteps(new Set([1]));
@@ -227,7 +272,8 @@ const OrderDetail = () => {
         } else if (selectedOrder) {
           const response = await api.put(
             `/orders/${selectedOrder.orn_number}`,
-            orderData
+            formDataToSend,
+            config
           );
 
           if (response.data.success) {
