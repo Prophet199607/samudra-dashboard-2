@@ -168,23 +168,20 @@ const OrderForm = ({
             </div>
 
             <div className="flex space-x-2">
-              {/* Only show Save button for current step, not previous steps */}
-              {!savedSteps.has(activeTab) && (
-                <button
-                  onClick={() => {
-                    handleSubmit();
-                  }}
-                  className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-blue-700 text-white shadow-md hover:shadow-lg"
-                >
-                  <span>Save Step {activeTab}</span>
-                </button>
-              )}
+              {activeTab >= 1 &&
+                activeTab <= 8 &&
+                !savedSteps.has(activeTab) && (
+                  <button
+                    onClick={() => handleSubmit()}
+                    className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-blue-700 text-white shadow-md hover:shadow-lg"
+                  >
+                    <span>Save Step {activeTab}</span>
+                  </button>
+                )}
 
-              {activeTab === 9 && savedSteps.has(9) && (
+              {activeTab === 9 && !savedSteps.has(9) && (
                 <button
-                  onClick={() => {
-                    handleSubmit(true);
-                  }}
+                  onClick={() => handleSubmit(true)}
                   className="px-6 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center space-x-2 shadow-md hover:shadow-lg"
                 >
                   <span>🎉</span>
