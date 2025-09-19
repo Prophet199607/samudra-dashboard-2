@@ -118,20 +118,16 @@ const OrderDetail = () => {
 
         payment_receipt: "paymentAttachment",
 
-        payment_date: "paymentDate",
-        cash_cheque_no: "cashChequeNo",
-        cash_cheque_amount: "cashChequeAmount",
-        invoice_number: "invoiceNumber",
+        invoice_no: "invoiceNumber",
         invoice_amount: "invoiceAmount",
-        invoice_date: "invoiceDate",
+
         vehicle_no: "vehicleNo",
-        driver: "driver",
+        driver_name: "driverName",
         no_of_boxes: "noOfBoxes",
-        delivery_date: "deliveryDate",
-        cash_in_no: "cashInNo",
+
+        cash_in_number: "cashInNo",
         way_bill_no: "wayBillNo",
-        hand_over_to: "handOverTo",
-        completion_remark: "completionRemark",
+        handover_to: "handOverTo",
       };
 
       // Populate form data from database
@@ -206,6 +202,26 @@ const OrderDetail = () => {
             break;
           case 6: // Payment Info (File upload step)
             break;
+          case 7: // Invoice Info
+            stepData = {
+              invoice_no: formData.invoiceNumber,
+              invoice_amount: formData.invoiceAmount,
+            };
+            break;
+          case 8: // Invoice Info
+            stepData = {
+              vehicle_no: formData.vehicleNo,
+              driver_name: formData.driverName,
+              no_of_boxes: formData.noOfBoxes,
+            };
+            break;
+          case 9: // Cash In Info
+            stepData = {
+              cash_in_number: formData.cashInNo,
+              way_bill_no: formData.wayBillNo,
+              handover_to: formData.handOverTo,
+            };
+            break;
           default:
             // Include all fields for other steps
             stepData = {
@@ -220,6 +236,17 @@ const OrderDetail = () => {
 
               quotation_no: formData.quotationNumber,
               quotation_date: formData.quotationDate,
+
+              invoice_no: formData.invoiceNumber,
+              invoice_amount: formData.invoiceAmount,
+
+              vehicle_no: formData.vehicleNo,
+              driver_name: formData.driverName,
+              no_of_boxes: formData.noOfBoxes,
+
+              cash_in_number: formData.cashInNo,
+              way_bill_no: formData.wayBillNo,
+              handover_to: formData.handOverTo,
             };
             break;
         }

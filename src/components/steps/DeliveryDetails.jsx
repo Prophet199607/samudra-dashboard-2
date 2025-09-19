@@ -24,8 +24,8 @@ const DeliveryDetails = ({ formData, updateField }) => (
       <div className="space-y-4">
         <InputField
           label="Driver Name"
-          value={formData.driver}
-          onChange={(e) => updateField("driver", e.target.value)}
+          value={formData.driverName}
+          onChange={(e) => updateField("driverName", e.target.value)}
           placeholder="Enter driver's full name"
           required
         />
