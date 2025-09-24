@@ -1,227 +1,229 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 
-const OrderSummary = ({ formData }) => {
-  // Add null check for formData
+const OrderSummary = ({ formData, currentStep = Infinity }) => {
+  const [openSections, setOpenSections] = useState({
+    basic: true,
+    branch: false,
+    approval: false,
+    salesOrder: false,
+    quotation: false,
+    invoice: false,
+    delivery: false,
+    final: false,
+  });
+
+  const toggle = (key) =>
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+
   if (!formData) {
     return (
-      <div className="bg-gray-50 p-4 rounded-md border mb-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-3">
-          Order Summary
-        </h3>
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-2 w-2 rounded-full bg-gray-300" />
+          <h3 className="text-base font-semibold text-gray-900">
+            Order Summary
+          </h3>
+        </div>
         <p className="text-gray-500">No order data available</p>
       </div>
     );
   }
 
   const formatThousand = (value) => {
-    if (!value) return "";
+    if (value === null || value === undefined || value === "") return "";
     const num = value.toString().replace(/,/g, "");
     if (!num || isNaN(num)) return "";
     return Number(num).toLocaleString();
   };
 
-  // Safely access form data with fallbacks
-  const getFieldValue = (fieldName) => {
-    return formData[fieldName] || "Not specified";
-  };
+  const safe = (value) => (value ? value : "—");
+
+  const steps = useMemo(
+    () => [
+      {
+        key: "basic",
+        title: "Basic Order Info",
+        items: [
+          { label: "Order Request Date", value: formData.ordReqDate },
+          { label: "Order Request Number", value: formData.ornNumber },
+          { label: "Customer Name", value: formData.customerName },
+          { label: "PO Number", value: formData.customerPONo },
+          {
+            label: "PO Amount",
+            value: formData.poAmount
+              ? `LKR ${formatThousand(formData.poAmount)}`
+              : "",
+          },
+          { label: "Customer Group", value: formData.customerGroup },
+          { label: "Customer Branch", value: formData.customerBranch },
+          { label: "Order Remark", value: formData.orderRemark },
+        ],
+      },
+      {
+        key: "branch",
+        title: "Branch Assignment",
+        items: [{ label: "Sales Branch", value: formData.salesBranch }],
+      },
+      {
+        key: "approval",
+        title: "Approval",
+        items: [
+          { label: "Payment Type", value: formData.paymentType },
+          { label: "Approval Date", value: formData.approvalDate },
+          { label: "Approval Remark", value: formData.approvalRemark },
+        ],
+      },
+      {
+        key: "salesOrder",
+        title: "Sales Order",
+        items: [
+          { label: "Sales Order Number", value: formData.salesOrderNumber },
+          { label: "Sales Order Date", value: formData.salesOrderDate },
+        ],
+      },
+      {
+        key: "quotation",
+        title: "Quotation",
+        items: [
+          { label: "Quotation Number", value: formData.quotationNumber },
+          { label: "Quotation Date", value: formData.quotationDate },
+        ],
+      },
+      {
+        key: "invoice",
+        title: "Invoice",
+        items: [
+          { label: "Invoice Number", value: formData.invoiceNumber },
+          {
+            label: "Invoice Amount",
+            value: formData.invoiceAmount
+              ? `LKR ${formatThousand(formData.invoiceAmount)}`
+              : "",
+          },
+        ],
+      },
+      {
+        key: "delivery",
+        title: "Delivery",
+        items: [
+          { label: "Vehicle No", value: formData.vehicleNo },
+          { label: "Driver Name", value: formData.driverName },
+          { label: "No Of Boxes", value: formData.noOfBoxes },
+        ],
+      },
+      {
+        key: "final",
+        title: "Final Details",
+        items: [
+          { label: "Cash In No", value: formData.cashInNo },
+          { label: "Way Bill No", value: formData.wayBillNo },
+          { label: "Hand Over To", value: formData.handOverTo },
+        ],
+      },
+    ],
+    [formData]
+  );
+
+  const highlightCards = [
+    { label: "Customer", value: safe(formData.customerName) },
+    { label: "Order No", value: safe(formData.ornNumber) },
+    {
+      label: "PO Amount",
+      value: formData.poAmount
+        ? `LKR ${formatThousand(formData.poAmount)}`
+        : "—",
+    },
+  ];
+
+  // Determine which sections to show based on currentStep
+  const maxIndexExclusive = Number.isFinite(currentStep)
+    ? Math.max(0, currentStep - 1)
+    : steps.length;
+  const visibleSteps = steps.filter((_, idx) => idx < maxIndexExclusive);
 
   return (
-    <div className="bg-gray-50 p-4 rounded-md border mb-6">
-      <h3 className="text-lg font-medium text-gray-900 mb-3">Order Summary</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-        {/* Step 1: Basic Order Info */}
-        <div>
-          <span className="font-medium text-gray-600">Order Request Date:</span>
-          <p className="text-gray-900">{getFieldValue("ordReqDate")}</p>
-        </div>
-        <div>
-          <span className="font-medium text-gray-600">
-            Order Request Number:
-          </span>
-          <p className="text-gray-900">{getFieldValue("ornNumber")}</p>
-        </div>
-        <div>
-          <span className="font-medium text-gray-600">Customer Name:</span>
-          <p className="text-gray-900">{getFieldValue("customerName")}</p>
-        </div>
-        <div>
-          <span className="font-medium text-gray-600">PO Number:</span>
-          <p className="text-gray-900">{getFieldValue("customerPONo")}</p>
-        </div>
-        <div>
-          <span className="font-medium text-gray-600">PO Amount:</span>
-          <p className="text-gray-900">
-            {formData.poAmount
-              ? `LKR ${formatThousand(formData.poAmount)}`
-              : "Not specified"}
-          </p>
-        </div>
-        <div>
-          <span className="font-medium text-gray-600">Customer Group:</span>
-          <p className="text-gray-900">{getFieldValue("customerGroup")}</p>
-        </div>
-        <div>
-          <span className="font-medium text-gray-600">Customer Branch:</span>
-          <p className="text-gray-900">{getFieldValue("customerBranch")}</p>
-        </div>
-        <div>
-          <span className="font-medium text-gray-600">Order Remark:</span>
-          <p className="text-gray-900">{getFieldValue("orderRemark")}</p>
-        </div>
-
-        {/* Step 2: Branch Assignment */}
-        {formData.salesBranch && (
-          <div>
-            <span className="font-medium text-gray-600">Sales Branch:</span>
-            <p className="text-gray-900">{formData.salesBranch}</p>
+    <div className="bg-white border border-gray-200 rounded-xl mb-5">
+      <div className="px-5 pt-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+            <h3 className="text-base font-semibold text-gray-900">
+              Order Summary
+            </h3>
           </div>
-        )}
+        </div>
 
-        {/* Step 3: Approval Info */}
-        {(formData.approvalDate ||
-          formData.paymentType ||
-          formData.approvalRemark) && (
-          <>
-            {formData.paymentType && (
-              <div>
-                <span className="font-medium text-gray-600">Payment Type:</span>
-                <p className="text-gray-900">{formData.paymentType}</p>
-              </div>
-            )}
-            {formData.approvalDate && (
-              <div>
-                <span className="font-medium text-gray-600">
-                  Approval Date:
-                </span>
-                <p className="text-gray-900">{formData.approvalDate}</p>
-              </div>
-            )}
-            {formData.approvalRemark && (
-              <div>
-                <span className="font-medium text-gray-600">
-                  Approval Remark:
-                </span>
-                <p className="text-gray-900">{formData.approvalRemark}</p>
-              </div>
-            )}
-          </>
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          {highlightCards.map((card) => (
+            <div
+              key={card.label}
+              className="border border-gray-200 rounded-lg p-3 bg-gray-50"
+            >
+              <p className="text-xs font-medium text-gray-500">{card.label}</p>
+              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                {card.value}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
 
-        {/* Step 4: Sales Order Info */}
-        {(formData.salesOrderNumber || formData.salesOrderDate) && (
-          <>
-            {formData.salesOrderNumber && (
-              <div>
-                <span className="font-medium text-gray-600">
-                  Sales Order Number:
-                </span>
-                <p className="text-gray-900">{formData.salesOrderNumber}</p>
-              </div>
-            )}
-            {formData.salesOrderDate && (
-              <div>
-                <span className="font-medium text-gray-600">
-                  Sales Order Date:
-                </span>
-                <p className="text-gray-900">{formData.salesOrderDate}</p>
-              </div>
-            )}
-          </>
-        )}
+      <div className="divide-y divide-gray-200">
+        {visibleSteps.map((section) => {
+          const hasAnyValue = section.items.some((i) => i.value);
+          if (!hasAnyValue) return null;
+          return (
+            <div key={section.key}>
+              <button
+                type="button"
+                className="w-full px-5 py-3 flex items-center justify-between hover:bg-gray-50"
+                onClick={() => toggle(section.key)}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-gray-900">
+                    {section.title}
+                  </span>
+                </div>
+                <svg
+                  className={`h-4 w-4 text-gray-500 transition-transform ${
+                    openSections[section.key] ? "rotate-180" : "rotate-0"
+                  }`}
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.27a.75.75 0 01-.02-1.06z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
 
-        {/* Step 5: Quotation Info */}
-        {(formData.quotationNumber || formData.quotationDate) && (
-          <>
-            {formData.quotationNumber && (
-              <div>
-                <span className="font-medium text-gray-600">
-                  Quotation Number:
-                </span>
-                <p className="text-gray-900">{formData.quotationNumber}</p>
-              </div>
-            )}
-            {formData.quotationDate && (
-              <div>
-                <span className="font-medium text-gray-600">
-                  Quotation Date:
-                </span>
-                <p className="text-gray-900">{formData.quotationDate}</p>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Step 7: Invoice Info */}
-        {(formData.invoiceNumber || formData.invoiceAmount) && (
-          <>
-            {formData.invoiceNumber && (
-              <div>
-                <span className="font-medium text-gray-600">
-                  Invoice Number:
-                </span>
-                <p className="text-gray-900">{formData.invoiceNumber}</p>
-              </div>
-            )}
-            {formData.invoiceAmount && (
-              <div>
-                <span className="font-medium text-gray-600">
-                  Invoice Amount:
-                </span>
-                <p className="text-gray-900">
-                  {formatThousand(formData.invoiceAmount)}
-                </p>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Step 8: Delivery Info */}
-        {(formData.vehicleNo || formData.driverName || formData.noOfBoxes) && (
-          <>
-            {formData.vehicleNo && (
-              <div>
-                <span className="font-medium text-gray-600">Vehicle No:</span>
-                <p className="text-gray-900">{formData.vehicleNo}</p>
-              </div>
-            )}
-            {formData.driverName && (
-              <div>
-                <span className="font-medium text-gray-600">Driver Name:</span>
-                <p className="text-gray-900">{formData.driverName}</p>
-              </div>
-            )}
-            {formData.noOfBoxes && (
-              <div>
-                <span className="font-medium text-gray-600">No Of Boxes:</span>
-                <p className="text-gray-900">{formData.noOfBoxes}</p>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Step 9: Final Details */}
-        {(formData.cashInNo || formData.wayBillNo || formData.handOverTo) && (
-          <>
-            {formData.cashInNo && (
-              <div>
-                <span className="font-medium text-gray-600">Cash In No:</span>
-                <p className="text-gray-900">{formData.cashInNo}</p>
-              </div>
-            )}
-            {formData.wayBillNo && (
-              <div>
-                <span className="font-medium text-gray-600">Way Bill No:</span>
-                <p className="text-gray-900">{formData.wayBillNo}</p>
-              </div>
-            )}
-            {formData.handOverTo && (
-              <div>
-                <span className="font-medium text-gray-600">Hand Over To:</span>
-                <p className="text-gray-900">{formData.handOverTo}</p>
-              </div>
-            )}
-          </>
-        )}
+              {openSections[section.key] && (
+                <div className="px-5 pb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {section.items
+                      .filter((i) => i.value)
+                      .map((item) => (
+                        <div
+                          key={item.label}
+                          className="rounded-lg border border-gray-200 p-3 bg-white"
+                        >
+                          <p className="text-xs font-medium text-gray-500">
+                            {item.label}
+                          </p>
+                          <p className="text-sm font-semibold text-gray-900 mt-0.5 break-words">
+                            {item.value}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
