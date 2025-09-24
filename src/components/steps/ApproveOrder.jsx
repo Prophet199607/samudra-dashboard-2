@@ -4,7 +4,7 @@ import SelectField from "../common/Input/SelectField";
 import TextAreaField from "../common/Input/TextAreaField";
 import { useApiData } from "../../hooks/useApiData";
 
-const ApproveOrder = ({ formData, updateField }) => {
+const ApproveOrder = ({ formData, updateField, errors = {} }) => {
   // Fetch data using React Query
   const {
     data: paymentTypes = [],
@@ -52,6 +52,7 @@ const ApproveOrder = ({ formData, updateField }) => {
             }
             required
             disabled={paymentTypesLoading}
+            error={errors.paymentType || errors.payment_type}
           />
           {paymentTypesError && (
             <div className="text-red-600 text-sm">{paymentTypesError}</div>

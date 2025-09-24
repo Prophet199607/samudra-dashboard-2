@@ -6,7 +6,7 @@ import TextAreaField from "../common/Input/TextAreaField";
 import { DROPDOWN_OPTIONS } from "../../constants/dropdownOptions";
 import { useApiData } from "../../hooks/useApiData";
 
-const CreateOrder = ({ formData, updateField, isNewOrder }) => {
+const CreateOrder = ({ formData, updateField, isNewOrder, errors = {} }) => {
   const formatThousand = (value) => {
     if (!value) return "";
     const num = value.toString().replace(/,/g, "");
@@ -108,6 +108,7 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
             }
             required
             disabled={customersLoading}
+            error={errors.customerName || errors.customer_name}
           />
           {customersError && (
             <div className="text-red-600 text-sm">{customersError}</div>
@@ -125,6 +126,7 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
             }
             required
             disabled={groupsLoading}
+            error={errors.customerGroup || errors.customer_group}
           />
           {groupsError && (
             <div className="text-red-600 text-sm">{groupsError}</div>
@@ -138,6 +140,7 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
             }
             options={DROPDOWN_OPTIONS.customerBranches}
             placeholder="Select customer branch"
+            error={errors.customerBranch || errors.customer_branch}
           />
         </div>
 
@@ -149,6 +152,7 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
             placeholder="Enter Order Request Number"
             required
             disabled={!isNewOrder}
+            error={errors.ornNumber || errors.orn_number}
           />
           <InputField
             label="Customer PO Number"
@@ -166,6 +170,7 @@ const CreateOrder = ({ formData, updateField, isNewOrder }) => {
             }}
             inputMode="decimal"
             placeholder="Enter purchase order amount"
+            error={errors.poAmount || errors.po_amount}
           />
           <TextAreaField
             label="Remarks"

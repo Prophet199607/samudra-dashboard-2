@@ -29,6 +29,7 @@ const OrderDetail = () => {
   const [activeTab, setActiveTab] = React.useState(1);
   const [savedSteps, setSavedSteps] = React.useState(new Set());
   const [selectedOrder, setSelectedOrder] = React.useState(null);
+  const [errors, setErrors] = React.useState({});
   const isNewOrder = id === "new";
 
   const { formData, updateField, updateStepData, getStepData, resetForm } =
@@ -37,6 +38,7 @@ const OrderDetail = () => {
   useEffect(() => {
     if (id === "new") {
       resetForm();
+      setErrors({});
       setSavedSteps(new Set());
       setActiveTab(1);
 
@@ -155,6 +157,37 @@ const OrderDetail = () => {
       let loadingToastId;
       try {
         loadingToastId = showLoadingToast("Saving step...");
+
+        // Client-side validation per step
+        const newErrors = {};
+        const requireField = (key, message) => {
+          if (!formData[key]) newErrors[key] = message;
+        };
+
+        switch (activeTab) {
+          case 1:
+            requireField("ordReqDate", "Order request date is required");
+            requireField("ornNumber", "ORN number is required");
+            requireField("customerName", "Customer name is required");
+            requireField("customerGroup", "Customer group is required");
+            break;
+          case 2:
+            requireField("salesBranch", "Sales branch is required");
+            break;
+          case 3:
+            requireField("approvalDate", "Approval date is required");
+            requireField("paymentType", "Payment type is required");
+            break;
+          default:
+            break;
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+          setErrors(newErrors);
+          return;
+        } else {
+          setErrors({});
+        }
 
         // Create FormData for file upload
         const formDataToSend = new FormData();
@@ -327,10 +360,20 @@ const OrderDetail = () => {
         }
       } catch (error) {
         console.error("Error saving order:", error);
-        showErrorToast(
-          error.response?.data?.message || "Failed to save order",
-          loadingToastId
-        );
+        // Map backend validation errors (422) to field errors
+        if (error.response?.status === 422 && error.response?.data?.errors) {
+          const backendErrors = error.response.data.errors;
+          const normalized = {};
+          Object.entries(backendErrors).forEach(([key, value]) => {
+            normalized[key] = Array.isArray(value) ? value[0] : value;
+          });
+          setErrors(normalized);
+        } else {
+          showErrorToast(
+            error.response?.data?.message || "Failed to save order",
+            loadingToastId
+          );
+        }
       }
     },
     [activeTab, formData, isNewOrder, selectedOrder, navigate, resetForm]
@@ -345,6 +388,7 @@ const OrderDetail = () => {
       formData,
       updateField,
       isNewOrder,
+      errors,
     };
 
     switch (activeTab) {
