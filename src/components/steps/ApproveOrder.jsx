@@ -2,29 +2,29 @@ import React from "react";
 import DatePicker from "../common/Input/DatePicker";
 import SelectField from "../common/Input/SelectField";
 import TextAreaField from "../common/Input/TextAreaField";
-import { useApiData } from "../../hooks/useApiData";
+import { useExternalApiData } from "../../hooks/useExternalApiData";
 
 const ApproveOrder = ({ formData, updateField, errors = {} }) => {
-  // Fetch data using React Query
   const {
     data: paymentTypes = [],
-    isLoading: paymentTypesLoading,
+    loading: paymentTypesLoading,
     error: paymentTypesError,
-  } = useApiData("/payment-types");
+  } = useExternalApiData("/api/Master/GetPaymentModes");
 
-  // Format dropdown options
-  const paymentOptions = paymentTypes.map((payment) => ({
-    value: payment.Description,
-    label: payment.Description,
-  }));
+  const paymentOptions = Array.isArray(paymentTypes)
+    ? paymentTypes
+        .map((payment) => ({
+          value: payment.PayType || payment.value || "",
+          label: payment.PayType || payment.label || "Unknown Payment",
+        }))
+        .filter((option) => option.value && option.label)
+    : [];
 
-  // Format the date in YYYY-MM-DD format for the backend
   const formatDate = (date) => {
     if (!date) return "";
     return new Date(date).toISOString().split("T")[0];
   };
 
-  // Update the DatePicker onChange handler
   const handleDateChange = (date) => {
     updateField("approvalDate", formatDate(date));
   };
@@ -35,14 +35,14 @@ const ApproveOrder = ({ formData, updateField, errors = {} }) => {
         <div className="space-y-4">
           <DatePicker
             label="Approval Date"
-            value={formData.approvalDate}
-            selectedDate={formData.approvalDate}
+            value={formData.approvalDate || ""}
+            selectedDate={formData.approvalDate || ""}
             setSelectedDate={handleDateChange}
             required
           />
           <SelectField
             label="Payment Type"
-            value={formData.paymentType}
+            value={formData.paymentType || ""}
             onChange={(e) => updateField("paymentType", e.target.value)}
             options={paymentOptions}
             placeholder={
@@ -62,7 +62,7 @@ const ApproveOrder = ({ formData, updateField, errors = {} }) => {
         <div className="space-y-4">
           <TextAreaField
             label="Approval Remarks"
-            value={formData.approvalRemark}
+            value={formData.approvalRemark || ""}
             onChange={(e) => updateField("approvalRemark", e.target.value)}
             placeholder="Enter approval comments or conditions"
             rows={4}
