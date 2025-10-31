@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { TAB_CONFIG } from "../../../constants/dropdownOptions";
+import { TAB_CONFIG } from "../../../constants/tabConfig";
 import DataTable from "../../../components/common/DataTable";
 import api from "../../../services/api";
 import { showErrorToast } from "../../../components/alert/ToastAlert";
@@ -92,7 +92,6 @@ const Orders = () => {
 
   const handleCreateNewOrder = async () => {
     try {
-      // Navigate directly to new order page, ORN will be generated there
       navigate("/order/new");
     } catch (error) {
       console.error("Error creating new order:", error);
