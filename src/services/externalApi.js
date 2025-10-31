@@ -11,4 +11,16 @@ const externalApi = axios.create({
   },
 });
 
+externalApi.interceptors.request.use(
+  (config) => {
+    if (config.method?.toUpperCase() === "POST" && !config.data) {
+      config.data = {};
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export default externalApi;
