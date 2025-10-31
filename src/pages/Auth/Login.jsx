@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
-import api from "../../services/api";
+import externalApi from "../../services/externalApi";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -14,21 +14,21 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // Load locations from backend
   useEffect(() => {
     if (calledRef.current) return;
     calledRef.current = true;
 
-    api
-      .get("/locations")
+    externalApi
+      .get("/api/Master/GetLocations")
       .then((res) => {
-        if (res.data && Array.isArray(res.data)) {
-          setLocations(res.data);
+        if (res.data && Array.isArray(res.data.locations)) {
+          setLocations(res.data.locations);
         } else {
           setError("Invalid data received from server");
         }
       })
       .catch((err) => {
+        console.error(err);
         setError(err.response?.data?.error || "Failed to load locations");
       });
   }, []);
@@ -76,11 +76,12 @@ export default function Login() {
                 className="mt-1 w-full rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[#6f3dc5] focus:border-transparent px-3 py-2"
               >
                 <option value="">Select a location</option>
-                {locations.map((loc) => (
-                  <option key={loc.loca_code} value={loc.loca_code}>
-                    {loc.loca_name}
-                  </option>
-                ))}
+                {Array.isArray(locations) &&
+                  locations.map((loc) => (
+                    <option key={loc.Code} value={loc.Code}>
+                      {loc.Description}
+                    </option>
+                  ))}
               </select>
             </div>
 
