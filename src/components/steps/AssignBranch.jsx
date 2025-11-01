@@ -13,7 +13,7 @@ const AssignBranch = ({ formData, updateField, errors = {} }) => {
     setError("");
 
     try {
-      const response = await externalApi.get("/api/Master/GetLocations");
+      const response = await externalApi.get("/Master/GetLocations");
       let branchesData = [];
 
       if (response.data && Array.isArray(response.data.locations)) {
