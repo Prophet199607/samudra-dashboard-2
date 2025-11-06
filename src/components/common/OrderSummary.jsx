@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 
-const OrderSummary = ({ formData, currentStep = Infinity }) => {
+const OrderSummary = ({ formData, currentStep = Infinity, savedSteps }) => {
   const [openSections, setOpenSections] = useState({
     basic: true,
     branch: false,
@@ -12,8 +12,22 @@ const OrderSummary = ({ formData, currentStep = Infinity }) => {
     final: false,
   });
 
-  const toggle = (key) =>
-    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggle = (key) => {
+    setOpenSections((prevOpenSections) => {
+      // If the clicked section is already open, close it.
+      if (prevOpenSections[key]) {
+        return { ...prevOpenSections, [key]: false };
+      }
+
+      // Otherwise, close all other sections and open the clicked one.
+      const newOpenSections = Object.keys(prevOpenSections).reduce(
+        (acc, sectionKey) => ({ ...acc, [sectionKey]: false }),
+        {}
+      );
+      newOpenSections[key] = true;
+      return newOpenSections;
+    });
+  };
 
   const formatThousand = (value) => {
     if (value === null || value === undefined || value === "") return "";
@@ -147,12 +161,23 @@ const OrderSummary = ({ formData, currentStep = Infinity }) => {
     return null;
   }
 
+  const statusColors = {
+    1: "bg-blue-600",
+    2: "bg-purple-600",
+    3: "bg-indigo-600",
+    4: "bg-teal-600",
+    5: "bg-green-600",
+    6: "bg-yellow-600",
+    7: "bg-orange-600",
+    8: "bg-red-600",
+    9: "bg-pink-600",
+  };
+
   return (
     <div className="bg-white border border-gray-200 rounded-xl mb-5">
       <div className="px-5 pt-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
             <h3 className="text-base font-semibold text-gray-900">
               Order Summary
             </h3>
@@ -175,9 +200,12 @@ const OrderSummary = ({ formData, currentStep = Infinity }) => {
       </div>
 
       <div className="divide-y divide-gray-200">
-        {visibleSteps.map((section) => {
+        {visibleSteps.map((section, index) => {
           const hasAnyValue = section.items.some((i) => i.value);
           if (!hasAnyValue) return null;
+          const stepId = index + 1;
+          const isSaved = savedSteps?.has?.(stepId);
+          const dotColor = isSaved ? statusColors[stepId] : "bg-gray-300";
           return (
             <div key={section.key}>
               <button
@@ -186,6 +214,7 @@ const OrderSummary = ({ formData, currentStep = Infinity }) => {
                 onClick={() => toggle(section.key)}
               >
                 <div className="flex items-center gap-2">
+                  <div className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
                   <span className="text-sm font-semibold text-gray-900">
                     {section.title}
                   </span>
