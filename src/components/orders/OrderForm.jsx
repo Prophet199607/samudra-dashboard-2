@@ -14,22 +14,22 @@ const OrderForm = ({
   formData,
 }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-1 sm:p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-1 sm:p-2">
       <div className="max-full mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-lg p-5 mb-5 border border-gray-100">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="bg-white rounded-xl shadow-lg p-5 mb-3 border border-gray-100">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                 {selectedOrder ? (
                   <>
                     Order:{" "}
-                    <span className="text-2xl sm:text-2xl font-bold text-gray-700">
+                    <span className="text-xl sm:text-2xl font-bold text-gray-700">
                       {selectedOrder.orn_number}
                     </span>
                   </>
                 ) : (
-                  <span className="text-2xl sm:text-2xl font-bold text-gray-700">
+                  <span className="text-xl sm:text-2xl font-bold text-gray-700">
                     {title}
                   </span>
                 )}
@@ -44,11 +44,7 @@ const OrderForm = ({
               </button>
             </div>
           </div>
-        </div>
-
-        {/* Progress Steps */}
-        <div className="bg-white rounded-xl shadow-lg mb-6 border border-gray-100">
-          <div className="border-b border-gray-200 p-4">
+          <div className="border-t border-gray-200 p-4">
             <nav className="flex items-center justify-center scrollbar-hide">
               {TAB_CONFIG.map((tab, index) => {
                 const isCompleted = savedSteps.has(tab.id);
@@ -79,7 +75,8 @@ const OrderForm = ({
 
                     <button
                       onClick={() => canNavigate && setActiveTab(tab.id)}
-                      disabled={!canNavigate}
+                      disabled={canNavigate}
+                      // disabled={!canNavigate}
                       className={`flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
                         isActive
                           ? `${
@@ -133,14 +130,18 @@ const OrderForm = ({
           </div>
 
           {activeTab > 1 && (
-            <OrderSummary formData={formData} currentStep={activeTab} />
+            <OrderSummary
+              formData={formData}
+              currentStep={activeTab}
+              savedSteps={savedSteps}
+            />
           )}
 
           <div className="mb-8">{renderStepContent()}</div>
 
           {/* Navigation and Submit */}
           <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200 gap-4">
-            <div className="flex space-x-2">
+            {/* <div className="flex space-x-2">
               <button
                 onClick={() => {
                   const prevTab = activeTab - 1;
@@ -167,7 +168,7 @@ const OrderForm = ({
                 <span className="hidden sm:inline">Next</span>
                 <span>→</span>
               </button>
-            </div>
+            </div> */}
 
             <div className="flex space-x-2">
               {activeTab >= 1 &&
