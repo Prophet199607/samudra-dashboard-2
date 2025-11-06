@@ -15,20 +15,6 @@ const OrderSummary = ({ formData, currentStep = Infinity }) => {
   const toggle = (key) =>
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  if (!formData) {
-    return (
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="h-2 w-2 rounded-full bg-gray-300" />
-          <h3 className="text-base font-semibold text-gray-900">
-            Order Summary
-          </h3>
-        </div>
-        <p className="text-gray-500">No order data available</p>
-      </div>
-    );
-  }
-
   const formatThousand = (value) => {
     if (value === null || value === undefined || value === "") return "";
     const num = value.toString().replace(/,/g, "");
@@ -38,8 +24,9 @@ const OrderSummary = ({ formData, currentStep = Infinity }) => {
 
   const safe = (value) => (value ? value : "—");
 
-  const steps = useMemo(
-    () => [
+  const steps = useMemo(() => {
+    if (!formData) return [];
+    return [
       {
         key: "basic",
         title: "Basic Order Info",
@@ -120,9 +107,24 @@ const OrderSummary = ({ formData, currentStep = Infinity }) => {
           { label: "Hand Over To", value: formData.handOverTo },
         ],
       },
-    ],
-    [formData]
-  );
+    ];
+  }, [formData]);
+
+  if (!formData) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl mb-5">
+        <div className="px-5 pt-5">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-2.5 w-2.5 rounded-full bg-gray-300" />
+            <h3 className="text-base font-semibold text-gray-900">
+              Order Summary
+            </h3>
+          </div>
+          <p className="text-gray-500 pb-5">No order data available</p>
+        </div>
+      </div>
+    );
+  }
 
   const highlightCards = [
     { label: "Customer", value: safe(formData.customerName) },
@@ -140,6 +142,10 @@ const OrderSummary = ({ formData, currentStep = Infinity }) => {
     ? Math.max(0, currentStep - 1)
     : steps.length;
   const visibleSteps = steps.filter((_, idx) => idx < maxIndexExclusive);
+
+  if (visibleSteps.length === 0) {
+    return null;
+  }
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl mb-5">

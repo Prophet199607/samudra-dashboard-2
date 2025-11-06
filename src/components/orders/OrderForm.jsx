@@ -132,7 +132,9 @@ const OrderForm = ({
             </div>
           </div>
 
-          {activeTab > 1 && <OrderSummary formData={formData} />}
+          {activeTab > 1 && (
+            <OrderSummary formData={formData} currentStep={activeTab} />
+          )}
 
           <div className="mb-8">{renderStepContent()}</div>
 
