@@ -1,9 +1,11 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useAuth } from "../../auth/AuthContext";
+import { useAuth } from "../../auth/auth-context.js";
+import { ClipLoader } from "react-spinners";
 import api from "../../services/api";
-import { Package, Hourglass, Truck, CircleDollarSign } from "lucide-react";
+import { Package, Hourglass, Truck } from "lucide-react";
 
 export default function Dashboard() {
+  const [statsData, setStatsData] = useState(null);
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const hasFetched = useRef(false);
@@ -17,40 +19,46 @@ export default function Dashboard() {
       .get("/dashboard")
       .then((res) => setData(res.data))
       .catch(() => setError("Failed to load dashboard"));
+
+    api
+      .get("/orders/dashboard-stats")
+      .then((res) => setStatsData(res.data))
+      .catch(() => setError("Failed to load dashboard stats"));
   }, []);
 
-  if (error) return <p className="text-red-600">{error}</p>;
-  if (!data) return null;
+  if (error) return <p className="text-red-500 p-4">{error}</p>;
+
+  if (!data || !statsData) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <ClipLoader color="#3B82F6" size={40} />
+      </div>
+    );
+  }
 
   const metricCards = [
     {
       title: "Total Orders",
-      count: data.totalOrders || 125,
+      count: statsData.totalOrders ?? 0,
       icon: <Package />,
       color: "bg-blue-100 text-blue-600",
     },
     {
-      title: "Pending Approvals",
-      count: data.pendingApprovals || 12,
+      title: "Pending Orders",
+      count: statsData.pendingOrders ?? 0,
       icon: <Hourglass />,
       color: "bg-yellow-100 text-yellow-600",
     },
     {
-      title: "Completed Deliveries",
-      count: data.completedDeliveries || 105,
+      title: "Completed Orders",
+      count: statsData.completedOrders ?? 0,
       icon: <Truck />,
       color: "bg-green-100 text-green-600",
-    },
-    {
-      title: "Revenue",
-      count: data.revenue || "LKR 2.5M",
-      icon: <CircleDollarSign />,
-      color: "bg-indigo-100 text-indigo-600",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-1 sm:p-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4 sm:p-4">
       {metricCards.map((card, index) => (
         <div
           key={index}
