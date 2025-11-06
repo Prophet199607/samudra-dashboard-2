@@ -1,48 +1,34 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { ClipLoader } from "react-spinners";
-
-const AuthContext = createContext();
+import { AuthContext } from "./auth-context.js";
 
 export const AuthProvider = ({ children }) => {
   const hasFetched = useRef(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const checkAuth = async () => {
-    if (hasFetched.current) return;
-    hasFetched.current = true;
-
-    const token = localStorage.getItem("token");
-    const [authResult] = await Promise.all([
-      (async () => {
-        if (token) {
-          try {
-            const res = await api.get("/auth/user");
-            return res.data.user;
-          } catch (err) {
-            localStorage.removeItem("token");
-            return null;
-          }
-        }
-        return null;
-      })(),
-      new Promise((resolve) => setTimeout(resolve, 1000)),
-    ]);
-
-    if (authResult) {
-      setUser(authResult);
-    }
-    setLoading(false);
-  };
-
   useEffect(() => {
+    const checkAuth = async () => {
+      if (hasFetched.current) return;
+      hasFetched.current = true;
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await api.get("/auth/user");
+        setUser(res.data.user);
+      } catch {
+        localStorage.removeItem("token");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     checkAuth();
   }, []);
 
@@ -88,5 +74,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);

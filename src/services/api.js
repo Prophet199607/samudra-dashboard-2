@@ -23,8 +23,16 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+      const failingUrl = error.config?.url || "";
+      const isLoginCall = failingUrl.includes("/login");
+      const isOnLoginPage =
+        typeof window !== "undefined" && window.location.pathname === "/login";
+
+      // Do not redirect/reload for failed login attempts or when already on login page
+      if (!isLoginCall && !isOnLoginPage) {
+        localStorage.removeItem("token");
+        window.location.replace("/login");
+      }
     }
     return Promise.reject(error);
   }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import { useAuth } from "./auth/AuthContext";
+import { useAuth } from "./auth/auth-context.js";
 import Sidebar from "./layout/Sidebar";
 import Navbar from "./layout/Navbar";
 import Dashboard from "./pages/Dashboard/Dashboard";

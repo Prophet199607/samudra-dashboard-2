@@ -3,7 +3,7 @@ import { MdMenu } from "react-icons/md";
 import { FaPowerOff } from "react-icons/fa";
 import useOnClickOutside from "../hooks/useOnClickOutside";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "../auth/auth-context.js";
 
 export default function Navbar({ onToggle }) {
   const [open, setOpen] = useState(false);
