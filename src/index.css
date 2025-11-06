@@ -27,9 +27,7 @@
   /* Global font → Poppins */
   body {
     @apply m-0 bg-[var(--page-bg)] text-[#1b1b1f];
-    font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-      Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji",
-      "Segoe UI Symbol";
+    font-family: "Poppins";
   }
 
   a {
@@ -50,8 +48,7 @@
   }
   body {
     @apply m-0 bg-[var(--page-bg)] text-[#1b1b1f];
-    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial,
-      sans-serif;
+    font-family: Poppins;
   }
 
   a {
