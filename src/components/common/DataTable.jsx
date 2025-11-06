@@ -34,7 +34,7 @@ const DataTable = ({
     if (searchTerm) {
       processedData = processedData.filter((item) =>
         columns.some((column) =>
-          String(item[column.key])
+          String(item[column.key] ?? "")
             .toLowerCase()
             .includes(searchTerm.toLowerCase())
         )
@@ -46,7 +46,6 @@ const DataTable = ({
       processedData.sort((a, b) => {
         const aValue = a[sortConfig.key];
         const bValue = b[sortConfig.key];
-
         if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
         if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
         return 0;
@@ -64,17 +63,17 @@ const DataTable = ({
   }, [filteredAndSortedData, currentPage, itemsPerPage]);
 
   return (
-    <div className="w-full">
-      {/* Search and Items Per Page */}
-      <div className="flex justify-between mb-4">
+    <div className="w-full bg-white rounded-xl shadow-sm p-4">
+      {/* Top controls */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
         {searchable && (
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <input
               type="text"
               placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full text-sm sm:w-64 px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         )}
@@ -85,7 +84,7 @@ const DataTable = ({
               setItemsPerPage(Number(e.target.value));
               setCurrentPage(1);
             }}
-            className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             {itemsPerPageOptions.map((option) => (
               <option key={option} value={option}>
@@ -98,38 +97,40 @@ const DataTable = ({
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border rounded-lg">
-          <thead className="bg-gray-50">
+        <table className="min-w-full bg-white">
+          <thead className="bg-gray-100 text-gray-700 text-sm">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
                   onClick={() => sortable && handleSort(column.key)}
-                  className={`px-6 py-3 text-left text-xs font-medium text-gray-800 bg-gray-200 uppercase tracking-wider ${
-                    sortable ? "cursor-pointer" : ""
+                  className={`px-5 py-3 text-left font-semibold ${
+                    sortable ? "cursor-pointer select-none" : ""
                   }`}
                 >
                   <div className="flex items-center space-x-1">
                     <span>{column.label}</span>
                     {sortable && sortConfig.key === column.key && (
-                      <span>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                      <span className="text-gray-500">
+                        {sortConfig.direction === "asc" ? "▲" : "▼"}
+                      </span>
                     )}
                   </div>
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody>
             {paginatedData.map((row, index) => (
               <tr
                 key={index}
                 onClick={() => onRowClick && onRowClick(row)}
-                className="hover:bg-gray-100 cursor-pointer"
+                className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
               >
                 {columns.map((column) => (
                   <td
                     key={column.key}
-                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                    className="px-5 py-3 text-sm text-gray-800"
                   >
                     {column.render
                       ? column.render(row[column.key], row)
@@ -140,41 +141,48 @@ const DataTable = ({
             ))}
           </tbody>
         </table>
+
+        {/* Empty state */}
+        {paginatedData.length === 0 && (
+          <div className="text-center py-10 text-gray-500 text-sm">
+            No data available
+          </div>
+        )}
       </div>
 
       {/* Pagination Controls */}
       {pagination && totalPages > 1 && (
-        <div className="flex justify-between items-center mt-4">
-          <div className="text-sm text-gray-700">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-4 text-sm text-gray-600 gap-3">
+          <div>
+            Showing {(currentPage - 1) * itemsPerPage + 1}–
             {Math.min(currentPage * itemsPerPage, filteredAndSortedData.length)}{" "}
-            of {filteredAndSortedData.length} entries
+            of {filteredAndSortedData.length}
           </div>
-          <div className="flex space-x-2">
+          <div className="flex space-x-1">
             <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 border rounded-md disabled:opacity-50"
+              className="px-3 py-1 rounded-md border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50"
             >
               Previous
             </button>
             {[...Array(totalPages)].map((_, i) => (
               <button
-                key={i + 1}
+                key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 border rounded-md ${
-                  currentPage === i + 1 ? "bg-blue-500 text-white" : ""
+                className={`px-3 py-1 rounded-md border border-gray-200 hover:bg-blue-50 ${
+                  currentPage === i + 1
+                    ? "bg-blue-500 text-white border-blue-500"
+                    : ""
                 }`}
               >
                 {i + 1}
               </button>
             ))}
             <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 border rounded-md disabled:opacity-50"
+              className="px-3 py-1 rounded-md border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50"
             >
               Next
             </button>
