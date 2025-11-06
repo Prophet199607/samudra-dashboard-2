@@ -82,7 +82,7 @@ export default function Login() {
               <select
                 value={locationId}
                 onChange={(e) => setLocationId(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[#6f3dc5] focus:border-transparent px-3 py-2"
+                className="mt-1 text-sm w-full rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[#6f3dc5] focus:border-transparent px-3 py-2"
               >
                 <option value="">Select a location</option>
                 {locations.map((loc) => (
@@ -102,7 +102,7 @@ export default function Login() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Username"
-                className="mt-1 w-full rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[#6f3dc5] focus:border-transparent px-3 py-2"
+                className="mt-1 text-sm w-full rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[#6f3dc5] focus:border-transparent px-3 py-2"
               />
             </div>
 
@@ -116,7 +116,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="mt-1 w-full rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[#6f3dc5] focus:border-transparent px-3 py-2"
+                className="mt-1  text-sm w-full rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[#6f3dc5] focus:border-transparent px-3 py-2"
               />
             </div>
 
