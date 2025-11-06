@@ -9,7 +9,7 @@ const ApproveOrder = ({ formData, updateField, errors = {} }) => {
     data: paymentTypes = [],
     loading: paymentTypesLoading,
     error: paymentTypesError,
-  } = useExternalApiData("/api/Master/GetPaymentModes");
+  } = useExternalApiData("/Master/GetPaymentModes");
 
   const paymentOptions = Array.isArray(paymentTypes)
     ? paymentTypes
