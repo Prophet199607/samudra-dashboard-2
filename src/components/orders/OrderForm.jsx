@@ -4,6 +4,7 @@ import OrderSummary from "../common/OrderSummary";
 const OrderForm = ({
   title,
   selectedOrder,
+  disabledSteps,
   savedSteps,
   activeTab,
   setActiveTab,
@@ -49,7 +50,9 @@ const OrderForm = ({
               {TAB_CONFIG.map((tab, index) => {
                 const isCompleted = savedSteps.has(tab.id);
                 const isActive = activeTab === tab.id;
-                const canNavigate = savedSteps.has(tab.id - 1) || tab.id === 1;
+                const isDisabled = disabledSteps.has(tab.id);
+                const canNavigate =
+                  !isDisabled && (savedSteps.has(tab.id - 1) || tab.id === 1);
 
                 const statusColors = {
                   1: "bg-blue-600",
@@ -64,8 +67,8 @@ const OrderForm = ({
                 };
 
                 return (
-                  <div key={tab.id} className="flex items-center">
-                    {index > 0 && ( // Horizontal line between steps
+                  <div key={tab.id} className="flex items-center mt-2">
+                    {index > 0 && (
                       <div
                         className={`h-0.5 w-16 ${
                           isCompleted ? statusColors[tab.id] : "bg-gray-300"
@@ -75,7 +78,7 @@ const OrderForm = ({
 
                     <button
                       onClick={() => canNavigate && setActiveTab(tab.id)}
-                      disabled={!canNavigate}
+                      disabled={!canNavigate || isDisabled}
                       className={`flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
                         isActive
                           ? `${
@@ -85,6 +88,8 @@ const OrderForm = ({
                           ? `${
                               statusColors[tab.id]
                             } text-white border-2 border-gray-600 shadow-md`
+                          : isDisabled
+                          ? "bg-gray-400 text-gray-200 border-2 border-gray-300 cursor-not-allowed"
                           : canNavigate
                           ? "bg-gray-300 text-gray-600 border-2 border-gray-400 hover:bg-gray-400"
                           : "bg-gray-200 text-gray-400 border-2 border-gray-300 cursor-not-allowed"

@@ -49,7 +49,7 @@ const CashPayment = ({ formData, updateField }) => {
             <div className="space-y-3">
               <img
                 src={fileUrl}
-                alt="Payment receipt"
+                alt="Deposit slip"
                 className="w-full h-48 object-cover rounded-lg border shadow-sm"
                 onError={(e) => {
                   console.error("Image load error:", e);
@@ -107,7 +107,7 @@ const CashPayment = ({ formData, updateField }) => {
             <div className="space-y-3">
               <img
                 src={previewUrl}
-                alt="Payment receipt preview"
+                alt="Deposit slip preview"
                 className="w-full h-48 object-cover rounded-lg border shadow-sm"
               />
               <div className="text-center">
@@ -139,7 +139,7 @@ const CashPayment = ({ formData, updateField }) => {
         {/* File Upload Section */}
         <div>
           <FileUpload
-            label="Payment Receipt Attachment"
+            label="Deposit Slip Attachment"
             onChange={handleFileChange}
             accept=".pdf,.jpg,.jpeg,.png"
             value={

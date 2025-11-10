@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 
 const OrderSummary = ({ formData, currentStep = Infinity, savedSteps }) => {
   const [openSections, setOpenSections] = useState({
-    basic: true,
+    basic: false,
     branch: false,
     approval: false,
     salesOrder: false,
