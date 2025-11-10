@@ -58,11 +58,11 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4 sm:p-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 p-4">
       {metricCards.map((card, index) => (
         <div
           key={index}
-          className="bg-white rounded-xl shadow-lg p-6 flex items-center space-x-4 border border-gray-100"
+          className="bg-white rounded-xl shadow-lg p-4 sm:p-6 flex items-center space-x-4 border border-gray-100"
         >
           <div className={`p-3 rounded-full ${card.color}`}>
             <span className="text-2xl">{card.icon}</span>

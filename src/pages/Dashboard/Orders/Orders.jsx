@@ -105,12 +105,12 @@ const Orders = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2 sm:p-4">
       <div className="max-w-[1600px] mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-5 mb-3 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-5 mb-4 border border-gray-100">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Order Management
               </h1>
               <p className="text-gray-600">Total Orders: {orders.length}</p>
@@ -124,7 +124,7 @@ const Orders = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-5 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-lg p-2 sm:p-5 border border-gray-100">
           <DataTable
             data={orders}
             columns={tableColumns}

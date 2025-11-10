@@ -14,10 +14,10 @@ const OrderForm = ({
   formData,
 }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-1 sm:p-2">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2 sm:p-4">
       <div className="max-full mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-lg p-5 mb-3 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-5 mb-4 border border-gray-100">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4">
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
@@ -45,7 +45,7 @@ const OrderForm = ({
             </div>
           </div>
           <div className="border-t border-gray-200 p-4">
-            <nav className="flex items-center justify-center scrollbar-hide">
+            <nav className="flex items-center justify-start sm:justify-center overflow-x-auto scrollbar-hide pb-2">
               {TAB_CONFIG.map((tab, index) => {
                 const isCompleted = savedSteps.has(tab.id);
                 const isActive = activeTab === tab.id;
@@ -65,7 +65,7 @@ const OrderForm = ({
 
                 return (
                   <div key={tab.id} className="flex items-center">
-                    {index > 0 && (
+                    {index > 0 && ( // Horizontal line between steps
                       <div
                         className={`h-0.5 w-16 ${
                           isCompleted ? statusColors[tab.id] : "bg-gray-300"
@@ -75,8 +75,7 @@ const OrderForm = ({
 
                     <button
                       onClick={() => canNavigate && setActiveTab(tab.id)}
-                      disabled={canNavigate}
-                      // disabled={!canNavigate}
+                      disabled={!canNavigate}
                       className={`flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
                         isActive
                           ? `${
@@ -98,8 +97,8 @@ const OrderForm = ({
               })}
             </nav>
 
-            {/* Step titles */}
-            <div className="flex justify-center mt-3 space-x-8">
+            {/* Step titles - hidden on small screens */}
+            <div className="hidden sm:flex justify-center mt-3 space-x-8">
               {TAB_CONFIG.map((tab) => (
                 <div
                   key={tab.id}
@@ -141,36 +140,11 @@ const OrderForm = ({
 
           {/* Navigation and Submit */}
           <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200 gap-4">
-            {/* <div className="flex space-x-2">
-              <button
-                onClick={() => {
-                  const prevTab = activeTab - 1;
-                  if (prevTab >= 1) {
-                    setActiveTab(prevTab);
-                  }
-                }}
-                disabled={activeTab === 1}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              >
-                <span>←</span>
-                <span className="hidden sm:inline">Previous</span>
-              </button>
-              <button
-                onClick={() => {
-                  const nextTab = activeTab + 1;
-                  if (nextTab <= 9) {
-                    setActiveTab(nextTab);
-                  }
-                }}
-                disabled={activeTab === 9 || !savedSteps.has(activeTab)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              >
-                <span className="hidden sm:inline">Next</span>
-                <span>→</span>
-              </button>
-            </div> */}
+            <div className="flex-grow flex justify-start">
+              {/* Placeholder for alignment */}
+            </div>
 
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 w-full sm:w-auto justify-center">
               {activeTab >= 1 &&
                 activeTab <= 8 &&
                 !savedSteps.has(activeTab) && (
@@ -196,7 +170,7 @@ const OrderForm = ({
         </div>
 
         {/* Progress Summary */}
-        <div className="mt-6 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
+        <div className="mt-4 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div className="flex items-center space-x-4 text-sm text-gray-600">
               <div className="flex items-center space-x-1">

@@ -5,7 +5,7 @@ import useOnClickOutside from "../hooks/useOnClickOutside";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/auth-context.js";
 
-export default function Navbar({ onToggle }) {
+export default function Navbar({ onToggle, collapsed }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const navigate = useNavigate();
@@ -28,7 +28,10 @@ export default function Navbar({ onToggle }) {
         >
           <MdMenu size={20} />
         </button>
-        <div className="pageTitle">Welcome, Samudra Team</div>
+
+        {!collapsed && (
+          <div className="pageTitle hidden sm:block">Welcome, Samudra Team</div>
+        )}
       </div>
 
       <div className="relative" ref={ref}>
