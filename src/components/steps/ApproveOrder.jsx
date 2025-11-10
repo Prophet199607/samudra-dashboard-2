@@ -2,23 +2,30 @@ import React from "react";
 import DatePicker from "../common/Input/DatePicker";
 import SelectField from "../common/Input/SelectField";
 import TextAreaField from "../common/Input/TextAreaField";
-import { useExternalApiData } from "../../hooks/useExternalApiData";
+// import { useExternalApiData } from "../../hooks/useExternalApiData";
 
 const ApproveOrder = ({ formData, updateField, errors = {} }) => {
-  const {
-    data: paymentTypes = [],
-    loading: paymentTypesLoading,
-    error: paymentTypesError,
-  } = useExternalApiData("/Master/GetPaymentModes");
+  // const {
+  //   data: paymentTypes = [],
+  //   loading: paymentTypesLoading,
+  //   error: paymentTypesError,
+  // } = useExternalApiData("/Master/GetPaymentModes");
 
-  const paymentOptions = Array.isArray(paymentTypes)
-    ? paymentTypes
-        .map((payment) => ({
-          value: payment.PayType || payment.value || "",
-          label: payment.PayType || payment.label || "Unknown Payment",
-        }))
-        .filter((option) => option.value && option.label)
-    : [];
+  // const paymentOptions = Array.isArray(paymentTypes)
+  //   ? paymentTypes
+  //       .map((payment) => ({
+  //         value: payment.PayType || payment.value || "",
+  //         label: payment.PayType || payment.label || "Unknown Payment",
+  //       }))
+  //       .filter((option) => option.value && option.label)
+  //   : [];
+
+  const paymentOptions = [
+    { value: "Cash", label: "Cash" },
+    { value: "Cash Deposit", label: "Cash Deposit" },
+    { value: "Check", label: "Check" },
+    { value: "Credit", label: "Credit" },
+  ];
 
   const formatDate = (date) => {
     if (!date) return "";
@@ -45,18 +52,13 @@ const ApproveOrder = ({ formData, updateField, errors = {} }) => {
             value={formData.paymentType || ""}
             onChange={(e) => updateField("paymentType", e.target.value)}
             options={paymentOptions}
-            placeholder={
-              paymentTypesLoading
-                ? "Loading payments..."
-                : "Select a payment type"
-            }
+            placeholder="Select a payment type"
             required
-            disabled={paymentTypesLoading}
             error={errors.paymentType || errors.payment_type}
           />
-          {paymentTypesError && (
+          {/* {paymentTypesError && (
             <div className="text-red-600 text-sm">{paymentTypesError}</div>
-          )}
+          )} */}
         </div>
 
         <div className="space-y-4">
