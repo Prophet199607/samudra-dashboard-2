@@ -53,25 +53,16 @@ const OrderForm = ({
                 const isDisabled = disabledSteps.has(tab.id);
                 const canNavigate =
                   !isDisabled && (savedSteps.has(tab.id - 1) || tab.id === 1);
-
-                const statusColors = {
-                  1: "bg-blue-600",
-                  2: "bg-purple-600",
-                  3: "bg-indigo-600",
-                  4: "bg-teal-600",
-                  5: "bg-green-600",
-                  6: "bg-yellow-600",
-                  7: "bg-orange-600",
-                  8: "bg-red-600",
-                  9: "bg-pink-600",
-                };
-
                 return (
                   <div key={tab.id} className="flex items-center mt-2">
                     {index > 0 && (
                       <div
-                        className={`h-0.5 w-16 ${
-                          isCompleted ? statusColors[tab.id] : "bg-gray-300"
+                        className={`h-0.5 w-16 transition-colors duration-200 ${
+                          isDisabled
+                            ? "bg-gray-500"
+                            : isCompleted
+                            ? tab.color
+                            : "bg-gray-300"
                         }`}
                       ></div>
                     )}
@@ -80,16 +71,12 @@ const OrderForm = ({
                       onClick={() => canNavigate && setActiveTab(tab.id)}
                       disabled={!canNavigate || isDisabled}
                       className={`flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
-                        isActive
-                          ? `${
-                              statusColors[tab.id]
-                            } text-white border-2 border-gray-700 shadow-lg outline-2 outline-offset-3 outline-black`
+                        isDisabled
+                          ? "bg-gray-500 text-white border-2 border-gray-300 cursor-not-allowed"
+                          : isActive
+                          ? `${tab.color} text-white border-2 border-gray-700 shadow-lg outline-2 outline-offset-3 outline-black`
                           : isCompleted
-                          ? `${
-                              statusColors[tab.id]
-                            } text-white border-2 border-gray-600 shadow-md`
-                          : isDisabled
-                          ? "bg-gray-400 text-gray-200 border-2 border-gray-300 cursor-not-allowed"
+                          ? `${tab.color} text-white border-2 border-gray-600 shadow-md` // Completed
                           : canNavigate
                           ? "bg-gray-300 text-gray-600 border-2 border-gray-400 hover:bg-gray-400"
                           : "bg-gray-200 text-gray-400 border-2 border-gray-300 cursor-not-allowed"
