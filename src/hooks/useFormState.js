@@ -30,6 +30,7 @@ export const useFormState = () => {
 
     // Step 6: Payment Info
     paymentAttachment: null,
+    paymentRemark: "",
 
     // Step 7: Invoice Info
     invoiceNumber: "",
