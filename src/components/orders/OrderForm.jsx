@@ -69,7 +69,7 @@ const OrderForm = ({
 
                     <button
                       onClick={() => canNavigate && setActiveTab(tab.id)}
-                      disabled={!canNavigate || isDisabled}
+                      disabled={canNavigate || isDisabled}
                       className={`flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
                         isDisabled
                           ? "bg-gray-500 text-white border-2 border-gray-300 cursor-not-allowed"
