@@ -16,9 +16,9 @@ import Step3ApproveOrder from "../../../components/steps/ApproveOrder";
 import Step4AddSalesOrder from "../../../components/steps/AddSalesOrder";
 import Step5AddQuotation from "../../../components/steps/AddQuotation";
 import Step6CashPayment from "../../../components/steps/CashPayment";
-import Step7AddInvoice from "../../../components/steps/AddInvoice";
-import Step8DeliveryDetails from "../../../components/steps/DeliveryDetails";
-import Step9FinalDetails from "../../../components/steps/FinalDetails";
+import Step7PaymentConfirm from "../../../components/steps/PaymentConfirm";
+import Step8AddInvoice from "../../../components/steps/AddInvoice";
+import Step9DeliveryDetails from "../../../components/steps/DeliveryDetails";
 
 const OrderDetail = () => {
   const { id } = useParams();
@@ -29,6 +29,7 @@ const OrderDetail = () => {
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState(1);
   const [savedSteps, setSavedSteps] = useState(new Set());
+  const [disabledSteps, setDisabledSteps] = useState(new Set());
   const [selectedOrder, setSelectedOrder] = useState(null);
   const { formData, updateField, resetForm } = useFormState();
 
@@ -48,6 +49,14 @@ const OrderDetail = () => {
         setSavedSteps(
           new Set(Array.from({ length: order.status }, (_, i) => i + 1))
         );
+
+        // Disable step 6 & 7 if payment type is not cash-based
+        if (
+          order.payment_type &&
+          !["Cash", "Cash Deposit"].includes(order.payment_type)
+        ) {
+          setDisabledSteps(new Set([6, 7]));
+        }
 
         const fieldMappings = {
           customer_name: "customerName",
@@ -337,7 +346,11 @@ const OrderDetail = () => {
                 navigate("/orders");
               }, 1000);
             } else if (activeTab < 9) {
-              setActiveTab(activeTab + 1);
+              let nextStep = activeTab + 1;
+              while (disabledSteps.has(nextStep)) {
+                nextStep++;
+              }
+              setActiveTab(nextStep);
             }
           }
         }
@@ -358,7 +371,15 @@ const OrderDetail = () => {
         }
       }
     },
-    [activeTab, formData, isNewOrder, selectedOrder, navigate, resetForm]
+    [
+      activeTab,
+      formData,
+      isNewOrder,
+      selectedOrder,
+      navigate,
+      resetForm,
+      disabledSteps,
+    ]
   );
 
   const handleBackToList = useCallback(() => {
@@ -387,11 +408,11 @@ const OrderDetail = () => {
       case 6:
         return <Step6CashPayment {...stepProps} />;
       case 7:
-        return <Step7AddInvoice {...stepProps} />;
+        return <Step7PaymentConfirm {...stepProps} />;
       case 8:
-        return <Step8DeliveryDetails {...stepProps} />;
+        return <Step8AddInvoice {...stepProps} />;
       case 9:
-        return <Step9FinalDetails {...stepProps} />;
+        return <Step9DeliveryDetails {...stepProps} />;
       default:
         return null;
     }
@@ -404,6 +425,7 @@ const OrderDetail = () => {
       }
       selectedOrder={selectedOrder}
       savedSteps={savedSteps}
+      disabledSteps={disabledSteps}
       activeTab={activeTab}
       setActiveTab={setActiveTab}
       renderStepContent={renderStepContent}
