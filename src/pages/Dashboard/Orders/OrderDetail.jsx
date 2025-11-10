@@ -50,7 +50,7 @@ const OrderDetail = () => {
           new Set(Array.from({ length: order.status }, (_, i) => i + 1))
         );
 
-        // Disable step 6 & 7 if payment type is not cash-based
+        // Disable step 6 and 7 if payment type is not cash-based
         if (
           order.payment_type &&
           !["Cash", "Cash Deposit"].includes(order.payment_type)
@@ -169,6 +169,7 @@ const OrderDetail = () => {
             requireField("ornNumber", "ORN number is required");
             requireField("customerName", "Customer name is required");
             requireField("customerGroup", "Customer group is required");
+            requireField("customerBranch", "Customer's branch is required");
             break;
           case 2:
             requireField("salesBranch", "Sales branch is required");
@@ -231,13 +232,13 @@ const OrderDetail = () => {
             break;
           case 6: // Payment Info (File upload step)
             break;
-          case 7: // Invoice Info
+          case 7: // Payment Confirmation
             stepData = {
               invoice_no: formData.invoiceNumber,
               invoice_amount: formData.invoiceAmount,
             };
             break;
-          case 8: // Invoice Info
+          case 8: // Delivery Info
             stepData = {
               vehicle_no: formData.vehicleNo,
               driver_name: formData.driverName,
@@ -329,6 +330,17 @@ const OrderDetail = () => {
           );
 
           if (response.data.success) {
+            if (activeTab === 3) {
+              if (
+                !["Cash", "Cash Deposit"].includes(
+                  response.data.order.payment_type
+                )
+              ) {
+                setDisabledSteps(new Set([6, 7]));
+              } else {
+                setDisabledSteps(new Set());
+              }
+            }
             setSelectedOrder(response.data.order);
             setSavedSteps((prev) => new Set([...prev, activeTab]));
             showSuccessToast(
@@ -346,11 +358,22 @@ const OrderDetail = () => {
                 navigate("/orders");
               }, 1000);
             } else if (activeTab < 9) {
-              let nextStep = activeTab + 1;
-              while (disabledSteps.has(nextStep)) {
-                nextStep++;
-              }
-              setActiveTab(nextStep);
+              setTimeout(() => {
+                let nextSteps = disabledSteps;
+                if (
+                  activeTab === 3 &&
+                  !["Cash", "Cash Deposit"].includes(
+                    response.data.order.payment_type
+                  )
+                ) {
+                  nextSteps = new Set([6, 7]);
+                }
+                let nextTab = activeTab + 1;
+                while (nextSteps.has(nextTab)) {
+                  nextTab++;
+                }
+                setActiveTab(nextTab);
+              }, 1000);
             }
           }
         }
