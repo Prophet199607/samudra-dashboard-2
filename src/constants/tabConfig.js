@@ -37,7 +37,7 @@ export const TAB_CONFIG = [
   },
   {
     id: 7,
-    title: "Payment Confirmation",
+    title: "Payment<br />Confirmation",
     icon: "💳",
     color: "bg-orange-600",
   },
