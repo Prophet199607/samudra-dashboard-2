@@ -63,7 +63,7 @@ const ApproveOrder = ({ formData, updateField, errors = {} }) => {
 
         <div className="space-y-4">
           <TextAreaField
-            label="Approval Remarks"
+            label="Approval Remark"
             value={formData.approvalRemark || ""}
             onChange={(e) => updateField("approvalRemark", e.target.value)}
             placeholder="Enter approval comments or conditions"

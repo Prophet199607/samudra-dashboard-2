@@ -107,7 +107,7 @@ const OrderDetail = () => {
           po_amount: "poAmount",
           orn_number: "ornNumber",
           order_request_date: "ordReqDate",
-          remarks: "orderRemark",
+          remark: "orderRemark",
 
           sales_branch: "salesBranch",
 
@@ -226,7 +226,7 @@ const OrderDetail = () => {
           po_amount: parseFloat(formData.poAmount || 0),
           orn_number: formData.ornNumber,
           order_request_date: formData.ordReqDate,
-          remarks: formData.orderRemark,
+          remark: formData.orderRemark,
           status: activeTab,
           currentStep: activeTab,
         };
@@ -376,10 +376,6 @@ const OrderDetail = () => {
               `Step ${activeTab} saved successfully!`,
               loadingToastId
             );
-            setTimeout(() => {
-              resetForm();
-              navigate("/orders");
-            }, 1000);
 
             if (activeTab === 9 || completeOrder) {
               setTimeout(() => {
@@ -407,6 +403,10 @@ const OrderDetail = () => {
                 }
               }, 1000);
             }
+            setTimeout(() => {
+              resetForm();
+              navigate("/orders");
+            }, 1000);
           }
         }
       } catch (error) {

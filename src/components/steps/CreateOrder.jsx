@@ -301,10 +301,10 @@ const CreateOrder = ({ formData, updateField, isNewOrder, errors = {} }) => {
             error={errors.poAmount || errors.po_amount}
           />
           <TextAreaField
-            label="Remarks"
+            label="Remark"
             value={formData.orderRemark || ""}
             onChange={(e) => handleInputChange("orderRemark", e.target.value)}
-            placeholder="Enter any additional remarks or notes"
+            placeholder="Enter any additional remark or note"
             rows={3}
           />
         </div>
