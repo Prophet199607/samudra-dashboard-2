@@ -128,13 +128,14 @@ const OrderDetail = () => {
           invoice_no: "invoiceNumber",
           invoice_amount: "invoiceAmount",
 
+          delivery_type: "deliveryType",
+          bus_no: "busNo",
+          way_bill_no: "wayBillNo",
+          tracking_no: "trackingNo",
           vehicle_no: "vehicleNo",
           driver_name: "driverName",
+          courier_name: "courierName",
           no_of_boxes: "noOfBoxes",
-
-          cash_in_number: "cashInNo",
-          way_bill_no: "wayBillNo",
-          handover_to: "handOverTo",
         };
 
         Object.entries(fieldMappings).forEach(([dbField, formField]) => {
@@ -207,6 +208,9 @@ const OrderDetail = () => {
             requireField("approvalDate", "Approval date is required");
             requireField("paymentType", "Payment type is required");
             break;
+          case 9:
+            requireField("deliveryType", "Delivery type is required");
+            break;
           default:
             break;
         }
@@ -275,12 +279,14 @@ const OrderDetail = () => {
             break;
           case 9: // Delivery Info
             stepData = {
+              delivery_type: formData.deliveryType,
+              bus_no: formData.busNo,
+              way_bill_no: formData.wayBillNo,
+              tracking_no: formData.trackingNo,
               vehicle_no: formData.vehicleNo,
               driver_name: formData.driverName,
+              courier_name: formData.courierName,
               no_of_boxes: formData.noOfBoxes,
-              cash_in_number: formData.cashInNo,
-              way_bill_no: formData.wayBillNo,
-              handover_to: formData.handOverTo,
             };
             break;
           default:
@@ -303,12 +309,14 @@ const OrderDetail = () => {
               invoice_no: formData.invoiceNumber,
               invoice_amount: formData.invoiceAmount,
 
+              delivery_type: formData.deliveryType,
+              bus_no: formData.busNo,
+              way_bill_no: formData.wayBillNo,
+              tracking_no: formData.trackingNo,
               vehicle_no: formData.vehicleNo,
               driver_name: formData.driverName,
+              courier_name: formData.courierName,
               no_of_boxes: formData.noOfBoxes,
-              cash_in_number: formData.cashInNo,
-              way_bill_no: formData.wayBillNo,
-              handover_to: formData.handOverTo,
             };
             break;
         }

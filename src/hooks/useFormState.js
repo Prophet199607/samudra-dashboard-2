@@ -40,11 +40,13 @@ export const useFormState = () => {
     invoiceAmount: "",
 
     // Step 9: Delivery Info
-    cashInNo: "",
+    deliveryType: "",
+    busNo: "",
     wayBillNo: "",
-    handOverTo: "",
+    trackingNo: "",
     vehicleNo: "",
     driverName: "",
+    courierName: "",
     noOfBoxes: "",
   });
 
@@ -95,11 +97,13 @@ export const useFormState = () => {
         7: ["paymentConfirmed", "paymentRemark"],
         8: ["invoiceNumber", "invoiceAmount"],
         9: [
-          "cashInNo",
+          "deliveryType",
+          "busNo",
           "wayBillNo",
-          "handOverTo",
+          "trackingNo",
           "vehicleNo",
           "driverName",
+          "courierName",
           "noOfBoxes",
         ],
       };
@@ -135,12 +139,14 @@ export const useFormState = () => {
       paymentRemark: "",
       invoiceNumber: "",
       invoiceAmount: "",
+      deliveryType: "",
+      busNo: "",
+      wayBillNo: "",
+      trackingNo: "",
       vehicleNo: "",
       driverName: "",
+      courierName: "",
       noOfBoxes: "",
-      cashInNo: "",
-      wayBillNo: "",
-      handOverTo: "",
     });
   }, []);
 
