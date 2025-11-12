@@ -1,9 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
+import ImageModal from "../common/model/ImageModal";
 import TextAreaField from "../common/Input/TextAreaField";
 import CheckBoxField from "../common/Input/CheckBoxField";
 import { showErrorToast } from "../../components/alert/ToastAlert";
 
 const PaymentConfirm = ({ formData, updateField }) => {
+  const [modalImageUrl, setModalImageUrl] = useState("");
+  const [showImageModal, setShowImageModal] = useState(false);
+
+  const openImageModal = (url) => {
+    setModalImageUrl(url);
+    setShowImageModal(true);
+  };
+
   const getFilePreview = () => {
     const file = formData.paymentAttachment;
 
@@ -34,14 +43,13 @@ const PaymentConfirm = ({ formData, updateField }) => {
               />
               <div className="text-center">
                 <p className="text-sm text-gray-600 font-medium">{fileName}</p>
-                <a
-                  href={fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => openImageModal(fileUrl)}
                   className="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-md hover:bg-blue-200 transition-colors"
                 >
                   View Full Size
-                </a>
+                </button>
               </div>
             </div>
           ) : (
@@ -116,6 +124,12 @@ const PaymentConfirm = ({ formData, updateField }) => {
           />
         </div>
       </div>
+      {showImageModal && (
+        <ImageModal
+          imageUrl={modalImageUrl}
+          onClose={() => setShowImageModal(false)}
+        />
+      )}
     </div>
   );
 };

@@ -1,8 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
+import ImageModal from "../common/model/ImageModal";
 import FileUpload from "../common/Input/FileUpload";
 import { showErrorToast } from "../../components/alert/ToastAlert";
 
 const CashPayment = ({ formData, updateField }) => {
+  const [modalImageUrl, setModalImageUrl] = useState("");
+  const [showImageModal, setShowImageModal] = useState(false);
+
+  const openImageModal = (url) => {
+    setModalImageUrl(url);
+    setShowImageModal(true);
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -59,14 +68,13 @@ const CashPayment = ({ formData, updateField }) => {
               />
               <div className="text-center">
                 <p className="text-sm text-gray-600 font-medium">{fileName}</p>
-                <a
-                  href={fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => openImageModal(fileUrl)}
                   className="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-md hover:bg-blue-200 transition-colors"
                 >
                   View Full Size
-                </a>
+                </button>
               </div>
             </div>
           ) : (
@@ -182,6 +190,12 @@ const CashPayment = ({ formData, updateField }) => {
           )}
         </div>
       </div>
+      {showImageModal && (
+        <ImageModal
+          imageUrl={modalImageUrl}
+          onClose={() => setShowImageModal(false)}
+        />
+      )}
     </div>
   );
 };
