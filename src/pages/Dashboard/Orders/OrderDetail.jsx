@@ -122,6 +122,8 @@ const OrderDetail = () => {
           quotation_date: "quotationDate",
 
           payment_receipt: "paymentAttachment",
+          payment_confirmed: "paymentConfirmed",
+          payment_remark: "paymentRemark",
 
           invoice_no: "invoiceNumber",
           invoice_amount: "invoiceAmount",
@@ -263,6 +265,8 @@ const OrderDetail = () => {
             stepData = {
               invoice_no: formData.invoiceNumber,
               invoice_amount: formData.invoiceAmount,
+              payment_confirmed: formData.paymentConfirmed ? 1 : 0,
+              payment_remark: formData.paymentRemark,
             };
             break;
           case 8: // Delivery Info
@@ -292,6 +296,9 @@ const OrderDetail = () => {
 
               quotation_no: formData.quotationNumber,
               quotation_date: formData.quotationDate,
+
+              payment_confirmed: formData.paymentConfirmed ? 1 : 0,
+              payment_remark: formData.paymentRemark,
 
               invoice_no: formData.invoiceNumber,
               invoice_amount: formData.invoiceAmount,

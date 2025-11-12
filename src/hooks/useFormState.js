@@ -30,9 +30,11 @@ export const useFormState = () => {
 
     // Step 6: Payment Info
     paymentAttachment: null,
+
+    // Step 7: Payment Confirm
+    paymentConfirmed: false,
     paymentRemark: "",
 
-    // Step 7: Invoice Info
     invoiceNumber: "",
     invoiceAmount: "",
 
@@ -91,8 +93,9 @@ export const useFormState = () => {
         4: ["salesOrderNumber", "salesOrderDate"],
         5: ["quotationNumber", "quotationDate"],
         6: ["paymentAttachment"],
-        7: ["invoiceNumber", "invoiceAmount"],
-        8: ["vehicleNo", "driverName", "noOfBoxes"],
+        7: ["paymentConfirmed", "paymentRemark"],
+        8: ["invoiceNumber", "invoiceAmount"],
+        // 8: ["vehicleNo", "driverName", "noOfBoxes"],
         9: ["cashInNo", "wayBillNo", "handOverTo"],
       };
 
@@ -123,6 +126,8 @@ export const useFormState = () => {
       quotationNumber: "",
       quotationDate: "",
       paymentAttachment: null,
+      paymentConfirmed: false,
+      paymentRemark: "",
       invoiceNumber: "",
       invoiceAmount: "",
       vehicleNo: "",
