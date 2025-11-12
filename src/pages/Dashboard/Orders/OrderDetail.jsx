@@ -263,21 +263,21 @@ const OrderDetail = () => {
             break;
           case 7: // Payment Confirmation
             stepData = {
-              invoice_no: formData.invoiceNumber,
-              invoice_amount: formData.invoiceAmount,
               payment_confirmed: formData.paymentConfirmed ? 1 : 0,
               payment_remark: formData.paymentRemark,
             };
             break;
-          case 8: // Delivery Info
+          case 8: // Invoice Info
+            stepData = {
+              invoice_no: formData.invoiceNumber,
+              invoice_amount: formData.invoiceAmount,
+            };
+            break;
+          case 9: // Delivery Info
             stepData = {
               vehicle_no: formData.vehicleNo,
               driver_name: formData.driverName,
               no_of_boxes: formData.noOfBoxes,
-            };
-            break;
-          case 9: // Cash In Info
-            stepData = {
               cash_in_number: formData.cashInNo,
               way_bill_no: formData.wayBillNo,
               handover_to: formData.handOverTo,
@@ -306,7 +306,6 @@ const OrderDetail = () => {
               vehicle_no: formData.vehicleNo,
               driver_name: formData.driverName,
               no_of_boxes: formData.noOfBoxes,
-
               cash_in_number: formData.cashInNo,
               way_bill_no: formData.wayBillNo,
               handover_to: formData.handOverTo,
