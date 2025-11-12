@@ -92,7 +92,7 @@ const OrderForm = ({
               })}
             </nav>
 
-            <div className="hidden sm:flex justify-center space-x-14">
+            <div className="hidden sm:flex justify-center mt-1 space-x-14">
               {TAB_CONFIG.map((tab) => {
                 const isCompleted = savedSteps.has(tab.id);
                 const isDisabled = disabledSteps.has(tab.id);
@@ -107,7 +107,7 @@ const OrderForm = ({
                         : "text-gray-500"
                     }`}
                   >
-                    <p dangerouslySetInnerHTML={{ __html: tab.title }} />
+                    {tab.title}
                   </div>
                 );
               })}
