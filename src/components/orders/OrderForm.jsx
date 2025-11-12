@@ -52,14 +52,17 @@ const OrderForm = ({
                 const isActive = activeTab === tab.id;
                 const isDisabled = disabledSteps.has(tab.id);
                 const canNavigate =
-                  !isDisabled && (savedSteps.has(tab.id - 1) || tab.id === 1);
+                  !isDisabled &&
+                  (savedSteps.has(tab.id - 1) ||
+                    tab.id === 1 ||
+                    (tab.id === 3 && [4, 5, 6].includes(activeTab)));
                 return (
                   <div key={tab.id} className="flex items-center mt-2">
                     {index > 0 && (
                       <div
                         className={`h-0.5 w-16 transition-colors duration-200 ${
                           isDisabled
-                            ? "bg-gray-500"
+                            ? "bg-gray-100"
                             : isCompleted
                             ? tab.color
                             : "bg-gray-300"
@@ -72,11 +75,11 @@ const OrderForm = ({
                       disabled={canNavigate || isDisabled}
                       className={`flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
                         isDisabled
-                          ? "bg-gray-500 text-white border-2 border-gray-300 cursor-not-allowed"
+                          ? "bg-gray-100 text-gray-300 border-2 border-gray-200 cursor-not-allowed"
                           : isActive
                           ? `${tab.color} text-white border-2 border-gray-700 shadow-lg outline-2 outline-offset-3 outline-black`
                           : isCompleted
-                          ? `${tab.color} text-white border-2 border-gray-600 shadow-md` // Completed
+                          ? `${tab.color} text-white border-2 border-gray-600 shadow-md`
                           : canNavigate
                           ? "bg-gray-300 text-gray-600 border-2 border-gray-400 hover:bg-gray-400"
                           : "bg-gray-200 text-gray-400 border-2 border-gray-300 cursor-not-allowed"
@@ -89,17 +92,25 @@ const OrderForm = ({
               })}
             </nav>
 
-            {/* Step titles - hidden on small screens */}
-            <div className="hidden sm:flex justify-center mt-3 space-x-8">
-              {TAB_CONFIG.map((tab) => (
-                <div
-                  key={tab.id}
-                  className="text-xs font-medium text-gray-700 text-center"
-                  style={{ minWidth: "80px" }}
-                >
-                  {tab.title}
-                </div>
-              ))}
+            <div className="hidden sm:flex justify-center space-x-14">
+              {TAB_CONFIG.map((tab) => {
+                const isCompleted = savedSteps.has(tab.id);
+                const isDisabled = disabledSteps.has(tab.id);
+                return (
+                  <div
+                    key={tab.id}
+                    className={`text-xs font-medium text-center ${
+                      isDisabled
+                        ? "text-gray-300"
+                        : isCompleted
+                        ? "text-gray-700"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    <p dangerouslySetInnerHTML={{ __html: tab.title }} />
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -130,21 +141,22 @@ const OrderForm = ({
 
           <div className="mb-8">{renderStepContent()}</div>
 
-          {/* Navigation and Submit */}
+          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200 gap-4">
-            <div className="flex-grow flex justify-start">
-              {/* Placeholder for alignment */}
-            </div>
+            <div className="flex-grow flex justify-start"></div>
 
             <div className="flex space-x-2 w-full sm:w-auto justify-center">
               {activeTab >= 1 &&
                 activeTab <= 8 &&
-                !savedSteps.has(activeTab) && (
+                (activeTab === 3 || !savedSteps.has(activeTab)) && (
                   <button
                     onClick={() => handleSubmit()}
                     className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-blue-700 text-white shadow-md hover:shadow-lg"
                   >
-                    <span>Save Step {activeTab}</span>
+                    <span>
+                      {activeTab === 3 ? "Update Step" : "Save Step"}{" "}
+                      {activeTab}
+                    </span>
                   </button>
                 )}
 

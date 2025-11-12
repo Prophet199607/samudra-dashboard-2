@@ -29,9 +29,44 @@ const OrderDetail = () => {
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState(1);
   const [savedSteps, setSavedSteps] = useState(new Set());
-  const [disabledSteps, setDisabledSteps] = useState(new Set());
   const [selectedOrder, setSelectedOrder] = useState(null);
   const { formData, updateField, resetForm } = useFormState();
+  const [disabledSteps, setDisabledSteps] = useState(new Set());
+
+  useEffect(() => {
+    const statusParam = searchParams.get("status");
+    if (statusParam && !isNewOrder && selectedOrder) {
+      const targetStatus = parseInt(statusParam);
+
+      if (
+        targetStatus >= 1 &&
+        targetStatus <= 9 &&
+        !disabledSteps.has(targetStatus) &&
+        (targetStatus === 1 || savedSteps.has(targetStatus - 1))
+      ) {
+        setActiveTab(targetStatus);
+      } else {
+        let adjustedStatus = targetStatus;
+        while (adjustedStatus <= 9 && disabledSteps.has(adjustedStatus)) {
+          adjustedStatus++;
+        }
+        if (adjustedStatus <= 9) {
+          setActiveTab(adjustedStatus);
+
+          const newSearchParams = new URLSearchParams(searchParams);
+          newSearchParams.set("status", adjustedStatus.toString());
+          navigate(`?${newSearchParams.toString()}`, { replace: true });
+        }
+      }
+    }
+  }, [
+    searchParams,
+    selectedOrder,
+    savedSteps,
+    isNewOrder,
+    disabledSteps,
+    navigate,
+  ]);
 
   useEffect(() => {
     const fetchOrderDetails = async (ornNumber) => {
@@ -43,20 +78,26 @@ const OrderDetail = () => {
         const order = response.data.order;
         setSelectedOrder(order);
 
-        const initialTab = order.status < 9 ? order.status + 1 : order.status;
+        let initialTab = order.status < 9 ? order.status + 1 : order.status;
+
+        const isCashBased =
+          order.payment_type &&
+          ["Cash", "Cash Deposit"].includes(order.payment_type);
+        if (!isCashBased) {
+          setDisabledSteps(new Set([6, 7]));
+
+          if (initialTab === 6 || initialTab === 7) {
+            initialTab = 8;
+          }
+        } else {
+          setDisabledSteps(new Set());
+        }
+
         setActiveTab(initialTab);
 
         setSavedSteps(
           new Set(Array.from({ length: order.status }, (_, i) => i + 1))
         );
-
-        // Disable step 6 and 7 if payment type is not cash-based
-        if (
-          order.payment_type &&
-          !["Cash", "Cash Deposit"].includes(order.payment_type)
-        ) {
-          setDisabledSteps(new Set([6, 7]));
-        }
 
         const fieldMappings = {
           customer_name: "customerName",
@@ -137,20 +178,6 @@ const OrderDetail = () => {
       fetchOrderDetails(id);
     }
   }, [id, resetForm, updateField, navigate]);
-
-  useEffect(() => {
-    const statusParam = searchParams.get("status");
-    if (statusParam && !isNewOrder && selectedOrder) {
-      const targetStatus = parseInt(statusParam);
-      if (
-        targetStatus >= 1 &&
-        targetStatus <= 9 &&
-        savedSteps.has(targetStatus - 1)
-      ) {
-        setActiveTab(targetStatus);
-      }
-    }
-  }, [searchParams, selectedOrder, savedSteps, isNewOrder]);
 
   const handleSubmit = useCallback(
     async (completeOrder = false) => {
@@ -330,17 +357,19 @@ const OrderDetail = () => {
           );
 
           if (response.data.success) {
+            const updatedPaymentType = response.data.order.payment_type;
+            const isCashBased = ["Cash", "Cash Deposit"].includes(
+              updatedPaymentType
+            );
+
             if (activeTab === 3) {
-              if (
-                !["Cash", "Cash Deposit"].includes(
-                  response.data.order.payment_type
-                )
-              ) {
+              if (!isCashBased) {
                 setDisabledSteps(new Set([6, 7]));
               } else {
                 setDisabledSteps(new Set());
               }
             }
+
             setSelectedOrder(response.data.order);
             setSavedSteps((prev) => new Set([...prev, activeTab]));
             showSuccessToast(
@@ -359,20 +388,23 @@ const OrderDetail = () => {
               }, 1000);
             } else if (activeTab < 9) {
               setTimeout(() => {
-                let nextSteps = disabledSteps;
-                if (
-                  activeTab === 3 &&
-                  !["Cash", "Cash Deposit"].includes(
-                    response.data.order.payment_type
-                  )
-                ) {
-                  nextSteps = new Set([6, 7]);
-                }
                 let nextTab = activeTab + 1;
-                while (nextSteps.has(nextTab)) {
-                  nextTab++;
+
+                if (activeTab === 5 && !isCashBased) {
+                  nextTab = 8;
+                } else {
+                  while (nextTab <= 9 && disabledSteps.has(nextTab)) {
+                    nextTab++;
+                  }
                 }
-                setActiveTab(nextTab);
+
+                if (nextTab <= 9) {
+                  setActiveTab(nextTab);
+
+                  const newSearchParams = new URLSearchParams(searchParams);
+                  newSearchParams.set("status", nextTab.toString());
+                  navigate(`?${newSearchParams.toString()}`, { replace: true });
+                }
               }, 1000);
             }
           }
@@ -402,6 +434,7 @@ const OrderDetail = () => {
       navigate,
       resetForm,
       disabledSteps,
+      searchParams,
     ]
   );
 
@@ -417,7 +450,19 @@ const OrderDetail = () => {
       errors,
     };
 
-    switch (activeTab) {
+    let currentStepToRender = activeTab;
+    if (disabledSteps.has(activeTab)) {
+      let nextStep = activeTab + 1;
+      while (nextStep <= 9 && disabledSteps.has(nextStep)) {
+        nextStep++;
+      }
+      if (nextStep <= 9) {
+        setActiveTab(nextStep);
+        currentStepToRender = nextStep;
+      }
+    }
+
+    switch (currentStepToRender) {
       case 1:
         return <Step1CreateOrder {...stepProps} />;
       case 2:
