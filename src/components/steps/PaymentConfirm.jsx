@@ -54,19 +54,21 @@ const PaymentConfirm = ({ formData, updateField }) => {
             </div>
           ) : (
             <div className="text-center space-y-3">
-              <div className="w-full h-48 bg-blue-100 flex items-center justify-center rounded-lg border">
-                <div className="text-center">
-                  <span className="text-blue-600 font-bold text-2xl block">
-                    PDF
-                  </span>
-                  <span className="text-blue-500 text-sm">{fileName}</span>
+              <div className="w-full h-48 bg-red-50 flex items-center justify-center rounded-lg border">
+                <div className="text-center flex flex-col items-center w-full">
+                  <img
+                    src="/pdf.png"
+                    alt="PDF Icon"
+                    className="w-12 h-12 mb-2 block mx-auto"
+                  />
+                  <span className="text-red-500 text-sm">{fileName}</span>
                 </div>
               </div>
               <a
                 href={fileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-md hover:bg-blue-200 transition-colors"
+                className="inline-block px-3 py-1 bg-red-100 text-red-700 text-sm rounded-md hover:bg-red-200 transition-colors"
               >
                 Open PDF
               </a>
