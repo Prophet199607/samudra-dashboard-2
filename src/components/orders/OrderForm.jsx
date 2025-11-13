@@ -148,6 +148,7 @@ const OrderForm = ({
           {activeTab > 1 && (
             <OrderSummary
               formData={formData}
+              selectedOrder={selectedOrder}
               currentStep={activeTab}
               savedSteps={savedSteps}
             />

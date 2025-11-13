@@ -1,33 +1,60 @@
 import React, { useMemo, useState } from "react";
+import { TAB_CONFIG } from "../../constants/tabConfig";
 
-const OrderSummary = ({ formData, currentStep = Infinity, savedSteps }) => {
-  const [openSections, setOpenSections] = useState({
-    basic: false,
-    branch: false,
-    approval: false,
-    salesOrder: false,
-    quotation: false,
-    invoice: false,
-    delivery: false,
-    final: false,
-  });
+const OrderSummary = ({
+  formData,
+  selectedOrder,
+  currentStep = Infinity,
+  savedSteps,
+}) => {
+  const [openSections, setOpenSections] = useState(
+    TAB_CONFIG.reduce((acc, tab) => ({ ...acc, [tab.id]: false }), {})
+  );
 
-  const toggle = (key) => {
+  const toggle = (id) => {
     setOpenSections((prevOpenSections) => {
-      // If the clicked section is already open, close it.
-      if (prevOpenSections[key]) {
-        return { ...prevOpenSections, [key]: false };
+      if (prevOpenSections[id]) {
+        return { ...prevOpenSections, [id]: false };
       }
 
-      // Otherwise, close all other sections and open the clicked one.
       const newOpenSections = Object.keys(prevOpenSections).reduce(
         (acc, sectionKey) => ({ ...acc, [sectionKey]: false }),
         {}
       );
-      newOpenSections[key] = true;
+      newOpenSections[id] = true;
       return newOpenSections;
     });
   };
+
+  const stepDetailsMap = useMemo(() => {
+    if (!selectedOrder?.order_details) {
+      return new Map();
+    }
+    return selectedOrder.order_details.reduce((map, detail) => {
+      if (
+        !map.has(detail.status) ||
+        new Date(detail.created_at) >
+          new Date(map.get(detail.status).created_at)
+      ) {
+        map.set(detail.status, detail);
+      }
+      return map;
+    }, new Map());
+  }, [selectedOrder]);
+
+  const statusColors = useMemo(() => {
+    const colors = TAB_CONFIG.reduce((acc, tab) => {
+      acc[tab.id] = tab.color;
+      return acc;
+    }, {});
+
+    if (selectedOrder?.is_delayed === 1) {
+      colors[9] = "bg-red-600";
+    } else if (savedSteps?.has(9)) {
+      colors[9] = "bg-green-600";
+    }
+    return colors;
+  }, [selectedOrder, savedSteps]);
 
   const formatThousand = (value) => {
     if (value === null || value === undefined || value === "") return "";
@@ -40,88 +67,65 @@ const OrderSummary = ({ formData, currentStep = Infinity, savedSteps }) => {
 
   const steps = useMemo(() => {
     if (!formData) return [];
-    return [
-      {
-        key: "basic",
-        title: "Basic Order Info",
-        items: [
-          { label: "Order Request Date", value: formData.ordReqDate },
-          { label: "Order Request Number", value: formData.ornNumber },
-          { label: "Customer Name", value: formData.customerName },
-          { label: "PO Number", value: formData.customerPONo },
-          {
-            label: "PO Amount",
-            value: formData.poAmount
-              ? `LKR ${formatThousand(formData.poAmount)}`
-              : "",
-          },
-          { label: "Customer Group", value: formData.customerGroup },
-          { label: "Customer Branch", value: formData.customerBranch },
-          { label: "Order Remark", value: formData.orderRemark },
-        ],
-      },
-      {
-        key: "branch",
-        title: "Branch Assignment",
-        items: [{ label: "Sales Branch", value: formData.salesBranch }],
-      },
-      {
-        key: "approval",
-        title: "Approval",
-        items: [
-          { label: "Payment Type", value: formData.paymentType },
-          { label: "Approval Date", value: formData.approvalDate },
-          { label: "Approval Remark", value: formData.approvalRemark },
-        ],
-      },
-      {
-        key: "salesOrder",
-        title: "Sales Order",
-        items: [
-          { label: "Sales Order Number", value: formData.salesOrderNumber },
-          { label: "Sales Order Date", value: formData.salesOrderDate },
-        ],
-      },
-      {
-        key: "quotation",
-        title: "Quotation",
-        items: [
-          { label: "Quotation Number", value: formData.quotationNumber },
-          { label: "Quotation Date", value: formData.quotationDate },
-        ],
-      },
-      {
-        key: "invoice",
-        title: "Invoice",
-        items: [
-          { label: "Invoice Number", value: formData.invoiceNumber },
-          {
-            label: "Invoice Amount",
-            value: formData.invoiceAmount
-              ? `LKR ${formatThousand(formData.invoiceAmount)}`
-              : "",
-          },
-        ],
-      },
-      {
-        key: "delivery",
-        title: "Delivery",
-        items: [
-          { label: "Vehicle No", value: formData.vehicleNo },
-          { label: "Driver Name", value: formData.driverName },
-          { label: "No Of Boxes", value: formData.noOfBoxes },
-        ],
-      },
-      {
-        key: "final",
-        title: "Final Details",
-        items: [
-          { label: "Cash In No", value: formData.cashInNo },
-          { label: "Way Bill No", value: formData.wayBillNo },
-          { label: "Hand Over To", value: formData.handOverTo },
-        ],
-      },
-    ];
+
+    const stepData = {
+      1: [
+        { label: "Order Request Date", value: formData.ordReqDate },
+        { label: "Order Request Number", value: formData.ornNumber },
+        { label: "Customer Name", value: formData.customerName },
+        { label: "PO Number", value: formData.customerPONo },
+        {
+          label: "PO Amount",
+          value: formData.poAmount
+            ? `LKR ${formatThousand(formData.poAmount)}`
+            : "",
+        },
+        { label: "Customer Group", value: formData.customerGroup },
+        { label: "Customer Branch", value: formData.customerBranch },
+        { label: "Order Remark", value: formData.orderRemark },
+      ],
+      2: [{ label: "Sales Branch", value: formData.salesBranch }],
+      3: [
+        { label: "Payment Type", value: formData.paymentType },
+        { label: "Approval Date", value: formData.approvalDate },
+        { label: "Approval Remark", value: formData.approvalRemark },
+      ],
+      4: [
+        { label: "Sales Order Number", value: formData.salesOrderNumber },
+        { label: "Sales Order Date", value: formData.salesOrderDate },
+      ],
+      5: [
+        { label: "Quotation Number", value: formData.quotationNumber },
+        { label: "Quotation Date", value: formData.quotationDate },
+      ],
+      6: [], // Deposit Slip is a file upload, no fields to show here.
+      7: [], // Payment Confirmation is a checkbox, no fields to show here.
+      8: [
+        { label: "Invoice Number", value: formData.invoiceNumber },
+        {
+          label: "Invoice Amount",
+          value: formData.invoiceAmount
+            ? `LKR ${formatThousand(formData.invoiceAmount)}`
+            : "",
+        },
+      ],
+      9: [
+        { label: "Delivery Type", value: formData.deliveryType },
+        { label: "Bus No", value: formData.busNo },
+        { label: "Way Bill No", value: formData.wayBillNo },
+        { label: "Tracking No", value: formData.tackingNo },
+        { label: "Vehicle No", value: formData.vehicleNo },
+        { label: "Driver Name", value: formData.driverName },
+        { label: "Courier Name", value: formData.courierName },
+        { label: "No Of Boxes", value: formData.noOfBoxes },
+      ],
+    };
+
+    return TAB_CONFIG.map((tab) => ({
+      id: tab.id,
+      title: tab.title,
+      items: stepData[tab.id] || [],
+    }));
   }, [formData]);
 
   if (!formData) {
@@ -161,18 +165,6 @@ const OrderSummary = ({ formData, currentStep = Infinity, savedSteps }) => {
     return null;
   }
 
-  const statusColors = {
-    1: "bg-blue-600",
-    2: "bg-purple-600",
-    3: "bg-indigo-600",
-    4: "bg-teal-600",
-    5: "bg-green-600",
-    6: "bg-yellow-600",
-    7: "bg-orange-600",
-    8: "bg-red-600",
-    9: "bg-pink-600",
-  };
-
   return (
     <div className="bg-white border border-gray-200 rounded-xl mb-5">
       <div className="px-5 pt-5">
@@ -204,24 +196,39 @@ const OrderSummary = ({ formData, currentStep = Infinity, savedSteps }) => {
           const hasAnyValue = section.items.some((i) => i.value);
           if (!hasAnyValue) return null;
           const stepId = index + 1;
+          const stepDetail = stepDetailsMap.get(stepId);
           const isSaved = savedSteps?.has?.(stepId);
           const dotColor = isSaved ? statusColors[stepId] : "bg-gray-300";
           return (
-            <div key={section.key}>
+            <div key={section.id}>
               <button
                 type="button"
-                className="w-full px-5 py-3 flex items-center justify-between hover:bg-gray-50"
-                onClick={() => toggle(section.key)}
+                className="w-full px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:bg-gray-50 text-left"
+                onClick={() => toggle(section.id)}
               >
-                <div className="flex items-center gap-2">
-                  <div className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
-                  <span className="text-sm font-semibold text-gray-900">
-                    {section.title}
-                  </span>
+                <div className="flex flex-col items-start gap-1 flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
+                    <span className="text-sm font-semibold text-gray-900">
+                      {section.title}
+                    </span>
+                    {stepDetail && (
+                      <div className="text-xs text-gray-500 font-normal ml-4">
+                        by{" "}
+                        <span className="font-medium text-gray-700">
+                          {stepDetail.user?.username || "System"}
+                        </span>{" "}
+                        on{" "}
+                        <span className="font-medium text-gray-700">
+                          {new Date(stepDetail.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <svg
-                  className={`h-4 w-4 text-gray-500 transition-transform ${
-                    openSections[section.key] ? "rotate-180" : "rotate-0"
+                  className={`h-4 w-4 text-gray-500 transition-transform flex-shrink-0 mt-2 sm:mt-0 ${
+                    openSections[section.id] ? "rotate-180" : "rotate-0"
                   }`}
                   viewBox="0 0 20 20"
                   fill="currentColor"
@@ -235,7 +242,7 @@ const OrderSummary = ({ formData, currentStep = Infinity, savedSteps }) => {
                 </svg>
               </button>
 
-              {openSections[section.key] && (
+              {openSections[section.id] && (
                 <div className="px-5 pb-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {section.items
