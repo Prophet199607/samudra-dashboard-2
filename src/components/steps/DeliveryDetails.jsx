@@ -25,17 +25,6 @@ const DeliveryDetails = ({ formData, updateField, errors = {} }) => {
             error={errors.deliveryType || errors.delivery_type}
           />
         </div>
-        <div>
-          <Toggle
-            id="deliveryStatus"
-            label="Delivery Status"
-            checked={formData.deliveryStatus}
-            onChange={() =>
-              updateField("deliveryStatus", !formData.deliveryStatus)
-            }
-            className="pt-2"
-          />
-        </div>
 
         {formData.deliveryType === "Bus" && (
           <div>
