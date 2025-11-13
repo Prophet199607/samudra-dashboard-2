@@ -74,7 +74,7 @@ const OrderForm = ({
                   <div key={tab.id} className="flex items-center mt-2">
                     {index > 0 && (
                       <div
-                        className={`h-0.5 w-16 transition-colors duration-200 ${
+                        className={`h-0.5 w-8 sm:w-16 transition-colors duration-200 ${
                           isDisabled
                             ? "bg-gray-100"
                             : isCompleted
@@ -106,16 +106,19 @@ const OrderForm = ({
               })}
             </nav>
 
-            <div className="hidden sm:flex justify-center mt-1 space-x-14">
+            <div className="flex justify-around sm:justify-center mt-2 sm:space-x-14 overflow-x-auto scrollbar-hide">
               {TAB_CONFIG.map((tab) => {
                 const isCompleted = savedSteps.has(tab.id);
                 const isDisabled = disabledSteps.has(tab.id);
+                const isActive = activeTab === tab.id;
                 return (
                   <div
                     key={tab.id}
-                    className={`text-xs font-medium text-center ${
+                    className={`text-xs font-medium text-center flex-shrink-0 w-16 sm:w-auto ${
                       isDisabled
                         ? "text-gray-300"
+                        : isActive
+                        ? "text-gray-900 font-bold"
                         : isCompleted
                         ? "text-gray-700"
                         : "text-gray-500"
