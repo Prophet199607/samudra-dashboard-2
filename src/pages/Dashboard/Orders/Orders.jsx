@@ -124,6 +124,7 @@ const Orders = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2 sm:p-4">
       <div className="max-w-[1600px] mx-auto">
+        {/* Header */}
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-5 mb-4 border border-gray-100">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
@@ -141,12 +142,72 @@ const Orders = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-2 sm:p-5 border border-gray-100">
+        {/* Desktop DataTable */}
+        <div className="hidden md:block bg-white rounded-xl shadow-lg p-2 sm:p-5 border border-gray-100">
           <DataTable
             data={orders}
             columns={tableColumns}
             onRowClick={handleOrderClick}
           />
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="block md:hidden space-y-4">
+          {orders.map((order) => {
+            const tab = TAB_CONFIG.find((t) => t.id === order.status);
+            const colorClass =
+              order.is_delayed === 1
+                ? "bg-red-500"
+                : order.status === 9
+                ? "bg-green-600"
+                : tab?.color || "bg-gray-500";
+
+            return (
+              <div
+                key={order.orn_number}
+                onClick={() => handleOrderClick(order)}
+                className="bg-white rounded-xl shadow p-4 border border-gray-100 hover:shadow-md transition cursor-pointer"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold text-gray-900">
+                    {order.orn_number}
+                  </h3>
+                  <div className="flex items-center">
+                    <div
+                      className={`h-2.5 w-2.5 rounded-full mr-2 ${colorClass}`}
+                    />
+                    <span className="text-sm text-gray-700">
+                      {tab?.title || `Step ${order.status}`}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-sm text-gray-700">
+                  <p>
+                    <span className="font-medium">Customer:</span>{" "}
+                    {order.customer_name}
+                  </p>
+                  <p>
+                    <span className="font-medium">PO No:</span>{" "}
+                    {order.customer_po_no || "-"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Date:</span>{" "}
+                    {new Date(order.order_request_date).toLocaleDateString()}
+                  </p>
+                  <p>
+                    <span className="font-medium">Amount:</span> LKR{" "}
+                    {parseFloat(order.po_amount).toLocaleString()}
+                  </p>
+                  {order.is_delayed === 1 && order.delay_reason && (
+                    <p className="text-xs text-red-600 mt-1">
+                      ({order.delay_reason})
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
