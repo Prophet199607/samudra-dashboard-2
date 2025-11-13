@@ -6,9 +6,9 @@ const ImageModal = ({ imageUrl, onClose }) => {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{
-        background: "rgba(17,25,40,0.70)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
+        background: "rgba(17, 25, 40, 0.45)",
+        backdropFilter: "blur(10px) saturate(180%)",
+        border: "1px solid rgba(255, 255, 255, 0.125)",
       }}
       onClick={onClose}
     >
