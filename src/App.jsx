@@ -19,14 +19,25 @@ function Private({ children }) {
 // Shared layout for authenticated pages
 function PrivateLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className={`app ${collapsed ? "collapsed" : ""}`}>
-      <Sidebar collapsed={collapsed} />
-      <div className="main">
-        <Navbar onToggle={() => setCollapsed((v) => !v)} />
-        <div className="content">{children}</div>
+    <div className="flex flex-col min-h-screen">
+      <Navbar
+        onToggle={() => setCollapsed((v) => !v)}
+        onMobileToggle={() => setMobileOpen((v) => !v)}
+      />
+
+      <div className="flex flex-1">
+        <Sidebar
+          collapsed={collapsed}
+          mobileOpen={mobileOpen}
+          onMobileToggle={() => setMobileOpen(false)}
+        />
+
+        <main className="flex-1 bg-[var(--page-bg)] p-4">{children}</main>
       </div>
+
       <div className="fixed top-0 right-0 z-[99999] pointer-events-none">
         <div className="pointer-events-auto">
           <ToastContainer />
