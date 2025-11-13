@@ -10,34 +10,38 @@ import Orders from "./pages/Dashboard/Orders/Orders";
 import OrderDetail from "./pages/Dashboard/Orders/OrderDetail";
 import { ToastContainer } from "./components/alert/ToastAlert";
 
-// Protect routes
 function Private({ children }) {
   const { user } = useAuth();
   return user ? children : <Navigate to="/login" replace />;
 }
 
-// Shared layout for authenticated pages
 function PrivateLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar
-        onToggle={() => setCollapsed((v) => !v)}
-        onMobileToggle={() => setMobileOpen((v) => !v)}
+    <div className="flex min-h-screen">
+      {/* Sidebar  */}
+      <Sidebar
+        collapsed={collapsed}
+        mobileOpen={mobileOpen}
+        onMobileToggle={() => setMobileOpen(false)}
       />
 
-      <div className="flex flex-1">
-        <Sidebar
+      {/* Main content area */}
+      <div className="flex flex-col flex-1 min-h-screen">
+        <Navbar
           collapsed={collapsed}
-          mobileOpen={mobileOpen}
-          onMobileToggle={() => setMobileOpen(false)}
+          onToggle={() => setCollapsed((v) => !v)}
+          onMobileToggle={() => setMobileOpen((v) => !v)}
         />
 
-        <main className="flex-1 bg-[var(--page-bg)] p-4">{children}</main>
+        <main className="flex-1 bg-[var(--page-bg)] p-4 overflow-auto">
+          {children}
+        </main>
       </div>
 
+      {/* Toasts */}
       <div className="fixed top-0 right-0 z-[99999] pointer-events-none">
         <div className="pointer-events-auto">
           <ToastContainer />
