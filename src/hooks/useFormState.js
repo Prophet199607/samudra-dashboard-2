@@ -41,7 +41,8 @@ export const useFormState = () => {
 
     // Step 9: Delivery Info
     deliveryType: "",
-    deliveryStatus: false,
+    isDelayed: false,
+    delayReason: "",
     busNo: "",
     wayBillNo: "",
     trackingNo: "",
@@ -64,6 +65,10 @@ export const useFormState = () => {
         newData[field] = value
           ? parseFloat(value.toString().replace(/,/g, ""))
           : "";
+      }
+
+      if (field === "isDelayed" && value === false && prev.isDelayed === true) {
+        newData.isDelayed = false;
       }
 
       return newData;
@@ -99,7 +104,8 @@ export const useFormState = () => {
         8: ["invoiceNumber", "invoiceAmount"],
         9: [
           "deliveryType",
-          "deliveryStatus",
+          "isDelayed",
+          "delayReason",
           "busNo",
           "wayBillNo",
           "trackingNo",
@@ -142,7 +148,8 @@ export const useFormState = () => {
       invoiceNumber: "",
       invoiceAmount: "",
       deliveryType: "",
-      deliveryStatus: false,
+      isDelayed: false,
+      delayReason: "",
       busNo: "",
       wayBillNo: "",
       trackingNo: "",

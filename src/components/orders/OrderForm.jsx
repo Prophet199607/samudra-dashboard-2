@@ -13,6 +13,9 @@ const OrderForm = ({
   handleBackToList,
   TAB_CONFIG,
   formData,
+  isDelayModalOpen,
+  setDelayModalOpen,
+  handleDelaySave,
 }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2 sm:p-4">
@@ -56,6 +59,17 @@ const OrderForm = ({
                   (savedSteps.has(tab.id - 1) ||
                     tab.id === 1 ||
                     (tab.id === 3 && [4, 5, 6].includes(activeTab)));
+
+                let stepColorClass = tab.color;
+                if (tab.id === 9) {
+                  if (selectedOrder?.is_delayed === 1) {
+                    stepColorClass = "bg-red-600";
+                  } else if (isCompleted) {
+                    stepColorClass = "bg-green-600";
+                  } else {
+                    stepColorClass = "bg-gray-500";
+                  }
+                }
                 return (
                   <div key={tab.id} className="flex items-center mt-2">
                     {index > 0 && (
@@ -64,7 +78,7 @@ const OrderForm = ({
                           isDisabled
                             ? "bg-gray-100"
                             : isCompleted
-                            ? tab.color
+                            ? stepColorClass
                             : "bg-gray-300"
                         }`}
                       ></div>
@@ -72,14 +86,14 @@ const OrderForm = ({
 
                     <button
                       onClick={() => canNavigate && setActiveTab(tab.id)}
-                      disabled={canNavigate || isDisabled}
+                      disabled={!canNavigate || isDisabled}
                       className={`flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
                         isDisabled
                           ? "bg-gray-100 text-gray-300 border-2 border-gray-200 cursor-not-allowed"
                           : isActive
-                          ? `${tab.color} text-white border-2 border-gray-700 shadow-lg outline-2 outline-offset-3 outline-black`
+                          ? `${stepColorClass} text-white border-2 border-gray-700 shadow-lg outline-2 outline-offset-3 outline-black`
                           : isCompleted
-                          ? `${tab.color} text-white border-2 border-gray-600 shadow-md`
+                          ? `${stepColorClass} text-white border-2 border-gray-600 shadow-md`
                           : canNavigate
                           ? "bg-gray-300 text-gray-600 border-2 border-gray-400 hover:bg-gray-400"
                           : "bg-gray-200 text-gray-400 border-2 border-gray-300 cursor-not-allowed"
@@ -139,11 +153,36 @@ const OrderForm = ({
             />
           )}
 
-          <div className="mb-8">{renderStepContent()}</div>
+          <div className="mb-8">
+            {renderStepContent({
+              isDelayModalOpen,
+              setDelayModalOpen,
+              handleDelaySave,
+            })}
+          </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200 gap-4">
-            <div className="flex-grow flex justify-start"></div>
+            <div className="flex-grow flex justify-start">
+              {activeTab === 9 && !savedSteps.has(9) && (
+                <button
+                  onClick={() => setDelayModalOpen(true)}
+                  className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 shadow-md hover:shadow-lg
+                    ${
+                      selectedOrder?.is_delayed === 1
+                        ? "bg-red-600 hover:bg-red-700 text-white"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }
+                  `}
+                >
+                  <span>
+                    {selectedOrder?.is_delayed === 1
+                      ? "Delivery Delayed"
+                      : "Delivery Delay"}
+                  </span>
+                </button>
+              )}
+            </div>
 
             <div className="flex space-x-2 w-full sm:w-auto justify-center">
               {activeTab >= 1 &&

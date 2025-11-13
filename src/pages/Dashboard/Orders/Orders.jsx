@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import api from "../../../services/api";
 import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useRef } from "react";
 import { TAB_CONFIG } from "../../../constants/tabConfig";
 import DataTable from "../../../components/common/DataTable";
-import api from "../../../services/api";
 import { showErrorToast } from "../../../components/alert/ToastAlert";
 
 const Orders = () => {
@@ -15,6 +15,28 @@ const Orders = () => {
       key: "orn_number",
       label: "ORN Number",
       sortable: true,
+      render: (value, rowData) => {
+        const maxLength = 25;
+        const fullReason = rowData.delay_reason || "";
+        const isLong = fullReason.length > maxLength;
+        const displayReason = isLong
+          ? fullReason.substring(0, maxLength) + "..."
+          : fullReason;
+
+        return (
+          <div>
+            <span>{value}</span>
+            {rowData.is_delayed === 1 && rowData.delay_reason && (
+              <div
+                className="text-xs text-red-600 mt-1 truncate max-w-[180px] cursor-pointer"
+                title={fullReason}
+              >
+                ({displayReason})
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "customer_name",
@@ -43,26 +65,21 @@ const Orders = () => {
       key: "status",
       label: "Status",
       sortable: true,
-      render: (value) => {
+      render: (value, rowData) => {
         const tab = TAB_CONFIG.find((tab) => tab.id === value);
-        const statusColors = {
-          1: "bg-blue-600",
-          2: "bg-purple-600",
-          3: "bg-indigo-600",
-          4: "bg-teal-600",
-          5: "bg-green-600",
-          6: "bg-yellow-600",
-          7: "bg-orange-600",
-          8: "bg-red-600",
-          9: "bg-pink-600",
-        };
+        let colorClass = tab?.color || "bg-gray-500";
 
+        if (value === 9) {
+          if (rowData.is_delayed === 1) {
+            colorClass = "bg-red-600";
+          } else if (rowData.status === 9) {
+            colorClass = "bg-green-600";
+          }
+        }
         return (
           <div className="flex items-center">
             <div
-              className={`h-2.5 w-2.5 rounded-full mr-2 ${
-                statusColors[value] || "bg-gray-500"
-              }`}
+              className={`h-2.5 w-2.5 rounded-full mr-2 ${colorClass}`}
             ></div>
             <span>{tab?.title || `Step ${value}`}</span>
           </div>

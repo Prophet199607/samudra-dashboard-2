@@ -28,9 +28,11 @@ const OrderDetail = () => {
   const [searchParams] = useSearchParams();
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState(1);
+  const [isDelayed, setIsDelayed] = useState(false);
   const [savedSteps, setSavedSteps] = useState(new Set());
   const [selectedOrder, setSelectedOrder] = useState(null);
   const { formData, updateField, resetForm } = useFormState();
+  const [isDelayModalOpen, setDelayModalOpen] = useState(false);
   const [disabledSteps, setDisabledSteps] = useState(new Set());
 
   useEffect(() => {
@@ -129,7 +131,8 @@ const OrderDetail = () => {
           invoice_amount: "invoiceAmount",
 
           delivery_type: "deliveryType",
-          delivery_status: "deliveryStatus",
+          is_delayed: "isDelayed",
+          delay_reason: "delayReason",
           bus_no: "busNo",
           way_bill_no: "wayBillNo",
           tracking_no: "trackingNo",
@@ -182,6 +185,32 @@ const OrderDetail = () => {
       fetchOrderDetails(id);
     }
   }, [id, resetForm, updateField, navigate]);
+
+  const handleDelaySave = async (reason) => {
+    if (!selectedOrder?.orn_number) {
+      showErrorToast("Order number is not available.");
+      return;
+    }
+    try {
+      const response = await api.put(
+        `/orders/${selectedOrder.orn_number}/delay`,
+        { delay_reason: reason }
+      );
+      if (response.data.success) {
+        showSuccessToast("Delivery delay reason saved!");
+        setIsDelayed(true);
+        updateField("delayReason", reason);
+        setDelayModalOpen(false);
+      }
+      setTimeout(() => {
+        resetForm();
+        navigate("/orders");
+      }, 1000);
+    } catch (error) {
+      showErrorToast("Failed to save delay reason.");
+      console.error("Error saving delay reason:", error);
+    }
+  };
 
   const handleSubmit = useCallback(
     async (completeOrder = false) => {
@@ -284,7 +313,8 @@ const OrderDetail = () => {
           case 9: // Delivery Info
             stepData = {
               delivery_type: formData.deliveryType,
-              delivery_status: formData.deliveryStatus,
+              is_delayed: formData.isDelayed ? 1 : 0,
+              delay_reason: formData.delayReason,
               bus_no: formData.busNo,
               way_bill_no: formData.wayBillNo,
               tracking_no: formData.trackingNo,
@@ -315,7 +345,8 @@ const OrderDetail = () => {
               invoice_amount: formData.invoiceAmount,
 
               delivery_type: formData.deliveryType,
-              delivery_status: formData.deliveryStatus,
+              is_delayed: formData.isDelayed ? 1 : 0,
+              delay_reason: formData.delayReason,
               bus_no: formData.busNo,
               way_bill_no: formData.wayBillNo,
               tracking_no: formData.trackingNo,
@@ -462,8 +493,9 @@ const OrderDetail = () => {
     navigate("/orders");
   }, [navigate]);
 
-  const renderStepContent = () => {
+  const renderStepContent = (props) => {
     const stepProps = {
+      ...props,
       formData,
       updateField,
       isNewOrder,
@@ -521,6 +553,11 @@ const OrderDetail = () => {
       handleBackToList={handleBackToList}
       TAB_CONFIG={TAB_CONFIG}
       formData={formData}
+      isDelayed={isDelayed}
+      isDelayModalOpen={isDelayModalOpen}
+      setDelayModalOpen={setDelayModalOpen}
+      handleDelaySave={handleDelaySave}
+      updateField={updateField}
     />
   );
 };
