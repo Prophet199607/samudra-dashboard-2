@@ -41,6 +41,7 @@ export const useFormState = () => {
 
     // Step 9: Delivery Info
     deliveryType: "",
+    deliveryStatus: false,
     busNo: "",
     wayBillNo: "",
     trackingNo: "",
@@ -98,6 +99,7 @@ export const useFormState = () => {
         8: ["invoiceNumber", "invoiceAmount"],
         9: [
           "deliveryType",
+          "deliveryStatus",
           "busNo",
           "wayBillNo",
           "trackingNo",
@@ -140,6 +142,7 @@ export const useFormState = () => {
       invoiceNumber: "",
       invoiceAmount: "",
       deliveryType: "",
+      deliveryStatus: false,
       busNo: "",
       wayBillNo: "",
       trackingNo: "",

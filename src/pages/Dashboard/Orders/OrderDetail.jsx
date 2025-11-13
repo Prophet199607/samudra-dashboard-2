@@ -129,6 +129,7 @@ const OrderDetail = () => {
           invoice_amount: "invoiceAmount",
 
           delivery_type: "deliveryType",
+          delivery_status: "deliveryStatus",
           bus_no: "busNo",
           way_bill_no: "wayBillNo",
           tracking_no: "trackingNo",
@@ -208,6 +209,9 @@ const OrderDetail = () => {
             requireField("approvalDate", "Approval date is required");
             requireField("paymentType", "Payment type is required");
             break;
+          case 6:
+            requireField("paymentAttachment", "Payment receipt is required");
+            break;
           case 9:
             requireField("deliveryType", "Delivery type is required");
             break;
@@ -280,6 +284,7 @@ const OrderDetail = () => {
           case 9: // Delivery Info
             stepData = {
               delivery_type: formData.deliveryType,
+              delivery_status: formData.deliveryStatus,
               bus_no: formData.busNo,
               way_bill_no: formData.wayBillNo,
               tracking_no: formData.trackingNo,
@@ -310,6 +315,7 @@ const OrderDetail = () => {
               invoice_amount: formData.invoiceAmount,
 
               delivery_type: formData.deliveryType,
+              delivery_status: formData.deliveryStatus,
               bus_no: formData.busNo,
               way_bill_no: formData.wayBillNo,
               tracking_no: formData.trackingNo,
