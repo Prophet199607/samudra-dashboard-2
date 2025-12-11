@@ -106,25 +106,29 @@ const OrderForm = ({
               })}
             </nav>
 
-            <div className="flex justify-around sm:justify-center mt-2 sm:space-x-14 overflow-x-auto scrollbar-hide">
-              {TAB_CONFIG.map((tab) => {
+            <div className="flex items-center justify-start sm:justify-center overflow-x-auto scrollbar-hide mt-2">
+              {TAB_CONFIG.map((tab, index) => {
                 const isCompleted = savedSteps.has(tab.id);
                 const isDisabled = disabledSteps.has(tab.id);
                 const isActive = activeTab === tab.id;
                 return (
-                  <div
-                    key={tab.id}
-                    className={`text-xs font-medium text-center flex-shrink-0 w-16 sm:w-auto ${
-                      isDisabled
-                        ? "text-gray-300"
-                        : isActive
-                        ? "text-gray-900 font-bold"
-                        : isCompleted
-                        ? "text-gray-700"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    {tab.title}
+                  <div key={tab.id} className="flex items-center">
+                    {index > 0 && (
+                      <div className="h-0.5 w-8 sm:w-16 opacity-0"></div>
+                    )}
+                    <div
+                      className={`text-xs font-medium text-center flex-shrink-0 w-12 ${
+                        isDisabled
+                          ? "text-gray-300"
+                          : isActive
+                          ? "text-gray-900 font-bold"
+                          : isCompleted
+                          ? "text-gray-700"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {tab.title}
+                    </div>
                   </div>
                 );
               })}
