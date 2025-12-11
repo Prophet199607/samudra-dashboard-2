@@ -92,10 +92,12 @@ const OrderSummary = ({
       ],
       4: [
         { label: "Sales Order Number", value: formData.salesOrderNumber },
+        { label: "Sales Order Amount", value: formData.salesOrderAmount },
         { label: "Sales Order Date", value: formData.salesOrderDate },
       ],
       5: [
         { label: "Quotation Number", value: formData.quotationNumber },
+        { label: "Quotation Amount", value: formData.quotationAmount },
         { label: "Quotation Date", value: formData.quotationDate },
       ],
       6: [], // Deposit Slip is a file upload, no fields to show here.

@@ -119,9 +119,11 @@ const OrderDetail = () => {
           approval_remark: "approvalRemark",
 
           sales_order_no: "salesOrderNumber",
+          sales_order_amount: "salesOrderAmount",
           sales_order_date: "salesOrderDate",
 
           quotation_no: "quotationNumber",
+          quotation_amount: "quotationAmount",
           quotation_date: "quotationDate",
 
           payment_receipt: "paymentAttachment",
@@ -286,18 +288,6 @@ const OrderDetail = () => {
               approval_remark: formData.approvalRemark,
             };
             break;
-          case 4: // Sales Order Info
-            stepData = {
-              sales_order_no: formData.salesOrderNumber,
-              sales_order_date: formData.salesOrderDate,
-            };
-            break;
-          case 5: // Quotation Info
-            stepData = {
-              quotation_no: formData.quotationNumber,
-              quotation_date: formData.quotationDate,
-            };
-            break;
           case 6: // Payment Info (File upload step)
             break;
           case 7: // Payment Confirmation
@@ -334,12 +324,6 @@ const OrderDetail = () => {
               payment_type: formData.paymentType,
               approval_date: formData.approvalDate,
               approval_remark: formData.approvalRemark,
-
-              sales_order_no: formData.salesOrderNumber,
-              sales_order_date: formData.salesOrderDate,
-
-              quotation_no: formData.quotationNumber,
-              quotation_date: formData.quotationDate,
 
               payment_confirmed: formData.paymentConfirmed ? 1 : 0,
               payment_remark: formData.paymentRemark,
