@@ -23,7 +23,7 @@ const ApproveOrder = ({ formData, updateField, errors = {} }) => {
   const paymentOptions = [
     { value: "Cash", label: "Cash" },
     { value: "Cash Deposit", label: "Cash Deposit" },
-    { value: "Check", label: "Check" },
+    { value: "Cheque", label: "Cheque" },
     { value: "Credit", label: "Credit" },
   ];
 
