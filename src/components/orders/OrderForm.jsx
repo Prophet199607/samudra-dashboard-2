@@ -195,7 +195,8 @@ const OrderForm = ({
             <div className="flex space-x-2 w-full sm:w-auto justify-center">
               {activeTab >= 1 &&
                 activeTab <= 8 &&
-                !savedSteps.has(activeTab) && (
+                !savedSteps.has(activeTab) &&
+                !(activeTab === 4 || activeTab === 5) && (
                   <button
                     onClick={() => handleSubmit()}
                     className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-blue-700 text-white shadow-md hover:shadow-lg"
