@@ -4,6 +4,7 @@ import externalApi from "../../services/externalApi";
 
 const AssignBranch = ({ formData, updateField, errors = {} }) => {
   const [salesBranches, setSalesBranches] = useState([]);
+  const [rawBranches, setRawBranches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const hasFetched = useRef(false);
@@ -18,6 +19,7 @@ const AssignBranch = ({ formData, updateField, errors = {} }) => {
 
       if (response.data && Array.isArray(response.data.locations)) {
         branchesData = response.data.locations;
+        setRawBranches(branchesData);
       } else {
         console.warn("Unexpected API response structure:", response.data);
       }
@@ -45,13 +47,23 @@ const AssignBranch = ({ formData, updateField, errors = {} }) => {
     }
   }, []);
 
+  const handleBranchChange = (value) => {
+    updateField("salesBranch", value);
+    const selectedBranch = rawBranches.find((b) => b.Description === value);
+    if (selectedBranch) {
+      updateField("salesBranchCode", selectedBranch.Code);
+    } else {
+      updateField("salesBranchCode", "");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="max-w-md">
         <SelectField
           label="Select Sales Branch"
           value={formData.salesBranch || ""}
-          onChange={(e) => updateField("salesBranch", e.target.value)}
+          onChange={(e) => handleBranchChange(e.target.value)}
           options={salesBranches}
           placeholder={
             loading ? "Loading branches..." : "Choose the sales branch"

@@ -112,6 +112,7 @@ const OrderDetail = () => {
           remark: "orderRemark",
 
           sales_branch: "salesBranch",
+          sales_branch_code: "salesBranchCode",
 
           payment_type: "paymentType",
           approval_date: "approvalDate",
@@ -275,6 +276,7 @@ const OrderDetail = () => {
           case 2: // Assign Branch
             stepData = {
               sales_branch: formData.salesBranch,
+              sales_branch_code: formData.salesBranchCode,
             };
             break;
           case 3: // Approval Info
@@ -327,6 +329,7 @@ const OrderDetail = () => {
           default:
             stepData = {
               sales_branch: formData.salesBranch,
+              sales_branch_code: formData.salesBranchCode,
 
               payment_type: formData.paymentType,
               approval_date: formData.approvalDate,

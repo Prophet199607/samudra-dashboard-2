@@ -14,6 +14,7 @@ export const useFormState = () => {
 
     // Step 2: Branch Assignment
     salesBranch: "",
+    salesBranchCode: "",
 
     // Step 3: Approval Info
     paymentType: "",
@@ -95,7 +96,7 @@ export const useFormState = () => {
           "orderRemark",
           "customerBranch",
         ],
-        2: ["salesBranch", "branchRemark"],
+        2: ["salesBranch", "salesBranchCode"],
         3: ["approvalDate", "approvalRemark", "paymentType"],
         4: ["salesOrderNumber", "salesOrderDate"],
         5: ["quotationNumber", "quotationDate"],
@@ -134,6 +135,7 @@ export const useFormState = () => {
       orderRemark: "",
       customerBranch: "",
       salesBranch: "",
+      salesBranchCode: "",
       branchRemark: "",
       paymentType: "",
       approvalDate: "",
