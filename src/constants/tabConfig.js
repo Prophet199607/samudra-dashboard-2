@@ -49,6 +49,12 @@ export const TAB_CONFIG = [
   },
   {
     id: 9,
+    title: "Collection Receipt",
+    icon: "📑",
+    color: "bg-cyan-600",
+  },
+  {
+    id: 10,
     title: "Delivery",
     icon: "🚛",
     color: "bg-gray-500",
