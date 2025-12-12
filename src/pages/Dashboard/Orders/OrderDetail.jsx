@@ -18,7 +18,8 @@ import Step5AddQuotation from "../../../components/steps/AddQuotation";
 import Step6CashPayment from "../../../components/steps/CashPayment";
 import Step7PaymentConfirm from "../../../components/steps/PaymentConfirm";
 import Step8AddInvoice from "../../../components/steps/AddInvoice";
-import Step9DeliveryDetails from "../../../components/steps/DeliveryDetails";
+import Step9CollectionReceipt from "../../../components/steps/CollectionReceipt";
+import Step10DeliveryDetails from "../../../components/steps/DeliveryDetails";
 
 const OrderDetail = () => {
   const { id } = useParams();
@@ -42,17 +43,17 @@ const OrderDetail = () => {
 
       if (
         targetStatus >= 1 &&
-        targetStatus <= 9 &&
+        targetStatus <= 10 &&
         !disabledSteps.has(targetStatus) &&
         (targetStatus === 1 || savedSteps.has(targetStatus - 1))
       ) {
         setActiveTab(targetStatus);
       } else {
         let adjustedStatus = targetStatus;
-        while (adjustedStatus <= 9 && disabledSteps.has(adjustedStatus)) {
+        while (adjustedStatus <= 10 && disabledSteps.has(adjustedStatus)) {
           adjustedStatus++;
         }
-        if (adjustedStatus <= 9) {
+        if (adjustedStatus <= 10) {
           setActiveTab(adjustedStatus);
 
           const newSearchParams = new URLSearchParams(searchParams);
@@ -80,7 +81,7 @@ const OrderDetail = () => {
         const order = response.data.order;
         setSelectedOrder(order);
 
-        let initialTab = order.status < 9 ? order.status + 1 : order.status;
+        let initialTab = order.status < 10 ? order.status + 1 : order.status;
 
         const isCashBased =
           order.payment_type &&
@@ -132,6 +133,10 @@ const OrderDetail = () => {
 
           invoice_no: "invoiceNumber",
           invoice_amount: "invoiceAmount",
+
+          cash_in_no: "cashInNo",
+          cash_in_amount: "cashInAmount",
+          cash_in_remark: "cashInRemark",
 
           delivery_type: "deliveryType",
           is_delayed: "isDelayed",
@@ -244,7 +249,7 @@ const OrderDetail = () => {
           case 6:
             requireField("paymentAttachment", "Payment receipt is required");
             break;
-          case 9:
+          case 10:
             requireField("deliveryType", "Delivery type is required");
             break;
           default:
@@ -302,7 +307,14 @@ const OrderDetail = () => {
               invoice_amount: formData.invoiceAmount,
             };
             break;
-          case 9: // Delivery Info
+          case 9: // Collection Receipt
+            stepData = {
+              cash_in_no: formData.cashInNo,
+              cash_in_amount: formData.cashInAmount,
+              cash_in_remark: formData.cashInRemark,
+            };
+            break;
+          case 10: // Delivery Info
             stepData = {
               delivery_type: formData.deliveryType,
               is_delayed: formData.isDelayed ? 1 : 0,
@@ -330,6 +342,10 @@ const OrderDetail = () => {
 
               invoice_no: formData.invoiceNumber,
               invoice_amount: formData.invoiceAmount,
+
+              cash_in_no: formData.cashInNo,
+              cash_in_amount: formData.cashInAmount,
+              cash_in_remark: formData.cashInRemark,
 
               delivery_type: formData.deliveryType,
               is_delayed: formData.isDelayed ? 1 : 0,
@@ -415,24 +431,24 @@ const OrderDetail = () => {
               loadingToastId
             );
 
-            if (activeTab === 9 || completeOrder) {
+            if (activeTab === 10 || completeOrder) {
               setTimeout(() => {
                 resetForm();
                 navigate("/orders");
               }, 1000);
-            } else if (activeTab < 9) {
+            } else if (activeTab < 10) {
               setTimeout(() => {
                 let nextTab = activeTab + 1;
 
                 if (activeTab === 5 && !isCashBased) {
                   nextTab = 8;
                 } else {
-                  while (nextTab <= 9 && disabledSteps.has(nextTab)) {
+                  while (nextTab <= 10 && disabledSteps.has(nextTab)) {
                     nextTab++;
                   }
                 }
 
-                if (nextTab <= 9) {
+                if (nextTab <= 10) {
                   setActiveTab(nextTab);
 
                   const newSearchParams = new URLSearchParams(searchParams);
@@ -492,10 +508,10 @@ const OrderDetail = () => {
     let currentStepToRender = activeTab;
     if (disabledSteps.has(activeTab)) {
       let nextStep = activeTab + 1;
-      while (nextStep <= 9 && disabledSteps.has(nextStep)) {
+      while (nextStep <= 10 && disabledSteps.has(nextStep)) {
         nextStep++;
       }
-      if (nextStep <= 9) {
+      if (nextStep <= 10) {
         setActiveTab(nextStep);
         currentStepToRender = nextStep;
       }
@@ -519,7 +535,9 @@ const OrderDetail = () => {
       case 8:
         return <Step8AddInvoice {...stepProps} />;
       case 9:
-        return <Step9DeliveryDetails {...stepProps} />;
+        return <Step9CollectionReceipt {...stepProps} />;
+      case 10:
+        return <Step10DeliveryDetails {...stepProps} />;
       default:
         return null;
     }

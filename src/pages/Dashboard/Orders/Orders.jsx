@@ -69,10 +69,10 @@ const Orders = () => {
         const tab = TAB_CONFIG.find((tab) => tab.id === value);
         let colorClass = tab?.color || "bg-gray-500";
 
-        if (value === 9) {
+        if (value === 10) {
           if (rowData.is_delayed === 1) {
             colorClass = "bg-red-600";
-          } else if (rowData.status === 9) {
+          } else if (rowData.status === 10) {
             colorClass = "bg-green-600";
           }
         }
@@ -117,7 +117,7 @@ const Orders = () => {
   };
 
   const handleOrderClick = (order) => {
-    const targetStep = order.status < 9 ? order.status + 1 : order.status;
+    const targetStep = order.status < 10 ? order.status + 1 : order.status;
     navigate(`/order/${order.orn_number}?status=${targetStep}`);
   };
 
@@ -158,7 +158,7 @@ const Orders = () => {
             const colorClass =
               order.is_delayed === 1
                 ? "bg-red-500"
-                : order.status === 9
+                : order.status === 10
                 ? "bg-green-600"
                 : tab?.color || "bg-gray-500";
 

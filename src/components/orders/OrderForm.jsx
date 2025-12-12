@@ -48,7 +48,7 @@ const OrderForm = ({
               </button>
             </div>
           </div>
-          <div className="border-t border-gray-200 p-4">
+          <div className="border-t border-gray-200 p-2">
             <nav className="flex items-center justify-start sm:justify-center overflow-x-auto scrollbar-hide pb-2">
               {TAB_CONFIG.map((tab, index) => {
                 const isCompleted = savedSteps.has(tab.id);
@@ -61,7 +61,7 @@ const OrderForm = ({
                     (tab.id === 3 && [4, 5, 6].includes(activeTab)));
 
                 let stepColorClass = tab.color;
-                if (tab.id === 9) {
+                if (tab.id === 10) {
                   if (selectedOrder?.is_delayed === 1) {
                     stepColorClass = "bg-red-600";
                   } else if (isCompleted) {
@@ -74,7 +74,7 @@ const OrderForm = ({
                   <div key={tab.id} className="flex items-center mt-2">
                     {index > 0 && (
                       <div
-                        className={`h-0.5 w-8 sm:w-16 transition-colors duration-200 ${
+                        className={`h-0.5 w-6 sm:w-12 transition-colors duration-200 ${
                           isDisabled
                             ? "bg-gray-100"
                             : isCompleted
@@ -114,7 +114,7 @@ const OrderForm = ({
                 return (
                   <div key={tab.id} className="flex items-center">
                     {index > 0 && (
-                      <div className="h-0.5 w-8 sm:w-16 opacity-0"></div>
+                      <div className="h-0.5 w-6 sm:w-12 opacity-0"></div>
                     )}
                     <div
                       className={`text-xs font-medium text-center flex-shrink-0 w-12 ${
@@ -172,7 +172,7 @@ const OrderForm = ({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200 gap-4">
             <div className="flex-grow flex justify-start">
-              {activeTab === 9 && !savedSteps.has(9) && (
+              {activeTab === 10 && !savedSteps.has(10) && (
                 <button
                   onClick={() => setDelayModalOpen(true)}
                   className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 shadow-md hover:shadow-lg
@@ -194,7 +194,7 @@ const OrderForm = ({
 
             <div className="flex space-x-2 w-full sm:w-auto justify-center">
               {activeTab >= 1 &&
-                activeTab <= 8 &&
+                activeTab <= 9 &&
                 !savedSteps.has(activeTab) &&
                 !(activeTab === 4 || activeTab === 5) && (
                   <button
@@ -205,7 +205,7 @@ const OrderForm = ({
                   </button>
                 )}
 
-              {activeTab === 9 && !savedSteps.has(9) && (
+              {activeTab === 10 && !savedSteps.has(10) && (
                 <button
                   onClick={() => handleSubmit(true)}
                   className="px-6 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center space-x-2 shadow-md hover:shadow-lg"
@@ -233,7 +233,7 @@ const OrderForm = ({
               <div className="flex items-center space-x-1">
                 <span className="w-2 h-2 bg-gray-300 rounded-full"></span>
                 <span>
-                  Remaining: {9 - Math.max(savedSteps.size, activeTab)}
+                  Remaining: {10 - Math.max(savedSteps.size, activeTab)}
                 </span>
               </div>
             </div>
