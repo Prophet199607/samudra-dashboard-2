@@ -42,7 +42,12 @@ export const useFormState = () => {
     invoiceNumber: "",
     invoiceAmount: "",
 
-    // Step 9: Delivery Info
+    // Step 9: Cash In Info
+    cashInNumber: "",
+    cashInAmount: "",
+    cashInRemark: "",
+
+    // Step 10: Delivery Info
     deliveryType: "",
     isDelayed: false,
     delayReason: "",
@@ -105,7 +110,8 @@ export const useFormState = () => {
         6: ["paymentAttachment"],
         7: ["paymentConfirmed", "paymentRemark"],
         8: ["invoiceNumber", "invoiceAmount"],
-        9: [
+        9: ["cashInNumber", "cashInAmount", "cashInRemark"],
+        10: [
           "deliveryType",
           "isDelayed",
           "delayReason",
@@ -153,6 +159,9 @@ export const useFormState = () => {
       paymentRemark: "",
       invoiceNumber: "",
       invoiceAmount: "",
+      cashInNumber: "",
+      cashInAmount: "",
+      cashInRemark: "",
       deliveryType: "",
       isDelayed: false,
       delayReason: "",

@@ -112,6 +112,16 @@ const OrderSummary = ({
         },
       ],
       9: [
+        { label: "Cash In No", value: formData.cashInNo },
+        {
+          label: "Cash In Amount",
+          value: formData.cashInAmount
+            ? `LKR ${formatThousand(formData.cashInAmount)}`
+            : "",
+        },
+        { label: "Cash In Remark", value: formData.cashInRemark },
+      ],
+      10: [
         { label: "Delivery Type", value: formData.deliveryType },
         { label: "Bus No", value: formData.busNo },
         { label: "Way Bill No", value: formData.wayBillNo },
