@@ -5,6 +5,7 @@ export const useFormState = () => {
     // Step 1: Basic Order Info
     ordReqDate: "",
     ornNumber: "",
+    customerCode: "",
     customerName: "",
     customerPONo: "",
     poAmount: "",
@@ -96,6 +97,7 @@ export const useFormState = () => {
         1: [
           "ordReqDate",
           "ornNumber",
+          "customerCode",
           "customerName",
           "customerPONo",
           "poAmount",
@@ -136,6 +138,7 @@ export const useFormState = () => {
     setFormData({
       ordReqDate: "",
       ornNumber: "",
+      customerCode: "",
       customerName: "",
       customerPONo: "",
       poAmount: "",

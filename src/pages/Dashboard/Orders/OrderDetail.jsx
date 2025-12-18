@@ -103,6 +103,7 @@ const OrderDetail = () => {
         );
 
         const fieldMappings = {
+          customer_code: "customerCode",
           customer_name: "customerName",
           customer_group: "customerGroup",
           customer_branch: "customerBranch",
@@ -266,6 +267,7 @@ const OrderDetail = () => {
         const formDataToSend = new FormData();
 
         const baseData = {
+          customer_code: formData.customerCode,
           customer_name: formData.customerName,
           customer_group: formData.customerGroup,
           customer_branch: formData.customerBranch,

@@ -43,6 +43,7 @@ const CreateOrder = ({ formData, updateField, isNewOrder, errors = {} }) => {
 
     if (selectedCustomer) {
       updateField("customerName", selectedCustomer.label);
+      updateField("customerCode", selectedCustomer.value);
       setSelectedCustomerCode(selectedCustomer.value);
     } else {
       updateField("customerName", "");
