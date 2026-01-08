@@ -12,8 +12,8 @@ const Collections = () => {
 
   const tableColumns = [
     {
-      key: "orn_number",
-      label: "ORN Number",
+      key: "pc_number",
+      label: "PC Number",
       sortable: true,
       render: (value, rowData) => {
         const maxLength = 25;
@@ -42,24 +42,6 @@ const Collections = () => {
       key: "customer_name",
       label: "Customer Name",
       sortable: true,
-    },
-    {
-      key: "customer_po_no",
-      label: "PO Number",
-      sortable: true,
-      render: (value) => value || "-",
-    },
-    {
-      key: "order_request_date",
-      label: "Request Date",
-      sortable: true,
-      render: (value) => new Date(value).toLocaleDateString(),
-    },
-    {
-      key: "po_amount",
-      label: "Amount",
-      sortable: true,
-      render: (value) => `LKR ${parseFloat(value).toLocaleString()}`,
     },
     {
       key: "status",
@@ -92,33 +74,34 @@ const Collections = () => {
     if (hasFetched.current) return;
     hasFetched.current = true;
 
-    fetchOrders();
+    fetchCollections();
   }, []);
 
-  const fetchOrders = async () => {
+  const fetchCollections = async () => {
     try {
-      const response = await api.get("/orders");
+      const response = await api.get("/prv-collections");
       if (response.data.success) {
-        setOrders(response.data.orders || []);
+        setCollections(response.data.collections || []);
       }
     } catch (error) {
-      console.error("Error fetching orders:", error);
-      showErrorToast("Failed to fetch orders");
+      console.error("Error fetching collections:", error);
+      showErrorToast("Failed to fetch collections");
     }
   };
 
   const handleCreateNewPreviousCollection = async () => {
     try {
-      navigate("/collection/new");
+      navigate("/prv-collection/new");
     } catch (error) {
       console.error("Error creating new collection:", error);
       showErrorToast("Failed to create new collection");
     }
   };
 
-  const handleOrderClick = (order) => {
-    const targetStep = order.status < 10 ? order.status + 1 : order.status;
-    navigate(`/order/${order.orn_number}?status=${targetStep}`);
+  const handleCollectionClick = (collection) => {
+    const targetStep =
+      collection.status < 10 ? collection.status + 1 : collection.status;
+    navigate(`/prv-collection/${collection.pc_number}?status=${targetStep}`);
   };
 
   return (
@@ -131,15 +114,87 @@ const Collections = () => {
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Previous Collection Management
               </h1>
-              {/* <p className="text-gray-600">Total Orders: {orders.length}</p> */}
+              <p className="text-gray-600">
+                Total Collections: {collections.length}
+              </p>
             </div>
             <button
               onClick={handleCreateNewPreviousCollection}
               className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
             >
-              + Create New Order
+              + Create New Collection
             </button>
           </div>
+        </div>
+
+        {/* Desktop DataTable */}
+        <div className="hidden md:block bg-white rounded-xl shadow-lg p-2 sm:p-5 border border-gray-100">
+          <DataTable
+            data={collections}
+            columns={tableColumns}
+            onRowClick={handleCollectionClick}
+          />
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="block md:hidden space-y-4">
+          {collections.map((collection) => {
+            const tab = TAB_CONFIG.find((t) => t.id === collection.status);
+            const colorClass =
+              collection.is_delayed === 1
+                ? "bg-red-500"
+                : collection.status === 10
+                ? "bg-green-600"
+                : tab?.color || "bg-gray-500";
+
+            return (
+              <div
+                key={collection.pc_number}
+                onClick={() => handleCollectionClick(collection)}
+                className="bg-white rounded-xl shadow p-4 border border-gray-100 hover:shadow-md transition cursor-pointer"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold text-gray-900">
+                    {collection.pc_number}
+                  </h3>
+                  <div className="flex items-center">
+                    <div
+                      className={`h-2.5 w-2.5 rounded-full mr-2 ${colorClass}`}
+                    />
+                    <span className="text-sm text-gray-700">
+                      {tab?.title || `Step ${collection.status}`}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-sm text-gray-700">
+                  <p>
+                    <span className="font-medium">Customer:</span>{" "}
+                    {collection.customer_name}
+                  </p>
+                  <p>
+                    <span className="font-medium">PO No:</span>{" "}
+                    {collection.customer_po_no || "-"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Date:</span>{" "}
+                    {new Date(
+                      collection.order_request_date
+                    ).toLocaleDateString()}
+                  </p>
+                  <p>
+                    <span className="font-medium">Amount:</span> LKR{" "}
+                    {parseFloat(collection.po_amount).toLocaleString()}
+                  </p>
+                  {collection.is_delayed === 1 && collection.delay_reason && (
+                    <p className="text-xs text-red-600 mt-1">
+                      ({collection.delay_reason})
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

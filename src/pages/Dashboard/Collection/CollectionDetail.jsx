@@ -1,8 +1,8 @@
 import api from "../../../services/api";
 import React, { useCallback, useEffect, useState, useRef } from "react";
-import { TAB_CONFIG } from "../../../constants/tabConfig";
+import { TAB_CONFIG as ORIGINAL_TAB_CONFIG } from "../../../constants/tabConfig";
 import { useFormState } from "../../../hooks/useFormState";
-import OrderForm from "../../../components/orders/OrderForm";
+import CollectionForm from "../../../components/collections/CollectionForm";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
   showErrorToast,
@@ -11,15 +11,14 @@ import {
 } from "../../../components/alert/ToastAlert";
 
 import Step1CreateOrder from "../../../components/steps/CreateOrder";
-import Step2AssignBranch from "../../../components/steps/AssignBranch";
-import Step3ApproveOrder from "../../../components/steps/ApproveOrder";
-import Step4AddSalesOrder from "../../../components/steps/AddSalesOrder";
-import Step5AddQuotation from "../../../components/steps/AddQuotation";
 import Step6CashPayment from "../../../components/steps/CashPayment";
 import Step7PaymentConfirm from "../../../components/steps/PaymentConfirm";
 import Step8AddInvoice from "../../../components/steps/AddInvoice";
 import Step9CollectionReceipt from "../../../components/steps/CollectionReceipt";
-import Step10DeliveryDetails from "../../../components/steps/DeliveryDetails";
+
+const COLLECTION_TAB_CONFIG = ORIGINAL_TAB_CONFIG.filter((tab) =>
+  [6, 7, 8, 9].includes(tab.id)
+);
 
 const CollectionDetail = () => {
   const { id } = useParams();
@@ -73,61 +72,33 @@ const CollectionDetail = () => {
   ]);
 
   useEffect(() => {
-    const fetchOrderDetails = async (ornNumber) => {
+    const fetchOrderDetails = async (pcNumber) => {
       try {
         if (hasFetched.current) return;
         hasFetched.current = true;
 
-        const response = await api.get(`/orders/${ornNumber}`);
-        const order = response.data.order;
-        setSelectedOrder(order);
+        const response = await api.get(`/prv-collections/${pcNumber}`);
+        const collection = response.data.collection;
+        setSelectedOrder(collection);
 
-        let initialTab = order.status < 10 ? order.status + 1 : order.status;
-
-        const isCashBased =
-          order.payment_type &&
-          ["Cash", "Cash Deposit"].includes(order.payment_type);
-        if (!isCashBased) {
-          setDisabledSteps(new Set([6, 7]));
-
-          if (initialTab === 6 || initialTab === 7) {
-            initialTab = 8;
-          }
-        } else {
-          setDisabledSteps(new Set());
-        }
+        let initialTab = collection.status;
+        if (initialTab < 6) initialTab = 6;
+        if (initialTab > 9) initialTab = 9;
 
         setActiveTab(initialTab);
 
         setSavedSteps(
-          new Set(Array.from({ length: order.status }, (_, i) => i + 1))
+          new Set(
+            Array.from({ length: 10 }, (_, i) => i + 1).filter(
+              (step) => step <= collection.status && step >= 6
+            )
+          )
         );
 
         const fieldMappings = {
           customer_code: "customerCode",
           customer_name: "customerName",
-          customer_group: "customerGroup",
-          customer_branch: "customerBranch",
-          customer_po_no: "customerPONo",
-          po_amount: "poAmount",
-          orn_number: "ornNumber",
-          order_request_date: "ordReqDate",
-          remark: "orderRemark",
-
-          sales_branch: "salesBranch",
-          sales_branch_code: "salesBranchCode",
-
-          payment_type: "paymentType",
-          approval_date: "approvalDate",
-          approval_remark: "approvalRemark",
-
-          sales_order_no: "salesOrderNumber",
-          sales_order_amount: "salesOrderAmount",
-          sales_order_date: "salesOrderDate",
-
-          quotation_no: "quotationNumber",
-          quotation_amount: "quotationAmount",
-          quotation_date: "quotationDate",
+          pc_number: "ornNumber",
 
           payment_receipt: "paymentAttachment",
           payment_confirmed: "paymentConfirmed",
@@ -139,22 +110,14 @@ const CollectionDetail = () => {
           cash_in_no: "cashInNo",
           cash_in_amount: "cashInAmount",
           cash_in_remark: "cashInRemark",
-
-          delivery_type: "deliveryType",
-          is_delayed: "isDelayed",
-          delay_reason: "delayReason",
-          bus_no: "busNo",
-          way_bill_no: "wayBillNo",
-          tracking_no: "trackingNo",
-          vehicle_no: "vehicleNo",
-          driver_name: "driverName",
-          courier_name: "courierName",
-          no_of_boxes: "noOfBoxes",
         };
 
         Object.entries(fieldMappings).forEach(([dbField, formField]) => {
-          if (order[dbField] !== null && order[dbField] !== undefined) {
-            let value = order[dbField];
+          if (
+            collection[dbField] !== null &&
+            collection[dbField] !== undefined
+          ) {
+            let value = collection[dbField];
 
             if (dbField === "payment_receipt" && typeof value === "string") {
               value = value.replace(/\\/g, "");
@@ -164,9 +127,9 @@ const CollectionDetail = () => {
           }
         });
       } catch (error) {
-        console.error("Error fetching order:", error);
-        showErrorToast("Failed to fetch order");
-        navigate("/orders");
+        console.error("Error fetching collection:", error);
+        showErrorToast("Failed to fetch collection");
+        navigate("/prv-collections");
       }
     };
 
@@ -174,36 +137,36 @@ const CollectionDetail = () => {
       resetForm();
       setErrors({});
       setSavedSteps(new Set());
-      setActiveTab(1);
+      setActiveTab(6);
 
       if (hasFetched.current) return;
       hasFetched.current = true;
 
-      const generateOrn = async () => {
+      const generatePC = async () => {
         try {
-          const response = await api.get("/orders/generate-orn");
+          const response = await api.get("/prv-collections/generate-pc");
           if (response.data.success) {
-            updateField("ornNumber", response.data.orn_number);
+            updateField("ornNumber", response.data.pc_number);
           }
         } catch (error) {
-          console.error("Error generating ORN:", error);
-          showErrorToast("Failed to generate ORN");
+          console.error("Error generating PC Number:", error);
+          showErrorToast("Failed to generate PC Number");
         }
       };
-      generateOrn();
+      generatePC();
     } else {
       fetchOrderDetails(id);
     }
   }, [id, resetForm, updateField, navigate]);
 
   const handleDelaySave = async (reason) => {
-    if (!selectedOrder?.orn_number) {
-      showErrorToast("Order number is not available.");
+    if (!selectedOrder?.pc_number) {
+      showErrorToast("PC number is not available.");
       return;
     }
     try {
       const response = await api.put(
-        `/orders/${selectedOrder.orn_number}/delay`,
+        `/prv-collections/${selectedOrder.pc_number}/delay`,
         { delay_reason: reason }
       );
       if (response.data.success) {
@@ -214,7 +177,7 @@ const CollectionDetail = () => {
       }
       setTimeout(() => {
         resetForm();
-        navigate("/orders");
+        navigate("/prv-collections");
       }, 1000);
     } catch (error) {
       showErrorToast("Failed to save delay reason.");
@@ -236,25 +199,13 @@ const CollectionDetail = () => {
         };
 
         switch (activeTab) {
-          case 1:
-            requireField("ordReqDate", "Order request date is required");
-            requireField("ornNumber", "ORN number is required");
-            requireField("customerName", "Customer name is required");
-            requireField("customerGroup", "Customer group is required");
-            requireField("customerBranch", "Customer's branch is required");
-            break;
-          case 2:
-            requireField("salesBranch", "Sales branch is required");
-            break;
-          case 3:
-            requireField("approvalDate", "Approval date is required");
-            requireField("paymentType", "Payment type is required");
-            break;
           case 6:
-            requireField("paymentAttachment", "Payment receipt is required");
-            break;
-          case 10:
-            requireField("deliveryType", "Delivery type is required");
+            requireField("ornNumber", "PC number is required");
+            requireField("customerName", "Customer name is required");
+
+            if (isNewOrder && !currentFormData.paymentAttachment) {
+              newErrors["paymentAttachment"] = "Payment receipt is required";
+            }
             break;
           default:
             break;
@@ -272,96 +223,47 @@ const CollectionDetail = () => {
         const baseData = {
           customer_code: formData.customerCode,
           customer_name: formData.customerName,
-          customer_group: formData.customerGroup,
-          customer_branch: formData.customerBranch,
-          customer_po_no: formData.customerPONo,
-          po_amount: parseFloat(formData.poAmount || 0),
+          pc_number: formData.ornNumber,
           orn_number: formData.ornNumber,
-          order_request_date: formData.ordReqDate,
-          remark: formData.orderRemark,
           status: activeTab,
           currentStep: activeTab,
         };
 
         let stepData = {};
         switch (activeTab) {
-          case 2: // Assign Branch
-            stepData = {
-              sales_branch: formData.salesBranch,
-              sales_branch_code: formData.salesBranchCode,
-            };
-            break;
-          case 3: // Approval Info
-            stepData = {
-              payment_type: formData.paymentType,
-              approval_date: formData.approvalDate,
-              approval_remark: formData.approvalRemark,
-            };
-            break;
           case 6: // Payment Info (File upload step)
+            // Step 6 now acts as creation step too
             break;
           case 7: // Payment Confirmation
             stepData = {
-              payment_confirmed: formData.paymentConfirmed ? 1 : 0,
-              payment_remark: formData.paymentRemark,
+              payment_confirmed: currentFormData.paymentConfirmed ? 1 : 0,
+              payment_remark: currentFormData.paymentRemark,
             };
             break;
           case 8: // Invoice Info
             stepData = {
-              invoice_no: formData.invoiceNumber,
-              invoice_amount: formData.invoiceAmount,
+              invoice_no: currentFormData.invoiceNumber,
+              invoice_amount: currentFormData.invoiceAmount,
             };
             break;
           case 9: // Collection Receipt
             stepData = {
-              cash_in_no: formData.cashInNo,
-              cash_in_amount: formData.cashInAmount,
-              cash_in_remark: formData.cashInRemark,
-            };
-            break;
-          case 10: // Delivery Info
-            stepData = {
-              delivery_type: formData.deliveryType,
-              is_delayed: formData.isDelayed ? 1 : 0,
-              delay_reason: formData.delayReason,
-              bus_no: formData.busNo,
-              way_bill_no: formData.wayBillNo,
-              tracking_no: formData.trackingNo,
-              vehicle_no: formData.vehicleNo,
-              driver_name: formData.driverName,
-              courier_name: formData.courierName,
-              no_of_boxes: formData.noOfBoxes,
+              cash_in_no: currentFormData.cashInNo,
+              cash_in_amount: currentFormData.cashInAmount,
+              cash_in_remark: currentFormData.cashInRemark,
             };
             break;
           default:
             stepData = {
-              sales_branch: formData.salesBranch,
-              sales_branch_code: formData.salesBranchCode,
+              payment_confirmed: currentFormData.paymentConfirmed ? 1 : 0,
+              payment_remark: currentFormData.paymentRemark,
 
-              payment_type: formData.paymentType,
-              approval_date: formData.approvalDate,
-              approval_remark: formData.approvalRemark,
+              invoice_no: currentFormData.invoiceNumber,
+              invoice_amount: currentFormData.invoiceAmount,
 
-              payment_confirmed: formData.paymentConfirmed ? 1 : 0,
-              payment_remark: formData.paymentRemark,
-
-              invoice_no: formData.invoiceNumber,
-              invoice_amount: formData.invoiceAmount,
-
-              cash_in_no: formData.cashInNo,
-              cash_in_amount: formData.cashInAmount,
-              cash_in_remark: formData.cashInRemark,
-
-              delivery_type: formData.deliveryType,
-              is_delayed: formData.isDelayed ? 1 : 0,
-              delay_reason: formData.delayReason,
-              bus_no: formData.busNo,
-              way_bill_no: formData.wayBillNo,
-              tracking_no: formData.trackingNo,
-              vehicle_no: formData.vehicleNo,
-              driver_name: formData.driverName,
-              courier_name: formData.courierName,
-              no_of_boxes: formData.noOfBoxes,
+              cash_in_no: currentFormData.cashInNo,
+              cash_in_amount: currentFormData.cashInAmount,
+              cash_in_remark: currentFormData.cashInRemark,
             };
             break;
         }
@@ -395,73 +297,58 @@ const CollectionDetail = () => {
           },
         };
 
-        if (isNewOrder && activeTab === 1) {
+        if (isNewOrder && activeTab === 6) {
           const response = await api.post(
-            "/orders/new",
+            "/prv-collections/new",
             formDataToSend,
             config
           );
           if (response.data.success) {
-            setSelectedOrder(response.data.order);
-            setSavedSteps(new Set([1]));
-            showSuccessToast("Order created successfully!", loadingToastId);
+            setSelectedOrder(response.data.collection);
+            setSavedSteps(new Set([6]));
+            showSuccessToast(
+              "Collection created successfully!",
+              loadingToastId
+            );
 
             setTimeout(() => {
               resetForm();
-              navigate("/orders");
+              navigate("/prv-collections");
             }, 1000);
           }
         } else if (selectedOrder) {
           const response = await api.put(
-            `/orders/${selectedOrder.orn_number}`,
+            `/prv-collections/${selectedOrder.pc_number}`,
             formDataToSend,
             config
           );
 
           if (response.data.success) {
-            const updatedPaymentType = response.data.order.payment_type;
-            const isCashBased = ["Cash", "Cash Deposit"].includes(
-              updatedPaymentType
-            );
-
-            if (activeTab === 3) {
-              if (!isCashBased) {
-                setDisabledSteps(new Set([6, 7]));
-              } else {
-                setDisabledSteps(new Set());
-              }
-            }
-
-            setSelectedOrder(response.data.order);
+            setSelectedOrder(response.data.collection);
             setSavedSteps((prev) => new Set([...prev, activeTab]));
             showSuccessToast(
               `Step ${activeTab} saved successfully!`,
               loadingToastId
             );
 
-            if (activeTab === 10 || completeOrder) {
+            if (activeTab === 9 || completeOrder) {
               setTimeout(() => {
                 resetForm();
-                navigate("/orders");
+                navigate("/prv-collections");
               }, 1000);
             } else if (
               activeTab === 7 &&
               currentFormData.paymentConfirmed === false
             ) {
               // Do not advance step if payment is rejected
-            } else if (activeTab < 10) {
+            } else if (activeTab < 9) {
               setTimeout(() => {
                 let nextTab = activeTab + 1;
-
-                if (activeTab === 5 && !isCashBased) {
-                  nextTab = 8;
-                } else {
-                  while (nextTab <= 10 && disabledSteps.has(nextTab)) {
-                    nextTab++;
-                  }
+                while (nextTab <= 9 && disabledSteps.has(nextTab)) {
+                  nextTab++;
                 }
 
-                if (nextTab <= 10) {
+                if (nextTab <= 9) {
                   setActiveTab(nextTab);
 
                   const newSearchParams = new URLSearchParams(searchParams);
@@ -472,12 +359,12 @@ const CollectionDetail = () => {
             }
             setTimeout(() => {
               resetForm();
-              navigate("/orders");
+              navigate("/prv-collections");
             }, 1000);
           }
         }
       } catch (error) {
-        console.error("Error saving order:", error);
+        console.error("Error saving collection:", error);
         if (error.response?.status === 422 && error.response?.data?.errors) {
           const backendErrors = error.response.data.errors;
           const normalized = {};
@@ -487,7 +374,7 @@ const CollectionDetail = () => {
           setErrors(normalized);
         } else {
           showErrorToast(
-            error.response?.data?.message || "Failed to save order",
+            error.response?.data?.message || "Failed to save collection",
             loadingToastId
           );
         }
@@ -506,7 +393,7 @@ const CollectionDetail = () => {
   );
 
   const handleBackToList = useCallback(() => {
-    navigate("/orders");
+    navigate("/prv-collections");
   }, [navigate]);
 
   const handlePaymentAction = (isConfirmed) => {
@@ -531,6 +418,7 @@ const CollectionDetail = () => {
       updateField,
       isNewOrder,
       errors,
+      referenceLabel: "PC Number",
     };
 
     let currentStepToRender = activeTab;
@@ -547,17 +435,20 @@ const CollectionDetail = () => {
 
     switch (currentStepToRender) {
       case 1:
-        return <Step1CreateOrder {...stepProps} />;
-      case 2:
-        return <Step2AssignBranch {...stepProps} />;
-      case 3:
-        return <Step3ApproveOrder {...stepProps} />;
-      case 4:
-        return <Step4AddSalesOrder {...stepProps} />;
-      case 5:
-        return <Step5AddQuotation {...stepProps} />;
       case 6:
-        return <Step6CashPayment {...stepProps} />;
+        // Render combined view for Step 6 (Create Order Info + Cash Payment)
+        return (
+          <div className="space-y-8">
+            <Step1CreateOrder {...stepProps} isCollection={true} />
+            <hr className="border-gray-200" />
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Payment Details
+              </h3>
+              <Step6CashPayment {...stepProps} />
+            </div>
+          </div>
+        );
       case 7:
         return (
           <Step7PaymentConfirm
@@ -569,17 +460,17 @@ const CollectionDetail = () => {
         return <Step8AddInvoice {...stepProps} />;
       case 9:
         return <Step9CollectionReceipt {...stepProps} />;
-      case 10:
-        return <Step10DeliveryDetails {...stepProps} />;
       default:
         return null;
     }
   };
 
   return (
-    <OrderForm
+    <CollectionForm
       title={
-        isNewOrder ? "New Order" : `Order Details: ${selectedOrder?.orn_number}`
+        isNewOrder
+          ? "New Collection"
+          : `Collection Details: ${selectedOrder?.pc_number}`
       }
       selectedOrder={selectedOrder}
       savedSteps={savedSteps}
@@ -589,7 +480,7 @@ const CollectionDetail = () => {
       renderStepContent={renderStepContent}
       handleSubmit={handleSubmit}
       handleBackToList={handleBackToList}
-      TAB_CONFIG={TAB_CONFIG}
+      TAB_CONFIG={COLLECTION_TAB_CONFIG}
       formData={formData}
       isDelayed={isDelayed}
       isDelayModalOpen={isDelayModalOpen}
