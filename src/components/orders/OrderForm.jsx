@@ -1,5 +1,6 @@
 import React from "react";
 import OrderSummary from "../common/OrderSummary";
+import ConfirmationModal from "../common/model/ConfirmationModal";
 
 const OrderForm = ({
   title,
@@ -16,6 +17,10 @@ const OrderForm = ({
   isDelayModalOpen,
   setDelayModalOpen,
   handleDelaySave,
+  handlePaymentAction,
+  showRejectModal,
+  setShowRejectModal,
+  handleConfirmReject,
 }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2 sm:p-4">
@@ -196,7 +201,8 @@ const OrderForm = ({
               {activeTab >= 1 &&
                 activeTab <= 9 &&
                 !savedSteps.has(activeTab) &&
-                !(activeTab === 4 || activeTab === 5) && (
+                !(activeTab === 4 || activeTab === 5) &&
+                activeTab !== 7 && (
                   <button
                     onClick={() => handleSubmit()}
                     className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-blue-700 text-white shadow-md hover:shadow-lg"
@@ -215,6 +221,25 @@ const OrderForm = ({
                 </button>
               )}
             </div>
+            {activeTab === 7 && !savedSteps.has(7) && (
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handlePaymentAction(true)}
+                  className="bg-green-600 text-white px-3 py-2 text-sm rounded-md hover:bg-green-700 transition-colors font-medium shadow-sm"
+                >
+                  Approve
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handlePaymentAction(false)}
+                  className="bg-red-600 text-white px-3 py-2 text-sm rounded-md hover:bg-red-700 transition-colors font-medium shadow-sm"
+                >
+                  Reject
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -243,6 +268,14 @@ const OrderForm = ({
           </div>
         </div>
       </div>
+      {showRejectModal && (
+        <ConfirmationModal
+          title="Reject Payment"
+          message="Are you sure you want to reject this payment? This will revert the order status and remove the payment receipt."
+          onConfirm={handleConfirmReject}
+          onCancel={() => setShowRejectModal(false)}
+        />
+      )}
     </div>
   );
 };

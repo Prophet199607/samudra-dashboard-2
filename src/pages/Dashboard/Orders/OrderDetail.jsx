@@ -34,6 +34,7 @@ const OrderDetail = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const { formData, updateField, resetForm } = useFormState();
   const [isDelayModalOpen, setDelayModalOpen] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
   const [disabledSteps, setDisabledSteps] = useState(new Set());
 
   useEffect(() => {
@@ -222,14 +223,16 @@ const OrderDetail = () => {
   };
 
   const handleSubmit = useCallback(
-    async (completeOrder = false) => {
+    async (completeOrder = false, overrides = {}) => {
       let loadingToastId;
       try {
         loadingToastId = showLoadingToast("Saving step...");
 
+        const currentFormData = { ...formData, ...overrides };
+
         const newErrors = {};
         const requireField = (key, message) => {
-          if (!formData[key]) newErrors[key] = message;
+          if (!currentFormData[key]) newErrors[key] = message;
         };
 
         switch (activeTab) {
@@ -377,10 +380,13 @@ const OrderDetail = () => {
 
         if (
           activeTab >= 6 &&
-          formData.paymentAttachment &&
-          formData.paymentAttachment instanceof File
+          currentFormData.paymentAttachment &&
+          currentFormData.paymentAttachment instanceof File
         ) {
-          formDataToSend.append("payment_receipt", formData.paymentAttachment);
+          formDataToSend.append(
+            "payment_receipt",
+            currentFormData.paymentAttachment
+          );
         }
 
         const config = {
@@ -438,6 +444,11 @@ const OrderDetail = () => {
                 resetForm();
                 navigate("/orders");
               }, 1000);
+            } else if (
+              activeTab === 7 &&
+              currentFormData.paymentConfirmed === false
+            ) {
+              // Do not advance step if payment is rejected
             } else if (activeTab < 10) {
               setTimeout(() => {
                 let nextTab = activeTab + 1;
@@ -498,6 +509,21 @@ const OrderDetail = () => {
     navigate("/orders");
   }, [navigate]);
 
+  const handlePaymentAction = (isConfirmed) => {
+    if (isConfirmed) {
+      updateField("paymentConfirmed", true);
+      handleSubmit(false, { paymentConfirmed: true });
+    } else {
+      setShowRejectModal(true);
+    }
+  };
+
+  const handleConfirmReject = () => {
+    setShowRejectModal(false);
+    updateField("paymentConfirmed", false);
+    handleSubmit(false, { paymentConfirmed: false });
+  };
+
   const renderStepContent = (props) => {
     const stepProps = {
       ...props,
@@ -533,7 +559,12 @@ const OrderDetail = () => {
       case 6:
         return <Step6CashPayment {...stepProps} />;
       case 7:
-        return <Step7PaymentConfirm {...stepProps} />;
+        return (
+          <Step7PaymentConfirm
+            {...stepProps}
+            handlePaymentAction={handlePaymentAction}
+          />
+        );
       case 8:
         return <Step8AddInvoice {...stepProps} />;
       case 9:
@@ -565,6 +596,10 @@ const OrderDetail = () => {
       setDelayModalOpen={setDelayModalOpen}
       handleDelaySave={handleDelaySave}
       updateField={updateField}
+      handlePaymentAction={handlePaymentAction}
+      showRejectModal={showRejectModal}
+      setShowRejectModal={setShowRejectModal}
+      handleConfirmReject={handleConfirmReject}
     />
   );
 };
