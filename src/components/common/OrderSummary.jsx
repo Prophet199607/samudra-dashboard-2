@@ -139,16 +139,67 @@ const OrderSummary = ({
         },
       ],
       6: formData.paymentAttachment
-        ? [{ label: "Payment Receipt", value: "Uploaded Successfully" }]
-        : [],
-      7: formData.paymentConfirmed
-        ? [{ label: "Payment Status", value: "Payment Verified & Confirmed" }]
-        : [
+        ? [
             {
-              label: "Payment Status",
-              value: "Payment Not Verified & Rejected",
+              label: "Payment Receipt",
+              value: (() => {
+                const attachment = formData.paymentAttachment;
+                const isFile = attachment instanceof File;
+                const isString = typeof attachment === "string";
+                const baseUrl = "http://localhost:8000/storage/";
+
+                let url = null;
+                let isPdf = false;
+
+                if (isFile) {
+                  url = URL.createObjectURL(attachment);
+                  isPdf = attachment.type === "application/pdf";
+                } else if (isString) {
+                  url = `${baseUrl}${attachment}`;
+                  isPdf = attachment.toLowerCase().endsWith(".pdf");
+                } else {
+                  return "Uploaded Successfully";
+                }
+
+                if (isPdf) {
+                  return (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline flex items-center gap-2 mt-1"
+                    >
+                      View PDF Receipt
+                    </a>
+                  );
+                }
+
+                return (
+                  <div className="mt-2">
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                      <img
+                        src={url}
+                        alt="Payment Receipt"
+                        className="h-32 w-auto object-cover rounded-md border border-gray-300 hover:opacity-90 transition-opacity"
+                      />
+                    </a>
+                  </div>
+                );
+              })(),
             },
-          ],
+          ]
+        : [],
+      7: [
+        formData.paymentConfirmed
+          ? [{ label: "Payment Status", value: "Payment Verified & Confirmed" }]
+          : [
+              {
+                label: "Payment Status",
+                value: "Payment Not Verified & Rejected",
+              },
+            ],
+        { label: "Payment Remark", value: formData.paymentRemark },
+      ],
       8: [
         { label: "Invoice Number", value: formData.invoiceNumber },
         {
@@ -314,9 +365,9 @@ const OrderSummary = ({
                           <p className="text-xs font-medium text-gray-500">
                             {item.label}
                           </p>
-                          <p className="text-sm font-semibold text-gray-900 mt-0.5 break-words">
+                          <div className="text-sm font-semibold text-gray-900 mt-0.5 break-words">
                             {item.value}
-                          </p>
+                          </div>
                         </div>
                       ))}
                   </div>
