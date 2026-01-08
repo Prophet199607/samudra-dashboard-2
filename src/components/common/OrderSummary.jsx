@@ -138,8 +138,17 @@ const OrderSummary = ({
           value: formData.quotationDate,
         },
       ],
-      6: [], // Deposit Slip is a file upload, no fields to show here.
-      7: [], // Payment Confirmation is a checkbox, no fields to show here.
+      6: formData.paymentAttachment
+        ? [{ label: "Payment Receipt", value: "Uploaded Successfully" }]
+        : [],
+      7: formData.paymentConfirmed
+        ? [{ label: "Payment Status", value: "Payment Verified & Confirmed" }]
+        : [
+            {
+              label: "Payment Status",
+              value: "Payment Not Verified & Rejected",
+            },
+          ],
       8: [
         { label: "Invoice Number", value: formData.invoiceNumber },
         {
