@@ -42,6 +42,8 @@ export const useFormState = () => {
     // Step 8: Invoice Info
     invoiceNumber: "",
     invoiceAmount: "",
+    receiptNo: "",
+    receiptAmount: "",
 
     // Step 9: Cash In Info
     cashInNumber: "",
@@ -69,6 +71,7 @@ export const useFormState = () => {
       if (
         field === "poAmount" ||
         field === "invoiceAmount" ||
+        field === "receiptAmount" ||
         field === "cashChequeAmount"
       ) {
         newData[field] = value
@@ -162,6 +165,8 @@ export const useFormState = () => {
       paymentRemark: "",
       invoiceNumber: "",
       invoiceAmount: "",
+      receiptNo: "",
+      receiptAmount: "",
       cashInNumber: "",
       cashInAmount: "",
       cashInRemark: "",
