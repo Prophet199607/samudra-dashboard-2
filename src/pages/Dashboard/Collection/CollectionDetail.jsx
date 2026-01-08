@@ -18,7 +18,7 @@ import Step9CollectionReceipt from "../../../components/steps/CollectionReceipt"
 
 const COLLECTION_TAB_CONFIG = ORIGINAL_TAB_CONFIG.filter((tab) =>
   [6, 7, 8, 9].includes(tab.id)
-);
+).map((tab) => (tab.id === 8 ? { ...tab, title: "Receipt" } : tab));
 
 const CollectionDetail = () => {
   const { id } = useParams();
@@ -104,8 +104,8 @@ const CollectionDetail = () => {
           payment_confirmed: "paymentConfirmed",
           payment_remark: "paymentRemark",
 
-          invoice_no: "invoiceNumber",
-          invoice_amount: "invoiceAmount",
+          receipt_no: "receiptNo",
+          receipt_amount: "receiptAmount",
 
           cash_in_no: "cashInNo",
           cash_in_amount: "cashInAmount",
@@ -240,10 +240,10 @@ const CollectionDetail = () => {
               payment_remark: currentFormData.paymentRemark,
             };
             break;
-          case 8: // Invoice Info
+          case 8: // Receipt Info
             stepData = {
-              invoice_no: currentFormData.invoiceNumber,
-              invoice_amount: currentFormData.invoiceAmount,
+              receipt_no: currentFormData.receiptNo,
+              receipt_amount: currentFormData.receiptAmount,
             };
             break;
           case 9: // Collection Receipt
@@ -258,8 +258,8 @@ const CollectionDetail = () => {
               payment_confirmed: currentFormData.paymentConfirmed ? 1 : 0,
               payment_remark: currentFormData.paymentRemark,
 
-              invoice_no: currentFormData.invoiceNumber,
-              invoice_amount: currentFormData.invoiceAmount,
+              receipt_no: currentFormData.receiptNo,
+              receipt_amount: currentFormData.receiptAmount,
 
               cash_in_no: currentFormData.cashInNo,
               cash_in_amount: currentFormData.cashInAmount,
@@ -457,7 +457,7 @@ const CollectionDetail = () => {
           />
         );
       case 8:
-        return <Step8AddInvoice {...stepProps} />;
+        return <Step8AddInvoice {...stepProps} isCollection={true} />;
       case 9:
         return <Step9CollectionReceipt {...stepProps} />;
       default:

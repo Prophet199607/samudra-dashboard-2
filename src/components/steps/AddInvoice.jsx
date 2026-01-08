@@ -1,7 +1,7 @@
 import React from "react";
 import InputField from "../common/Input/InputField";
 
-const AddInvoice = ({ formData, updateField }) => {
+const AddInvoice = ({ formData, updateField, isCollection }) => {
   const formatThousand = (value) => {
     if (!value) return "";
     const num = value.toString().replace(/,/g, "");
@@ -13,26 +13,44 @@ const AddInvoice = ({ formData, updateField }) => {
     return value.replace(/,/g, "");
   };
 
+  const fieldConfig = isCollection
+    ? {
+        numLabel: "Receipt Number",
+        numField: "receiptNo",
+        numPlace: "Enter receipt number",
+        amtLabel: "Receipt Amount",
+        amtField: "receiptAmount",
+        amtPlace: "Enter receipt amount",
+      }
+    : {
+        numLabel: "Invoice Number",
+        numField: "invoiceNumber",
+        numPlace: "Enter invoice number",
+        amtLabel: "Invoice Amount",
+        amtField: "invoiceAmount",
+        amtPlace: "Enter final invoice amount",
+      };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <InputField
-          label="Invoice Number"
-          value={formData.invoiceNumber}
-          onChange={(e) => updateField("invoiceNumber", e.target.value)}
-          placeholder="Enter invoice number"
+          label={fieldConfig.numLabel}
+          value={formData[fieldConfig.numField]}
+          onChange={(e) => updateField(fieldConfig.numField, e.target.value)}
+          placeholder={fieldConfig.numPlace}
           required
         />
         <InputField
-          label="Invoice Amount"
+          label={fieldConfig.amtLabel}
           type="text"
-          value={formatThousand(formData.invoiceAmount)}
+          value={formatThousand(formData[fieldConfig.amtField])}
           onChange={(e) => {
             const rawValue = parseThousand(e.target.value);
-            updateField("invoiceAmount", rawValue);
+            updateField(fieldConfig.amtField, rawValue);
           }}
           inputMode="decimal"
-          placeholder="Enter final invoice amount"
+          placeholder={fieldConfig.amtPlace}
           required
         />
       </div>
