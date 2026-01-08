@@ -302,8 +302,8 @@ const OrderDetail = () => {
             break;
           case 7: // Payment Confirmation
             stepData = {
-              payment_confirmed: formData.paymentConfirmed ? 1 : 0,
-              payment_remark: formData.paymentRemark,
+              payment_confirmed: currentFormData.paymentConfirmed ? 1 : 0,
+              payment_remark: currentFormData.paymentRemark,
             };
             break;
           case 8: // Invoice Info
