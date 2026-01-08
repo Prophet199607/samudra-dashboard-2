@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-
-import { useAuth } from "./auth/auth-context.js";
-import Sidebar from "./layout/Sidebar";
 import Navbar from "./layout/Navbar";
-import Dashboard from "./pages/Dashboard/Dashboard";
+import Sidebar from "./layout/Sidebar";
 import Login from "./pages/Auth/Login";
+import { useAuth } from "./auth/auth-context.js";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import Orders from "./pages/Dashboard/Orders/Orders";
+import { Routes, Route, Navigate } from "react-router-dom";
 import OrderDetail from "./pages/Dashboard/Orders/OrderDetail";
 import { ToastContainer } from "./components/alert/ToastAlert";
+import Collections from "./pages/Dashboard/Collection/Collections.jsx";
+import CollectionDetail from "./pages/Dashboard/Collection/CollectionDetail";
 
 function Private({ children }) {
   const { user } = useAuth();
@@ -86,6 +87,27 @@ export default function App() {
           <Private>
             <PrivateLayout>
               <OrderDetail />
+            </PrivateLayout>
+          </Private>
+        }
+      />
+
+      <Route
+        path="/prv-collections"
+        element={
+          <Private>
+            <PrivateLayout>
+              <Collections />
+            </PrivateLayout>
+          </Private>
+        }
+      />
+      <Route
+        path="/prv-collection/:id"
+        element={
+          <Private>
+            <PrivateLayout>
+              <CollectionDetail />
             </PrivateLayout>
           </Private>
         }

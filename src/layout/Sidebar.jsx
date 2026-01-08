@@ -1,5 +1,6 @@
 import React from "react";
 import { FaTruck } from "react-icons/fa";
+import { FaHistory } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { MdSpaceDashboard } from "react-icons/md";
 
@@ -41,6 +42,16 @@ export default function Sidebar({ collapsed, mobileOpen, onMobileToggle }) {
           <FaTruck size={20} />
           {!collapsed && <span className="label">Distribution WIP</span>}
         </NavLink>
+
+        <NavLink
+          end
+          to="/prv-collections"
+          className={({ isActive }) => "menuItem" + (isActive ? " active" : "")}
+          title="PRV Collection"
+        >
+          <FaHistory size={20} />
+          {!collapsed && <span className="label">PRV Collection</span>}
+        </NavLink>
       </aside>
 
       {/* Mobile Sidebar */}
@@ -71,6 +82,18 @@ export default function Sidebar({ collapsed, mobileOpen, onMobileToggle }) {
           }
         >
           Distribution WIP
+        </NavLink>
+
+        <NavLink
+          end
+          to="/prv-collections"
+          onClick={onMobileToggle}
+          className={({ isActive }) =>
+            "block py-2 px-2 rounded hover:bg-white/10" +
+            (isActive ? " bg-white/20" : "")
+          }
+        >
+          PRV Collection
         </NavLink>
       </aside>
     </>
