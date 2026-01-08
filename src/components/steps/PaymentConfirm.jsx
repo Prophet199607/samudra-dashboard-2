@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import ImageModal from "../common/model/ImageModal";
 import TextAreaField from "../common/Input/TextAreaField";
-import CheckBoxField from "../common/Input/CheckBoxField";
 import { showErrorToast } from "../../components/alert/ToastAlert";
 
-const PaymentConfirm = ({ formData, updateField }) => {
+const PaymentConfirm = ({ formData, updateField, handlePaymentAction }) => {
   const [modalImageUrl, setModalImageUrl] = useState("");
   const [showImageModal, setShowImageModal] = useState(false);
 
@@ -116,13 +115,6 @@ const PaymentConfirm = ({ formData, updateField }) => {
             onChange={(e) => updateField("paymentRemark", e.target.value)}
             placeholder="Enter payment remark here"
             rows={4}
-          />
-          <CheckBoxField
-            id="paymentConfirmed"
-            label="Payment Confirmed"
-            checked={formData.paymentConfirmed}
-            onChange={(e) => updateField("paymentConfirmed", e.target.checked)}
-            className="pt-2"
           />
         </div>
       </div>
