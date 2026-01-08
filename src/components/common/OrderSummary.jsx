@@ -56,11 +56,27 @@ const OrderSummary = ({
     return colors;
   }, [selectedOrder, savedSteps]);
 
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
   const formatThousand = (value) => {
     if (value === null || value === undefined || value === "") return "";
     const num = value.toString().replace(/,/g, "");
     if (!num || isNaN(num)) return "";
-    return Number(num).toLocaleString();
+    return Number(num).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   };
 
   const safe = (value) => (value ? value : "—");
@@ -70,7 +86,10 @@ const OrderSummary = ({
 
     const stepData = {
       1: [
-        { label: "Order Request Date", value: formData.ordReqDate },
+        {
+          label: "Order Request Date",
+          value: formData.ordReqDate,
+        },
         { label: "Order Request Number", value: formData.ornNumber },
         { label: "Customer Name", value: formData.customerName },
         { label: "PO Number", value: formData.customerPONo },
@@ -87,18 +106,37 @@ const OrderSummary = ({
       2: [{ label: "Sales Branch", value: formData.salesBranch }],
       3: [
         { label: "Payment Type", value: formData.paymentType },
-        { label: "Approval Date", value: formData.approvalDate },
+        {
+          label: "Approval Date",
+          value: formData.approvalDate,
+        },
         { label: "Approval Remark", value: formData.approvalRemark },
       ],
       4: [
         { label: "Sales Order Number", value: formData.salesOrderNumber },
-        { label: "Sales Order Amount", value: formData.salesOrderAmount },
-        { label: "Sales Order Date", value: formData.salesOrderDate },
+        {
+          label: "Sales Order Amount",
+          value: formData.salesOrderAmount
+            ? `LKR ${formatThousand(formData.salesOrderAmount)}`
+            : "",
+        },
+        {
+          label: "Sales Order Date",
+          value: formData.salesOrderDate,
+        },
       ],
       5: [
         { label: "Quotation Number", value: formData.quotationNumber },
-        { label: "Quotation Amount", value: formData.quotationAmount },
-        { label: "Quotation Date", value: formData.quotationDate },
+        {
+          label: "Quotation Amount",
+          value: formData.quotationAmount
+            ? `LKR ${formatThousand(formData.quotationAmount)}`
+            : "",
+        },
+        {
+          label: "Quotation Date",
+          value: formData.quotationDate,
+        },
       ],
       6: [], // Deposit Slip is a file upload, no fields to show here.
       7: [], // Payment Confirmation is a checkbox, no fields to show here.
@@ -232,7 +270,7 @@ const OrderSummary = ({
                         </span>{" "}
                         on{" "}
                         <span className="font-medium text-gray-700">
-                          {new Date(stepDetail.created_at).toLocaleDateString()}
+                          {formatDateTime(stepDetail.created_at)}
                         </span>
                       </div>
                     )}
