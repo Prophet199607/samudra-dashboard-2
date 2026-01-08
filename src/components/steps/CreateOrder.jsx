@@ -6,7 +6,13 @@ import SelectField from "../common/Input/SelectField";
 import TextAreaField from "../common/Input/TextAreaField";
 import { useExternalApiData } from "../../hooks/useExternalApiData";
 
-const CreateOrder = ({ formData, updateField, isNewOrder, errors = {} }) => {
+const CreateOrder = ({
+  formData,
+  updateField,
+  isNewOrder,
+  errors = {},
+  isCollection,
+}) => {
   const [branches, setBranches] = useState([]);
   const [branchesError, setBranchesError] = useState("");
   const [branchesLoading, setBranchesLoading] = useState(false);
@@ -196,13 +202,15 @@ const CreateOrder = ({ formData, updateField, isNewOrder, errors = {} }) => {
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <DatePicker
-            label="Order Request Date"
-            value={formData.ordReqDate || ""}
-            selectedDate={formData.ordReqDate || ""}
-            setSelectedDate={handleDateChange}
-            required
-          />
+          {!isCollection && (
+            <DatePicker
+              label="Order Request Date"
+              value={formData.ordReqDate || ""}
+              selectedDate={formData.ordReqDate || ""}
+              setSelectedDate={handleDateChange}
+              required
+            />
+          )}
 
           <SelectField
             label="Customer Name"
@@ -222,92 +230,106 @@ const CreateOrder = ({ formData, updateField, isNewOrder, errors = {} }) => {
             <div className="text-red-600 text-sm">{customersError}</div>
           )}
 
-          <SelectField
-            label="Customer Group"
-            value={formData.customerGroup || ""}
-            onChange={(e) =>
-              handleSelectChange("customerGroup", e.target.value)
-            }
-            options={customerGroupOptions}
-            placeholder={
-              groupsLoading ? "Loading groups..." : "Select a customer group"
-            }
-            required
-            disabled={groupsLoading}
-            error={errors.customerGroup || errors.customer_group}
-          />
-          {groupsError && (
-            <div className="text-red-600 text-sm">{groupsError}</div>
-          )}
+          {!isCollection && (
+            <>
+              <SelectField
+                label="Customer Group"
+                value={formData.customerGroup || ""}
+                onChange={(e) =>
+                  handleSelectChange("customerGroup", e.target.value)
+                }
+                options={customerGroupOptions}
+                placeholder={
+                  groupsLoading
+                    ? "Loading groups..."
+                    : "Select a customer group"
+                }
+                required
+                disabled={groupsLoading}
+                error={errors.customerGroup || errors.customer_group}
+              />
+              {groupsError && (
+                <div className="text-red-600 text-sm">{groupsError}</div>
+              )}
 
-          <SelectField
-            label="Customer's Branch"
-            value={formData.customerBranch || ""}
-            onChange={(e) => {
-              handleBranchChange(e.target.value);
-            }}
-            options={branchOptions}
-            placeholder={
-              branchesLoading
-                ? "Loading branches..."
-                : formData.customerName
-                ? "Select customer branch"
-                : "Select customer first"
-            }
-            required
-            disabled={branchesLoading || !formData.customerName}
-            error={errors.customerBranch || errors.customer_branch}
-          />
-          {branchesLoading && (
-            <div className="text-blue-600 text-sm">Loading branches...</div>
+              <SelectField
+                label="Customer's Branch"
+                value={formData.customerBranch || ""}
+                onChange={(e) => {
+                  handleBranchChange(e.target.value);
+                }}
+                options={branchOptions}
+                placeholder={
+                  branchesLoading
+                    ? "Loading branches..."
+                    : formData.customerName
+                    ? "Select customer branch"
+                    : "Select customer first"
+                }
+                required
+                disabled={branchesLoading || !formData.customerName}
+                error={errors.customerBranch || errors.customer_branch}
+              />
+              {branchesLoading && (
+                <div className="text-blue-600 text-sm">Loading branches...</div>
+              )}
+              {branchesError && (
+                <div className="text-red-600 text-sm">{branchesError}</div>
+              )}
+              {formData.customerName &&
+                branchOptions.length === 0 &&
+                !branchesLoading && (
+                  <div className="text-yellow-600 text-sm">
+                    No branches available for this customer
+                  </div>
+                )}
+            </>
           )}
-          {branchesError && (
-            <div className="text-red-600 text-sm">{branchesError}</div>
-          )}
-          {formData.customerName &&
-            branchOptions.length === 0 &&
-            !branchesLoading && (
-              <div className="text-yellow-600 text-sm">
-                No branches available for this customer
-              </div>
-            )}
         </div>
 
         <div className="space-y-4">
           <InputField
-            label="ORN Number"
+            label={isCollection ? "PC Number" : "ORN Number"}
             value={formData.ornNumber || ""}
             onChange={(e) => handleInputChange("ornNumber", e.target.value)}
-            placeholder="Enter Order Request Number"
+            placeholder={isCollection ? "PC Number" : "ORN Number"}
             required
             disabled
             error={errors.ornNumber || errors.orn_number}
           />
-          <InputField
-            label="Customer PO Number"
-            value={formData.customerPONo || ""}
-            onChange={(e) => handleInputChange("customerPONo", e.target.value)}
-            placeholder="Enter customer purchase order number"
-          />
-          <InputField
-            label="PO Amount"
-            type="text"
-            value={formatThousand(formData.poAmount) || ""}
-            onChange={(e) => {
-              const rawValue = parseThousand(e.target.value);
-              handleInputChange("poAmount", rawValue);
-            }}
-            inputMode="decimal"
-            placeholder="Enter purchase order amount"
-            error={errors.poAmount || errors.po_amount}
-          />
-          <TextAreaField
-            label="Remark"
-            value={formData.orderRemark || ""}
-            onChange={(e) => handleInputChange("orderRemark", e.target.value)}
-            placeholder="Enter any additional remark or note"
-            rows={3}
-          />
+          {!isCollection && (
+            <>
+              <InputField
+                label="Customer PO Number"
+                value={formData.customerPONo || ""}
+                onChange={(e) =>
+                  handleInputChange("customerPONo", e.target.value)
+                }
+                placeholder="Enter customer purchase order number"
+              />
+              <InputField
+                label="PO Amount"
+                type="text"
+                value={formatThousand(formData.poAmount) || ""}
+                onChange={(e) => {
+                  const rawValue = parseThousand(e.target.value);
+                  handleInputChange("poAmount", rawValue);
+                }}
+                inputMode="decimal"
+                placeholder="Enter purchase order amount"
+                error={errors.poAmount || errors.po_amount}
+              />
+              <TextAreaField
+                label="Remark"
+                value={formData.orderRemark || ""}
+                onChange={(e) =>
+                  handleInputChange("orderRemark", e.target.value)
+                }
+                placeholder="Enter any additional remark or note"
+                rows={3}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
