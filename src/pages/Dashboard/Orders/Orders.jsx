@@ -68,8 +68,16 @@ const Orders = () => {
       render: (value, rowData) => {
         const tab = TAB_CONFIG.find((tab) => tab.id === value);
         let colorClass = tab?.color || "bg-gray-500";
+        let statusText = tab?.title || `Step ${value}`;
 
-        if (value === 10) {
+        if (
+          rowData.payment_confirmed == 0 &&
+          rowData.payment_remark &&
+          !rowData.payment_receipt
+        ) {
+          colorClass = "bg-red-600";
+          statusText = "Payment Rejected";
+        } else if (value === 10) {
           if (rowData.is_delayed === 1) {
             colorClass = "bg-red-600";
           } else if (rowData.status === 10) {
@@ -81,7 +89,7 @@ const Orders = () => {
             <div
               className={`h-2.5 w-2.5 rounded-full mr-2 ${colorClass}`}
             ></div>
-            <span>{tab?.title || `Step ${value}`}</span>
+            <span>{statusText}</span>
           </div>
         );
       },
