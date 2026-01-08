@@ -146,7 +146,9 @@ const OrderSummary = ({
                 const attachment = formData.paymentAttachment;
                 const isFile = attachment instanceof File;
                 const isString = typeof attachment === "string";
-                const baseUrl = "http://localhost:8000/storage/";
+                const baseUrl = `${
+                  import.meta.env.VITE_EXTERNAL_API_BASE_URL
+                }/storage/`;
 
                 let url = null;
                 let isPdf = false;
