@@ -10,6 +10,7 @@ const DeliveryDetails = ({
   isDelayModalOpen,
   setDelayModalOpen,
   handleDelaySave,
+  isCompleted,
 }) => {
   const deliveryTypeOptions = [
     { value: "Bus", label: "Bus" },
@@ -31,6 +32,7 @@ const DeliveryDetails = ({
               placeholder="Select a delivery type"
               required
               error={errors.deliveryType || errors.delivery_type}
+              disabled={isCompleted}
             />
           </div>
 
@@ -41,6 +43,7 @@ const DeliveryDetails = ({
                 value={formData.busNo}
                 onChange={(e) => updateField("busNo", e.target.value)}
                 placeholder="Enter bus number"
+                disabled={isCompleted}
               />
             </div>
           )}
@@ -52,6 +55,7 @@ const DeliveryDetails = ({
                 value={formData.wayBillNo}
                 onChange={(e) => updateField("wayBillNo", e.target.value)}
                 placeholder="Enter way bill number"
+                disabled={isCompleted}
               />
             </div>
           )}
@@ -64,6 +68,7 @@ const DeliveryDetails = ({
                   value={formData.trackingNo}
                   onChange={(e) => updateField("trackingNo", e.target.value)}
                   placeholder="Enter tracking number"
+                  disabled={isCompleted}
                 />
               </div>
               <div>
@@ -72,6 +77,7 @@ const DeliveryDetails = ({
                   value={formData.courierName}
                   onChange={(e) => updateField("courierName", e.target.value)}
                   placeholder="Enter courier name"
+                  disabled={isCompleted}
                 />
               </div>
             </>
@@ -85,6 +91,7 @@ const DeliveryDetails = ({
                   value={formData.vehicleNo}
                   onChange={(e) => updateField("vehicleNo", e.target.value)}
                   placeholder="Enter vehicle number"
+                  disabled={isCompleted}
                 />
               </div>
               <div>
@@ -93,6 +100,7 @@ const DeliveryDetails = ({
                   value={formData.driverName}
                   onChange={(e) => updateField("driverName", e.target.value)}
                   placeholder="Enter driver's full name"
+                  disabled={isCompleted}
                 />
               </div>
             </>
@@ -106,6 +114,7 @@ const DeliveryDetails = ({
                 value={formData.noOfBoxes}
                 onChange={(e) => updateField("noOfBoxes", e.target.value)}
                 placeholder="Enter number of boxes"
+                disabled={isCompleted}
               />
             </>
           )}
