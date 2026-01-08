@@ -82,6 +82,7 @@ const Orders = () => {
             colorClass = "bg-red-600";
           } else if (rowData.status === 10) {
             colorClass = "bg-green-600";
+            statusText = "Delivered";
           }
         }
         return (
@@ -170,6 +171,11 @@ const Orders = () => {
                 ? "bg-green-600"
                 : tab?.color || "bg-gray-500";
 
+            let statusText = tab?.title || `Step ${order.status}`;
+            if (order.status === 10 && order.is_delayed !== 1) {
+              statusText = "Delivered";
+            }
+
             return (
               <div
                 key={order.orn_number}
@@ -184,9 +190,7 @@ const Orders = () => {
                     <div
                       className={`h-2.5 w-2.5 rounded-full mr-2 ${colorClass}`}
                     />
-                    <span className="text-sm text-gray-700">
-                      {tab?.title || `Step ${order.status}`}
-                    </span>
+                    <span className="text-sm text-gray-700">{statusText}</span>
                   </div>
                 </div>
 
