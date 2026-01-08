@@ -22,6 +22,43 @@ const OrderForm = ({
   setShowRejectModal,
   handleConfirmReject,
 }) => {
+  const isStep10Valid = () => {
+    if (activeTab !== 10) return true;
+    const {
+      deliveryType,
+      busNo,
+      wayBillNo,
+      trackingNo,
+      courierName,
+      vehicleNo,
+      driverName,
+      noOfBoxes,
+    } = formData;
+
+    if (!deliveryType) return false;
+
+    if (noOfBoxes && String(noOfBoxes).trim()) return true;
+
+    switch (deliveryType) {
+      case "Bus":
+        return !!(busNo && String(busNo).trim());
+      case "Train":
+        return !!(wayBillNo && String(wayBillNo).trim());
+      case "Courier":
+        return !!(
+          (trackingNo && String(trackingNo).trim()) ||
+          (courierName && String(courierName).trim())
+        );
+      case "Own Vehicle":
+        return !!(
+          (vehicleNo && String(vehicleNo).trim()) ||
+          (driverName && String(driverName).trim())
+        );
+      default:
+        return false;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2 sm:p-4">
       <div className="max-full mx-auto">
@@ -214,7 +251,14 @@ const OrderForm = ({
               {activeTab === 10 && !savedSteps.has(10) && (
                 <button
                   onClick={() => handleSubmit(true)}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center space-x-2 shadow-md hover:shadow-lg"
+                  disabled={!isStep10Valid()}
+                  className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 shadow-md hover:shadow-lg
+                    ${
+                      !isStep10Valid()
+                        ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                        : "bg-green-600 text-white hover:bg-green-700"
+                    }
+                  `}
                 >
                   <span>🎉</span>
                   <span>Complete Order</span>

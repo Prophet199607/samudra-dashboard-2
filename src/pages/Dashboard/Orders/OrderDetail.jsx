@@ -570,7 +570,12 @@ const OrderDetail = () => {
       case 9:
         return <Step9CollectionReceipt {...stepProps} />;
       case 10:
-        return <Step10DeliveryDetails {...stepProps} />;
+        return (
+          <Step10DeliveryDetails
+            {...stepProps}
+            isCompleted={savedSteps.has(10)}
+          />
+        );
       default:
         return null;
     }
