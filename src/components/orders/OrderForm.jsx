@@ -97,6 +97,10 @@ const OrderForm = ({
                 const isActive = activeTab === tab.id;
                 const isDisabled = disabledSteps.has(tab.id);
                 const canNavigate =
+                  // !isDisabled &&
+                  // (savedSteps.has(tab.id - 1) ||
+                  //   tab.id === 1 ||
+                  //   (tab.id === 3 && [4, 5, 6].includes(activeTab)));
                   !isDisabled && (tab.id === 1 || savedSteps.has(tab.id - 1));
 
                 let stepColorClass = tab.color;
@@ -211,6 +215,7 @@ const OrderForm = ({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200 gap-4">
             <div className="flex-grow flex justify-start">
+              {/* {activeTab === 10 && !savedSteps.has(10) && ( */}
               {activeTab === 10 &&
                 !disabledSteps.has(10) &&
                 savedSteps.has(9) &&
