@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import api from "../../../services/api";
+import DataTable from "../../../components/common/DataTable";
 
 export default function Permissions() {
   // Data States
@@ -16,10 +17,6 @@ export default function Permissions() {
   const [rolesError, setRolesError] = useState("");
   const [permissionsError, setPermissionsError] = useState("");
   const [createError, setCreateError] = useState("");
-
-  // Search States
-  const [roleSearch, setRoleSearch] = useState("");
-  const [permSearch, setPermSearch] = useState("");
 
   // Modal States
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
@@ -386,13 +383,68 @@ export default function Permissions() {
     }
   };
 
-  // Filtering
-  const filteredRoles = roles.filter((r) =>
-    r.name.toLowerCase().includes(roleSearch.toLowerCase())
-  );
-  const filteredPermissions = permissions.filter((p) =>
-    p.name.toLowerCase().includes(permSearch.toLowerCase())
-  );
+  // Columns Configuration
+  const roleColumns = [
+    { key: "name", label: "Name" },
+    { key: "guard_name", label: "Guard" },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_, role) => (
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              openEditRole(role);
+            }}
+            className="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              openDeleteRole(role);
+            }}
+            className="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const permissionColumns = [
+    { key: "name", label: "Name" },
+    { key: "guard_name", label: "Guard" },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_, perm) => (
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              openEditPermission(perm);
+            }}
+            className="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              openDeletePermission(perm);
+            }}
+            className="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -400,8 +452,8 @@ export default function Permissions() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* --- Roles Card (Left) --- */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
-          <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl">
+        <div className="flex flex-col h-full space-y-4">
+          <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <h2 className="font-semibold text-gray-700 text-lg">Roles</h2>
             <button
               onClick={() => setIsRoleModalOpen(true)}
@@ -411,92 +463,31 @@ export default function Permissions() {
             </button>
           </div>
 
-          <div className="p-5 flex-1">
-            <div className="mb-4">
-              <input
-                type="text"
-                placeholder="Search roles..."
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={roleSearch}
-                onChange={(e) => setRoleSearch(e.target.value)}
-              />
+          {rolesError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              {rolesError}
             </div>
+          )}
 
-            {rolesError && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                {rolesError}
-              </div>
-            )}
-
-            <div className="overflow-x-auto">
-              {rolesLoading ? (
-                <div className="text-center py-8 text-gray-400">
-                  Loading roles...
-                </div>
-              ) : (
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-semibold">
-                    <tr>
-                      <th className="px-4 py-3 rounded-l-lg">Name</th>
-                      <th className="px-4 py-3">Guard</th>
-                      <th className="px-4 py-3 text-right rounded-r-lg">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredRoles.length > 0 ? (
-                      filteredRoles.map((role) => (
-                        <tr
-                          key={role.id}
-                          className="hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="px-4 py-3 font-medium text-gray-800">
-                            {role.name}
-                          </td>
-                          <td className="px-4 py-3 text-gray-500">
-                            {role.guard_name}
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <div className="flex justify-end gap-2">
-                              <button
-                                onClick={() => openEditRole(role)}
-                                className="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded transition-colors"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => openDeleteRole(role)}
-                                className="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded transition-colors"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan="3"
-                          className="px-4 py-8 text-center text-gray-400"
-                        >
-                          {roleSearch
-                            ? "No roles match your search."
-                            : "No roles found."}
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              )}
+          {rolesLoading ? (
+            <div className="text-center py-8 text-gray-400 bg-white rounded-xl shadow-sm border border-gray-100">
+              Loading roles...
             </div>
-          </div>
+          ) : (
+            <DataTable
+              data={roles}
+              columns={roleColumns}
+              searchable={true}
+              pagination={true}
+              itemsPerPageOptions={[5, 10, 20]}
+              defaultItemsPerPage={5}
+            />
+          )}
         </div>
 
         {/* --- Permissions Card (Right) --- */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
-          <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl">
+        <div className="flex flex-col h-full space-y-4">
+          <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <h2 className="font-semibold text-gray-700 text-lg">Permissions</h2>
             <button
               onClick={() => setIsPermissionModalOpen(true)}
@@ -506,87 +497,26 @@ export default function Permissions() {
             </button>
           </div>
 
-          <div className="p-5 flex-1">
-            <div className="mb-4">
-              <input
-                type="text"
-                placeholder="Search permissions..."
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                value={permSearch}
-                onChange={(e) => setPermSearch(e.target.value)}
-              />
+          {permissionsError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              {permissionsError}
             </div>
+          )}
 
-            {permissionsError && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                {permissionsError}
-              </div>
-            )}
-
-            <div className="overflow-x-auto">
-              {permissionsLoading ? (
-                <div className="text-center py-8 text-gray-400">
-                  Loading permissions...
-                </div>
-              ) : (
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-semibold">
-                    <tr>
-                      <th className="px-4 py-3 rounded-l-lg">Name</th>
-                      <th className="px-4 py-3">Guard</th>
-                      <th className="px-4 py-3 text-right rounded-r-lg">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredPermissions.length > 0 ? (
-                      filteredPermissions.map((perm) => (
-                        <tr
-                          key={perm.id}
-                          className="hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="px-4 py-3 font-medium text-gray-800">
-                            {perm.name}
-                          </td>
-                          <td className="px-4 py-3 text-gray-500">
-                            {perm.guard_name}
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <div className="flex justify-end gap-2">
-                              <button
-                                onClick={() => openEditPermission(perm)}
-                                className="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded transition-colors"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => openDeletePermission(perm)}
-                                className="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded transition-colors"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan="3"
-                          className="px-4 py-8 text-center text-gray-400"
-                        >
-                          {permSearch
-                            ? "No permissions match your search."
-                            : "No permissions found."}
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              )}
+          {permissionsLoading ? (
+            <div className="text-center py-8 text-gray-400 bg-white rounded-xl shadow-sm border border-gray-100">
+              Loading permissions...
             </div>
-          </div>
+          ) : (
+            <DataTable
+              data={permissions}
+              columns={permissionColumns}
+              searchable={true}
+              pagination={true}
+              itemsPerPageOptions={[5, 10, 20]}
+              defaultItemsPerPage={5}
+            />
+          )}
         </div>
       </div>
 
