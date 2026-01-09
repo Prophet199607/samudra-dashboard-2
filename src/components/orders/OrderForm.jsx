@@ -97,10 +97,7 @@ const OrderForm = ({
                 const isActive = activeTab === tab.id;
                 const isDisabled = disabledSteps.has(tab.id);
                 const canNavigate =
-                  !isDisabled &&
-                  (savedSteps.has(tab.id - 1) ||
-                    tab.id === 1 ||
-                    (tab.id === 3 && [4, 5, 6].includes(activeTab)));
+                  !isDisabled && (tab.id === 1 || savedSteps.has(tab.id - 1));
 
                 let stepColorClass = tab.color;
                 if (tab.id === 10) {
@@ -214,29 +211,34 @@ const OrderForm = ({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200 gap-4">
             <div className="flex-grow flex justify-start">
-              {activeTab === 10 && !savedSteps.has(10) && (
-                <button
-                  onClick={() => setDelayModalOpen(true)}
-                  className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 shadow-md hover:shadow-lg
+              {activeTab === 10 &&
+                !disabledSteps.has(10) &&
+                savedSteps.has(9) &&
+                !savedSteps.has(10) && (
+                  <button
+                    onClick={() => setDelayModalOpen(true)}
+                    className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 shadow-md hover:shadow-lg
                     ${
                       selectedOrder?.is_delayed === 1
                         ? "bg-red-600 hover:bg-red-700 text-white"
                         : "bg-blue-600 hover:bg-blue-700 text-white"
                     }
                   `}
-                >
-                  <span>
-                    {selectedOrder?.is_delayed === 1
-                      ? "Delivery Delayed"
-                      : "Delivery Delay"}
-                  </span>
-                </button>
-              )}
+                  >
+                    <span>
+                      {selectedOrder?.is_delayed === 1
+                        ? "Delivery Delayed"
+                        : "Delivery Delay"}
+                    </span>
+                  </button>
+                )}
             </div>
 
             <div className="flex space-x-2 w-full sm:w-auto justify-center">
               {activeTab >= 1 &&
                 activeTab <= 9 &&
+                !disabledSteps.has(activeTab) &&
+                (activeTab === 1 || savedSteps.has(activeTab - 1)) &&
                 !savedSteps.has(activeTab) &&
                 !(activeTab === 4 || activeTab === 5) &&
                 activeTab !== 7 && (
@@ -248,42 +250,48 @@ const OrderForm = ({
                   </button>
                 )}
 
-              {activeTab === 10 && !savedSteps.has(10) && (
-                <button
-                  onClick={() => handleSubmit(true)}
-                  disabled={!isStep10Valid()}
-                  className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 shadow-md hover:shadow-lg
+              {activeTab === 10 &&
+                !disabledSteps.has(10) &&
+                savedSteps.has(9) &&
+                !savedSteps.has(10) && (
+                  <button
+                    onClick={() => handleSubmit(true)}
+                    disabled={!isStep10Valid()}
+                    className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 shadow-md hover:shadow-lg
                     ${
                       !isStep10Valid()
                         ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                         : "bg-green-600 text-white hover:bg-green-700"
                     }
                   `}
-                >
-                  <span>🎉</span>
-                  <span>Complete Order</span>
-                </button>
-              )}
+                  >
+                    <span>🎉</span>
+                    <span>Complete Order</span>
+                  </button>
+                )}
             </div>
-            {activeTab === 7 && !savedSteps.has(7) && (
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => handlePaymentAction(true)}
-                  className="bg-green-600 text-white px-3 py-2 text-sm rounded-md hover:bg-green-700 transition-colors font-medium shadow-sm"
-                >
-                  Approve
-                </button>
+            {activeTab === 7 &&
+              !disabledSteps.has(7) &&
+              savedSteps.has(6) &&
+              !savedSteps.has(7) && (
+                <div className="flex items-center gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => handlePaymentAction(true)}
+                    className="bg-green-600 text-white px-3 py-2 text-sm rounded-md hover:bg-green-700 transition-colors font-medium shadow-sm"
+                  >
+                    Approve
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => handlePaymentAction(false)}
-                  className="bg-red-600 text-white px-3 py-2 text-sm rounded-md hover:bg-red-700 transition-colors font-medium shadow-sm"
-                >
-                  Reject
-                </button>
-              </div>
-            )}
+                  <button
+                    type="button"
+                    onClick={() => handlePaymentAction(false)}
+                    className="bg-red-600 text-white px-3 py-2 text-sm rounded-md hover:bg-red-700 transition-colors font-medium shadow-sm"
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
           </div>
         </div>
 
