@@ -52,6 +52,26 @@ export default function Sidebar({ collapsed, mobileOpen, onMobileToggle }) {
           <FaHistory size={20} />
           {!collapsed && <span className="label">PRV Collection</span>}
         </NavLink>
+
+        <NavLink
+          end
+          to="/users"
+          className={({ isActive }) => "menuItem" + (isActive ? " active" : "")}
+          title="Users"
+        >
+          <div className="text-xl">👥</div>
+          {!collapsed && <span className="label">Users</span>}
+        </NavLink>
+
+        <NavLink
+          end
+          to="/permissions"
+          className={({ isActive }) => "menuItem" + (isActive ? " active" : "")}
+          title="Permissions"
+        >
+          <div className="text-xl">🛡️</div>
+          {!collapsed && <span className="label">Permissions</span>}
+        </NavLink>
       </aside>
 
       {/* Mobile Sidebar */}
@@ -94,6 +114,30 @@ export default function Sidebar({ collapsed, mobileOpen, onMobileToggle }) {
           }
         >
           PRV Collection
+        </NavLink>
+
+        <NavLink
+          end
+          to="/users"
+          onClick={onMobileToggle}
+          className={({ isActive }) =>
+            "block py-2 px-2 rounded hover:bg-white/10" +
+            (isActive ? " bg-white/20" : "")
+          }
+        >
+          Users
+        </NavLink>
+
+        <NavLink
+          end
+          to="/permissions"
+          onClick={onMobileToggle}
+          className={({ isActive }) =>
+            "block py-2 px-2 rounded hover:bg-white/10" +
+            (isActive ? " bg-white/20" : "")
+          }
+        >
+          Permissions
         </NavLink>
       </aside>
     </>
