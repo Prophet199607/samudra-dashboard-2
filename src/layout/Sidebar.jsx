@@ -1,6 +1,5 @@
 import React from "react";
-import { FaTruck } from "react-icons/fa";
-import { FaHistory } from "react-icons/fa";
+import { FaTruck, FaHistory, FaUserShield, FaLock } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { MdSpaceDashboard } from "react-icons/md";
 
@@ -59,7 +58,7 @@ export default function Sidebar({ collapsed, mobileOpen, onMobileToggle }) {
           className={({ isActive }) => "menuItem" + (isActive ? " active" : "")}
           title="Users"
         >
-          <div className="text-xl">👥</div>
+          <FaUserShield size={20} />
           {!collapsed && <span className="label">Users</span>}
         </NavLink>
 
@@ -69,7 +68,7 @@ export default function Sidebar({ collapsed, mobileOpen, onMobileToggle }) {
           className={({ isActive }) => "menuItem" + (isActive ? " active" : "")}
           title="Permissions"
         >
-          <div className="text-xl">🛡️</div>
+          <FaLock size={20} />
           {!collapsed && <span className="label">Permissions</span>}
         </NavLink>
       </aside>
