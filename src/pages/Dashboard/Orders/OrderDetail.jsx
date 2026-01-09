@@ -2,6 +2,7 @@ import api from "../../../services/api";
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { TAB_CONFIG } from "../../../constants/tabConfig";
 import { useFormState } from "../../../hooks/useFormState";
+import { useAuth } from "../../../auth/auth-context";
 import OrderForm from "../../../components/orders/OrderForm";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -23,6 +24,7 @@ import Step10DeliveryDetails from "../../../components/steps/DeliveryDetails";
 
 const OrderDetail = () => {
   const { id } = useParams();
+  const { hasPermission } = useAuth();
   const navigate = useNavigate();
   const isNewOrder = id === "new";
   const hasFetched = useRef(false);
@@ -87,15 +89,27 @@ const OrderDetail = () => {
         const isCashBased =
           order.payment_type &&
           ["Cash", "Cash Deposit"].includes(order.payment_type);
+
+        const newDisabledSteps = new Set();
+
+        // 1. Disable steps based on payment type (logic existing)
         if (!isCashBased) {
-          setDisabledSteps(new Set([6, 7]));
+          newDisabledSteps.add(6); // Deposit Slip
+          newDisabledSteps.add(7); // Payment Confirm
 
           if (initialTab === 6 || initialTab === 7) {
             initialTab = 8;
           }
-        } else {
-          setDisabledSteps(new Set());
         }
+
+        // 2. Disable steps based on permissions
+        TAB_CONFIG.forEach((tab) => {
+          if (tab.permission && !hasPermission(tab.permission)) {
+            newDisabledSteps.add(tab.id);
+          }
+        });
+
+        setDisabledSteps(newDisabledSteps);
 
         setActiveTab(initialTab);
 
@@ -175,6 +189,15 @@ const OrderDetail = () => {
       setErrors({});
       setSavedSteps(new Set());
       setActiveTab(1);
+
+      // Initial permission check for new order (Step 1 usually)
+      const newDisabledSteps = new Set();
+      TAB_CONFIG.forEach((tab) => {
+        if (tab.permission && !hasPermission(tab.permission)) {
+          newDisabledSteps.add(tab.id);
+        }
+      });
+      setDisabledSteps(newDisabledSteps);
 
       if (hasFetched.current) return;
       hasFetched.current = true;
