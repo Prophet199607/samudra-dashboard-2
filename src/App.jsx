@@ -10,6 +10,7 @@ import OrderDetail from "./pages/Dashboard/Orders/OrderDetail";
 import { ToastContainer } from "./components/alert/ToastAlert";
 import Collections from "./pages/Dashboard/Collection/Collections.jsx";
 import CollectionDetail from "./pages/Dashboard/Collection/CollectionDetail";
+import Permissions from "./pages/Dashboard/Permissions/Permissions";
 
 function Private({ children }) {
   const { user } = useAuth();
@@ -108,6 +109,17 @@ export default function App() {
           <Private>
             <PrivateLayout>
               <CollectionDetail />
+            </PrivateLayout>
+          </Private>
+        }
+      />
+
+      <Route
+        path="/permissions"
+        element={
+          <Private>
+            <PrivateLayout>
+              <Permissions />
             </PrivateLayout>
           </Private>
         }
