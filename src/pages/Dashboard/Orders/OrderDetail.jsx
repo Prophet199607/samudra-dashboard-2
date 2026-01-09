@@ -628,6 +628,7 @@ const OrderDetail = () => {
       showRejectModal={showRejectModal}
       setShowRejectModal={setShowRejectModal}
       handleConfirmReject={handleConfirmReject}
+      hasPermission={hasPermission}
     />
   );
 };
