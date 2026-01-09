@@ -3,6 +3,7 @@ import Navbar from "./layout/Navbar";
 import Sidebar from "./layout/Sidebar";
 import Login from "./pages/Auth/Login";
 import { useAuth } from "./auth/auth-context.js";
+import Users from "./pages/Dashboard/Users/Users";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Orders from "./pages/Dashboard/Orders/Orders";
 import { Routes, Route, Navigate } from "react-router-dom";
@@ -120,6 +121,17 @@ export default function App() {
           <Private>
             <PrivateLayout>
               <Permissions />
+            </PrivateLayout>
+          </Private>
+        }
+      />
+
+      <Route
+        path="/users"
+        element={
+          <Private>
+            <PrivateLayout>
+              <Users />
             </PrivateLayout>
           </Private>
         }
