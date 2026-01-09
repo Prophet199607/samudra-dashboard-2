@@ -10,7 +10,7 @@ export default function Login() {
   const calledRef = useRef(false);
   const [locations, setLocations] = useState([]);
   const [locationId, setLocationId] = useState("");
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ export default function Login() {
     }
 
     setLoading(true);
-    const res = await login(username.trim(), password, locationId);
+    const res = await login(name.trim(), password, locationId);
     setLoading(false);
 
     if (!res.ok) {
@@ -99,8 +99,8 @@ export default function Login() {
                 Username
               </label>
               <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Username"
                 className="mt-1 text-sm w-full rounded-lg border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[#6f3dc5] focus:border-transparent px-3 py-2"
               />

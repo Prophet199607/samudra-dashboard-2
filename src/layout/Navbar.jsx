@@ -46,7 +46,7 @@ export default function Navbar({ onToggle, onMobileToggle, collapsed }) {
 
       <div className="relative" ref={ref}>
         <button onClick={() => setOpen((v) => !v)} className="user">
-          {user?.username ?? "onimta"} ▾
+          {user?.name ?? "onimta"} ▾
         </button>
 
         {open && (

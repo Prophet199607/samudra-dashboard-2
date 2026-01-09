@@ -328,7 +328,7 @@ const OrderSummary = ({
                       <div className="text-xs text-gray-500 font-normal ml-4">
                         by{" "}
                         <span className="font-medium text-gray-700">
-                          {stepDetail.user?.username || "System"}
+                          {stepDetail.user?.name || "System"}
                         </span>{" "}
                         on{" "}
                         <span className="font-medium text-gray-700">

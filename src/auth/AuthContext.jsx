@@ -32,10 +32,10 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (username, password, loca_code) => {
+  const login = async (name, password, loca_code) => {
     try {
       const res = await api.post("/login", {
-        username,
+        name,
         password,
         location: loca_code,
       });
