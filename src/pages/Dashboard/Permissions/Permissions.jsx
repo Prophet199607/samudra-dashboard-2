@@ -42,6 +42,15 @@ export default function Permissions() {
     useState(false);
   const [deletingPermissionData, setDeletingPermissionData] = useState(null);
 
+  // Assign Permissions State
+  const [selectedRoleForAssign, setSelectedRoleForAssign] = useState("");
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [assignError, setAssignError] = useState("");
+  const [assignSuccess, setAssignSuccess] = useState("");
+
+  // Action Loading States
+
   // Action Loading States
   const [updating, setUpdating] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -306,6 +315,77 @@ export default function Permissions() {
     }
   };
 
+  // --- Assign Permission Actions ---
+  const handleRoleSelectChange = async (e) => {
+    const roleId = e.target.value;
+    setSelectedRoleForAssign(roleId);
+    setSelectedPermissions([]);
+    setAssignError("");
+    setAssignSuccess("");
+
+    if (!roleId) return;
+
+    setAssignLoading(true);
+    try {
+      const response = await api.get(`/roles/${roleId}/permissions`);
+      if (response.data.success) {
+        // Map response to just names for checkbox state
+        const rolePerms = response.data.data.map((p) => p.name);
+        setSelectedPermissions(rolePerms);
+      }
+    } catch (error) {
+      console.error("Error fetching role permissions:", error);
+      setAssignError("Failed to load existing permissions for this role.");
+    } finally {
+      setAssignLoading(false);
+    }
+  };
+
+  const handlePermissionToggle = (permName) => {
+    setSelectedPermissions((prev) => {
+      if (prev.includes(permName)) {
+        return prev.filter((p) => p !== permName);
+      } else {
+        return [...prev, permName];
+      }
+    });
+  };
+
+  const handleSaveAssignedPermissions = async () => {
+    if (!selectedRoleForAssign) {
+      setAssignError("Please select a role first.");
+      return;
+    }
+
+    setAssignLoading(true);
+    setAssignError("");
+    setAssignSuccess("");
+
+    try {
+      const response = await api.post(
+        `/roles/${selectedRoleForAssign}/permissions`,
+        {
+          permissions: selectedPermissions,
+        }
+      );
+
+      if (response.data.success) {
+        setAssignSuccess("Permissions updated successfully!");
+        // Clear success message after 3 seconds
+        setTimeout(() => setAssignSuccess(""), 3000);
+      } else {
+        setAssignError(response.data.message || "Failed to update permissions");
+      }
+    } catch (error) {
+      console.error("Error updating permissions:", error);
+      setAssignError(
+        error.response?.data?.message || "Failed to update permissions"
+      );
+    } finally {
+      setAssignLoading(false);
+    }
+  };
+
   // Filtering
   const filteredRoles = roles.filter((r) =>
     r.name.toLowerCase().includes(roleSearch.toLowerCase())
@@ -507,6 +587,107 @@ export default function Permissions() {
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* --- Assign Permissions Card --- */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col">
+        <div className="p-5 border-b border-gray-100 bg-gray-50 rounded-t-xl">
+          <h2 className="font-semibold text-gray-700 text-lg">
+            Assign Permissions to Role
+          </h2>
+        </div>
+
+        <div className="p-6">
+          <div className="mb-6 max-w-md">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Role
+            </label>
+            <select
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              value={selectedRoleForAssign}
+              onChange={handleRoleSelectChange}
+            >
+              <option value="">-- Choose a Role --</option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {selectedRoleForAssign && (
+            <>
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  Available Permissions
+                </h3>
+
+                {permissionsLoading ? (
+                  <p className="text-gray-500 text-sm">
+                    Loading permissions...
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {permissions.map((perm) => (
+                      <label
+                        key={perm.id}
+                        className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
+                          selectedPermissions.includes(perm.name)
+                            ? "bg-blue-50 border-blue-200"
+                            : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                          checked={selectedPermissions.includes(perm.name)}
+                          onChange={() => handlePermissionToggle(perm.name)}
+                        />
+                        <span className="ml-2 text-sm text-gray-700 select-none break-all">
+                          {perm.name}
+                        </span>
+                      </label>
+                    ))}
+                    {permissions.length === 0 && (
+                      <p className="text-gray-500 text-sm col-span-full">
+                        No permissions available to assign.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {assignError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                  {assignError}
+                </div>
+              )}
+
+              {assignSuccess && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-600 text-sm">
+                  {assignSuccess}
+                </div>
+              )}
+
+              <div className="flex justify-start">
+                <button
+                  onClick={handleSaveAssignedPermissions}
+                  disabled={assignLoading}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm disabled:opacity-50"
+                >
+                  {assignLoading ? "Saving..." : "Save Assignments"}
+                </button>
+              </div>
+            </>
+          )}
+
+          {!selectedRoleForAssign && (
+            <div className="text-center py-8 text-gray-400 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+              Please select a role to begin assigning permissions.
+            </div>
+          )}
         </div>
       </div>
 
