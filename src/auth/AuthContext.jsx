@@ -6,6 +6,7 @@ import { AuthContext } from "./auth-context.js";
 export const AuthProvider = ({ children }) => {
   const hasFetched = useRef(false);
   const [user, setUser] = useState(null);
+  const [permissions, setPermissions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,6 +23,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const res = await api.get("/auth/user");
         setUser(res.data.user);
+        setPermissions(res.data.permissions || []);
       } catch {
         localStorage.removeItem("token");
       } finally {
@@ -42,6 +44,7 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem("token", res.data.access_token);
       setUser(res.data.user);
+      setPermissions(res.data.permissions || []);
 
       return { ok: true };
     } catch (err) {
@@ -55,6 +58,15 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
+    setPermissions([]);
+  };
+
+  const hasPermission = (permissionName) => {
+    // Admin override (optional, but consistent with backend)
+    // if (user?.roles?.includes('admin')) return true;
+
+    // Check specific permission
+    return permissions.includes(permissionName);
   };
 
   if (loading) {
@@ -69,7 +81,9 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, permissions, login, logout, hasPermission }}
+    >
       {children}
     </AuthContext.Provider>
   );
