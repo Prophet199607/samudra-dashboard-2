@@ -38,6 +38,7 @@ const OrderDetail = () => {
   const [isDelayModalOpen, setDelayModalOpen] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [disabledSteps, setDisabledSteps] = useState(new Set());
+  const [businessDisabledSteps, setBusinessDisabledSteps] = useState(new Set());
 
   useEffect(() => {
     const statusParam = searchParams.get("status");
@@ -91,11 +92,14 @@ const OrderDetail = () => {
           ["Cash", "Cash Deposit"].includes(order.payment_type);
 
         const newDisabledSteps = new Set();
+        const newBusinessDisabledSteps = new Set();
 
         // 1. Disable steps based on payment type (logic existing)
         if (!isCashBased) {
           newDisabledSteps.add(6); // Deposit Slip
           newDisabledSteps.add(7); // Payment Confirm
+          newBusinessDisabledSteps.add(6);
+          newBusinessDisabledSteps.add(7);
 
           if (initialTab === 6 || initialTab === 7) {
             initialTab = 8;
@@ -110,6 +114,7 @@ const OrderDetail = () => {
         });
 
         setDisabledSteps(newDisabledSteps);
+        setBusinessDisabledSteps(newBusinessDisabledSteps);
 
         setActiveTab(initialTab);
 
@@ -629,6 +634,7 @@ const OrderDetail = () => {
       setShowRejectModal={setShowRejectModal}
       handleConfirmReject={handleConfirmReject}
       hasPermission={hasPermission}
+      businessDisabledSteps={businessDisabledSteps}
     />
   );
 };

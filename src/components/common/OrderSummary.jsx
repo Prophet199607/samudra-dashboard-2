@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { FaCheck } from "react-icons/fa";
 import { TAB_CONFIG } from "../../constants/tabConfig";
 
 const OrderSummary = ({
@@ -321,8 +322,11 @@ const OrderSummary = ({
                 <div className="flex flex-col items-start gap-1 flex-1">
                   <div className="flex items-center gap-2">
                     <div className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm font-semibold text-gray-900 flex items-center gap-2">
                       {section.title}
+                      {isSaved && (
+                        <FaCheck className="text-green-600 w-3 h-3" />
+                      )}
                     </span>
                     {stepDetail && (
                       <div className="text-xs text-gray-500 font-normal ml-4">
