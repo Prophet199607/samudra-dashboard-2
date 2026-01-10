@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import api from "../../../services/api";
 import DataTable from "../../../components/common/DataTable";
 
@@ -6,12 +6,14 @@ export default function Permissions() {
   // Data States
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
+  const [permissionGroups, setPermissionGroups] = useState([]);
 
   // Loading States
   const [rolesLoading, setRolesLoading] = useState(false);
   const [permissionsLoading, setPermissionsLoading] = useState(false);
   const [creatingRole, setCreatingRole] = useState(false);
   const [creatingPermission, setCreatingPermission] = useState(false);
+  const [creatingGroup, setCreatingGroup] = useState(false);
 
   // Error States
   const [rolesError, setRolesError] = useState("");
@@ -21,10 +23,13 @@ export default function Permissions() {
   // Modal States
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
+  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
 
   // Form States
   const [roleName, setRoleName] = useState("");
   const [permissionName, setPermissionName] = useState("");
+  const [selectedGroupId, setSelectedGroupId] = useState("");
+  const [groupName, setGroupName] = useState("");
 
   // Edit/Delete States
   const [isEditRoleModalOpen, setIsEditRoleModalOpen] = useState(false);
@@ -107,9 +112,21 @@ export default function Permissions() {
     }
   };
 
+  const fetchPermissionGroups = async () => {
+    try {
+      const response = await api.get("/permission-groups");
+      if (response.data && response.data.success) {
+        setPermissionGroups(response.data.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching permission groups:", error);
+    }
+  };
+
   useEffect(() => {
     fetchRoles();
     fetchPermissions();
+    fetchPermissionGroups();
   }, []);
 
   // Handlers
@@ -146,7 +163,7 @@ export default function Permissions() {
 
   const handleCreatePermission = async (e) => {
     e.preventDefault();
-    if (!permissionName.trim()) return;
+    if (!permissionName.trim() || !selectedGroupId) return;
 
     setCreatingPermission(true);
     setCreateError("");
@@ -154,12 +171,14 @@ export default function Permissions() {
     try {
       const response = await api.post("/permissions", {
         name: permissionName.trim(),
+        permission_group_id: selectedGroupId,
       });
 
       if (response.data.success) {
         // Refresh permissions list
         await fetchPermissions();
         setPermissionName("");
+        setSelectedGroupId("");
         setIsPermissionModalOpen(false);
       } else {
         setCreateError(response.data.message || "Failed to create permission");
@@ -172,6 +191,32 @@ export default function Permissions() {
       setCreateError(errorMessage);
     } finally {
       setCreatingPermission(false);
+    }
+  };
+
+  const handleCreateGroup = async (e) => {
+    e.preventDefault();
+    if (!groupName.trim()) return;
+
+    setCreatingGroup(true);
+    setCreateError("");
+
+    try {
+      const response = await api.post("/permission-groups", {
+        name: groupName.trim(),
+      });
+
+      if (response.data.success) {
+        await fetchPermissionGroups();
+        setGroupName("");
+        setIsGroupModalOpen(false);
+      } else {
+        setCreateError(response.data.message || "Failed to create group");
+      }
+    } catch (error) {
+      setCreateError(error.response?.data?.message || "Failed to create group");
+    } finally {
+      setCreatingGroup(false);
     }
   };
 
@@ -245,13 +290,15 @@ export default function Permissions() {
   const openEditPermission = (perm) => {
     setEditingPermissionData(perm);
     setPermissionName(perm.name);
+    setSelectedGroupId(perm.permission_group_id || "");
     setCreateError("");
     setIsEditPermissionModalOpen(true);
   };
 
   const handleUpdatePermission = async (e) => {
     e.preventDefault();
-    if (!permissionName.trim() || !editingPermissionData) return;
+    if (!permissionName.trim() || !editingPermissionData || !selectedGroupId)
+      return;
     setUpdating(true);
     setCreateError("");
 
@@ -260,6 +307,7 @@ export default function Permissions() {
         `/permissions/${editingPermissionData.id}`,
         {
           name: permissionName.trim(),
+          permission_group_id: selectedGroupId,
         }
       );
 
@@ -268,6 +316,7 @@ export default function Permissions() {
         setIsEditPermissionModalOpen(false);
         setEditingPermissionData(null);
         setPermissionName("");
+        setSelectedGroupId("");
       } else {
         setCreateError(response.data.message || "Failed to update permission");
       }
@@ -386,12 +435,11 @@ export default function Permissions() {
   // Columns Configuration
   const roleColumns = [
     { key: "name", label: "Name" },
-    { key: "guard_name", label: "Guard" },
     {
       key: "actions",
       label: "Actions",
       render: (_, role) => (
-        <div className="flex justify-end gap-2">
+        <div className="flex gap-2">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -417,12 +465,17 @@ export default function Permissions() {
 
   const permissionColumns = [
     { key: "name", label: "Name" },
-    { key: "guard_name", label: "Guard" },
+    {
+      key: "group",
+      label: "Group",
+      render: (_, perm) =>
+        perm.group ? perm.group.name : <span className="text-gray-400">-</span>,
+    },
     {
       key: "actions",
       label: "Actions",
       render: (_, perm) => (
-        <div className="flex justify-end gap-2">
+        <div className="flex gap-2">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -451,7 +504,7 @@ export default function Permissions() {
       <h1 className="text-2xl font-bold text-gray-800">Roles & Permissions</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* --- Roles Card (Left) --- */}
+        {/* --- Roles Card --- */}
         <div className="flex flex-col h-full space-y-4">
           <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <h2 className="font-semibold text-gray-700 text-lg">Roles</h2>
@@ -485,16 +538,27 @@ export default function Permissions() {
           )}
         </div>
 
-        {/* --- Permissions Card (Right) --- */}
+        {/* --- Permissions Card --- */}
         <div className="flex flex-col h-full space-y-4">
           <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <h2 className="font-semibold text-gray-700 text-lg">Permissions</h2>
-            <button
-              onClick={() => setIsPermissionModalOpen(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
-            >
-              + Create Permission
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIsGroupModalOpen(true)}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+              >
+                + Group
+              </button>
+              <button
+                onClick={() => {
+                  setIsPermissionModalOpen(true);
+                  setSelectedGroupId("");
+                }}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+              >
+                + Permission
+              </button>
+            </div>
           </div>
 
           {permissionsError && (
@@ -550,38 +614,96 @@ export default function Permissions() {
           {selectedRoleForAssign && (
             <>
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                  Available Permissions
-                </h3>
-
                 {permissionsLoading ? (
                   <p className="text-gray-500 text-sm">
                     Loading permissions...
                   </p>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {permissions.map((perm) => (
-                      <label
-                        key={perm.id}
-                        className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
-                          selectedPermissions.includes(perm.name)
-                            ? "bg-blue-50 border-blue-200"
-                            : "bg-gray-50 border-gray-100 hover:bg-gray-100"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                          checked={selectedPermissions.includes(perm.name)}
-                          onChange={() => handlePermissionToggle(perm.name)}
-                        />
-                        <span className="ml-2 text-sm text-gray-700 select-none break-all">
-                          {perm.name}
-                        </span>
-                      </label>
-                    ))}
+                  <div className="space-y-8">
+                    {permissionGroups.map((group) => {
+                      const groupPermissions = permissions.filter(
+                        (p) => p.permission_group_id === group.id
+                      );
+
+                      if (groupPermissions.length === 0) return null;
+
+                      return (
+                        <div key={group.id} className="space-y-4">
+                          <h4 className="text-sm font-bold text-gray-700 flex items-center gap-2 uppercase tracking-wider">
+                            <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                            {group.name}
+                          </h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            {groupPermissions.map((perm) => (
+                              <label
+                                key={perm.id}
+                                className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
+                                  selectedPermissions.includes(perm.name)
+                                    ? "bg-blue-50 border-blue-200"
+                                    : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                                  checked={selectedPermissions.includes(
+                                    perm.name
+                                  )}
+                                  onChange={() =>
+                                    handlePermissionToggle(perm.name)
+                                  }
+                                />
+                                <span className="ml-2 text-sm text-gray-700 select-none break-all">
+                                  {perm.name}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Handle permissions without a group (fallback) */}
+                    {permissions.filter((p) => !p.permission_group_id).length >
+                      0 && (
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-bold text-gray-700 flex items-center gap-2 uppercase tracking-wider">
+                          <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                          Uncategorized
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                          {permissions
+                            .filter((p) => !p.permission_group_id)
+                            .map((perm) => (
+                              <label
+                                key={perm.id}
+                                className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
+                                  selectedPermissions.includes(perm.name)
+                                    ? "bg-blue-50 border-blue-200"
+                                    : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                                  checked={selectedPermissions.includes(
+                                    perm.name
+                                  )}
+                                  onChange={() =>
+                                    handlePermissionToggle(perm.name)
+                                  }
+                                />
+                                <span className="ml-2 text-sm text-gray-700 select-none break-all">
+                                  {perm.name}
+                                </span>
+                              </label>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
                     {permissions.length === 0 && (
-                      <p className="text-gray-500 text-sm col-span-full">
+                      <p className="text-gray-500 text-sm">
                         No permissions available to assign.
                       </p>
                     )}
@@ -715,12 +837,31 @@ export default function Permissions() {
                   disabled={creatingPermission}
                 />
               </div>
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Permission Group
+                </label>
+                <select
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white"
+                  value={selectedGroupId}
+                  onChange={(e) => setSelectedGroupId(e.target.value)}
+                  disabled={creatingPermission}
+                >
+                  <option value="">-- Select Group --</option>
+                  {permissionGroups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setIsPermissionModalOpen(false);
                     setPermissionName("");
+                    setSelectedGroupId("");
                     setCreateError("");
                   }}
                   className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
@@ -731,9 +872,71 @@ export default function Permissions() {
                 <button
                   type="submit"
                   className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={creatingPermission || !permissionName.trim()}
+                  disabled={
+                    creatingPermission ||
+                    !permissionName.trim() ||
+                    !selectedGroupId
+                  }
                 >
                   {creatingPermission ? "Saving..." : "Save Permission"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Create Group Modal */}
+      {isGroupModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+              <h3 className="text-lg font-bold text-gray-800">
+                Create Permission Group
+              </h3>
+            </div>
+            <form onSubmit={handleCreateGroup} className="p-6">
+              {createError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                  {createError}
+                </div>
+              )}
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Group Name
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                  value={groupName}
+                  onChange={(e) => {
+                    setGroupName(e.target.value);
+                    setCreateError("");
+                  }}
+                  placeholder="e.g. User Management"
+                  autoFocus
+                  disabled={creatingGroup}
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsGroupModalOpen(false);
+                    setGroupName("");
+                    setCreateError("");
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
+                  disabled={creatingGroup}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={creatingGroup || !groupName.trim()}
+                >
+                  {creatingGroup ? "Saving..." : "Save Group"}
                 </button>
               </div>
             </form>
@@ -768,6 +971,24 @@ export default function Permissions() {
                   autoFocus
                   disabled={updating}
                 />
+              </div>
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Permission Group
+                </label>
+                <select
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white"
+                  value={selectedGroupId}
+                  onChange={(e) => setSelectedGroupId(e.target.value)}
+                  disabled={updating}
+                >
+                  <option value="">-- Select Group --</option>
+                  {permissionGroups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="flex justify-end gap-3">
                 <button
@@ -869,6 +1090,7 @@ export default function Permissions() {
                     setIsEditPermissionModalOpen(false);
                     setPermissionName("");
                     setCreateError("");
+                    setSelectedGroupId("");
                     setEditingPermissionData(null);
                   }}
                   className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
@@ -879,7 +1101,9 @@ export default function Permissions() {
                 <button
                   type="submit"
                   className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium shadow-sm transition-colors disabled:opacity-50"
-                  disabled={updating || !permissionName.trim()}
+                  disabled={
+                    updating || !permissionName.trim() || !selectedGroupId
+                  }
                 >
                   {updating ? "Saving..." : "Save Changes"}
                 </button>
