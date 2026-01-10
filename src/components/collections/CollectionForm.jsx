@@ -1,6 +1,7 @@
 import React from "react";
 import OrderSummary from "../common/OrderSummary";
 import ConfirmationModal from "../common/model/ConfirmationModal";
+import { FaCheck } from "react-icons/fa";
 
 const CollectionForm = ({
   title,
@@ -21,7 +22,16 @@ const CollectionForm = ({
   showRejectModal,
   setShowRejectModal,
   handleConfirmReject,
+  businessDisabledSteps,
 }) => {
+  const isStepAccessible = (tabId) => {
+    // For collections, step 6 is the starting step
+    if (tabId === 6) return true;
+    const prevRequiredSteps = TAB_CONFIG.filter(
+      (t) => t.id < tabId && !businessDisabledSteps.has(t.id) && t.id >= 6
+    );
+    return prevRequiredSteps.every((t) => savedSteps.has(t.id));
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2 sm:p-4">
       <div className="max-full mx-auto">
@@ -59,11 +69,7 @@ const CollectionForm = ({
                 const isCompleted = savedSteps.has(tab.id);
                 const isActive = activeTab === tab.id;
                 const isDisabled = disabledSteps.has(tab.id);
-                const canNavigate =
-                  !isDisabled &&
-                  (savedSteps.has(tab.id - 1) ||
-                    tab.id === 1 ||
-                    (tab.id === 3 && [4, 5, 6].includes(activeTab)));
+                const canNavigate = !isDisabled && isStepAccessible(tab.id);
 
                 let stepColorClass = tab.color;
                 if (tab.id === 10) {
@@ -104,7 +110,9 @@ const CollectionForm = ({
                           : "bg-gray-200 text-gray-400 border-2 border-gray-300 cursor-not-allowed"
                       }`}
                     >
-                      <span className="text-sm font-bold">{tab.id}</span>
+                      <span className="text-sm font-bold">
+                        {isCompleted ? <FaCheck size={14} /> : tab.id}
+                      </span>
                     </button>
                   </div>
                 );
@@ -133,6 +141,11 @@ const CollectionForm = ({
                       }`}
                     >
                       {tab.title}
+                      <div className="flex flex-col items-center gap-1 mt-1.5">
+                        {isCompleted && (
+                          <FaCheck className="text-green-600 w-2.5 h-2.5" />
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -143,79 +156,96 @@ const CollectionForm = ({
 
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-100">
           <div className="mb-8">
-            {renderStepContent({
-              isDelayModalOpen,
-              setDelayModalOpen,
-              handleDelaySave,
-            })}
+            {!isStepAccessible(activeTab) ? (
+              <div className="flex flex-col items-center justify-center py-16 px-4 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <span className="text-2xl text-gray-400">🔒</span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 mb-2 text-center">
+                  Step Locked
+                </h3>
+                <p className="text-gray-500 text-center max-w-sm">
+                  Please complete all previous steps before accessing this
+                  section.
+                </p>
+              </div>
+            ) : (
+              renderStepContent({
+                isDelayModalOpen,
+                setDelayModalOpen,
+                handleDelaySave,
+              })
+            )}
           </div>
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200 gap-4">
-            <div className="flex-grow flex justify-start">
-              {activeTab === 10 && !savedSteps.has(10) && (
-                <button
-                  onClick={() => setDelayModalOpen(true)}
-                  className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 shadow-md hover:shadow-lg
+          {isStepAccessible(activeTab) && (
+            <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200 gap-4">
+              <div className="flex-grow flex justify-start">
+                {activeTab === 10 && !savedSteps.has(10) && (
+                  <button
+                    onClick={() => setDelayModalOpen(true)}
+                    className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 shadow-md hover:shadow-lg
                     ${
                       selectedOrder?.is_delayed === 1
                         ? "bg-red-600 hover:bg-red-700 text-white"
                         : "bg-blue-600 hover:bg-blue-700 text-white"
                     }
                   `}
-                >
-                  <span>
-                    {selectedOrder?.is_delayed === 1
-                      ? "Delivery Delayed"
-                      : "Delivery Delay"}
-                  </span>
-                </button>
-              )}
-            </div>
-
-            <div className="flex space-x-2 w-full sm:w-auto justify-center">
-              {activeTab >= 1 &&
-                activeTab <= 9 &&
-                !savedSteps.has(activeTab) &&
-                !(activeTab === 4 || activeTab === 5) &&
-                activeTab !== 7 && (
-                  <button
-                    onClick={() => handleSubmit()}
-                    className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-blue-700 text-white shadow-md hover:shadow-lg"
                   >
-                    <span>Save Step {activeTab}</span>
+                    <span>
+                      {selectedOrder?.is_delayed === 1
+                        ? "Delivery Delayed"
+                        : "Delivery Delay"}
+                    </span>
                   </button>
                 )}
+              </div>
 
-              {activeTab === 10 && !savedSteps.has(10) && (
-                <button
-                  onClick={() => handleSubmit(true)}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center space-x-2 shadow-md hover:shadow-lg"
-                >
-                  <span>🎉</span>
-                  <span>Complete Collection</span>
-                </button>
+              <div className="flex space-x-2 w-full sm:w-auto justify-center">
+                {activeTab >= 1 &&
+                  activeTab <= 9 &&
+                  !savedSteps.has(activeTab) &&
+                  !(activeTab === 4 || activeTab === 5) &&
+                  activeTab !== 7 && (
+                    <button
+                      onClick={() => handleSubmit()}
+                      className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-blue-700 text-white shadow-md hover:shadow-lg"
+                    >
+                      <span>Save Step {activeTab}</span>
+                    </button>
+                  )}
+
+                {activeTab === 10 && !savedSteps.has(10) && (
+                  <button
+                    onClick={() => handleSubmit(true)}
+                    className="px-6 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center space-x-2 shadow-md hover:shadow-lg"
+                  >
+                    <span>🎉</span>
+                    <span>Complete Collection</span>
+                  </button>
+                )}
+              </div>
+              {activeTab === 7 && !savedSteps.has(7) && (
+                <div className="flex items-center gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => handlePaymentAction(true)}
+                    className="bg-green-600 text-white px-3 py-2 text-sm rounded-md hover:bg-green-700 transition-colors font-medium shadow-sm"
+                  >
+                    Approve
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handlePaymentAction(false)}
+                    className="bg-red-600 text-white px-3 py-2 text-sm rounded-md hover:bg-red-700 transition-colors font-medium shadow-sm"
+                  >
+                    Reject
+                  </button>
+                </div>
               )}
             </div>
-            {activeTab === 7 && !savedSteps.has(7) && (
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => handlePaymentAction(true)}
-                  className="bg-green-600 text-white px-3 py-2 text-sm rounded-md hover:bg-green-700 transition-colors font-medium shadow-sm"
-                >
-                  Approve
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handlePaymentAction(false)}
-                  className="bg-red-600 text-white px-3 py-2 text-sm rounded-md hover:bg-red-700 transition-colors font-medium shadow-sm"
-                >
-                  Reject
-                </button>
-              </div>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Progress Summary */}

@@ -1,9 +1,10 @@
-import api from "../../../services/api";
 import React, { useCallback, useEffect, useState, useRef } from "react";
-import { TAB_CONFIG as ORIGINAL_TAB_CONFIG } from "../../../constants/tabConfig";
+import api from "../../../services/api";
+import { useAuth } from "../../../auth/auth-context";
 import { useFormState } from "../../../hooks/useFormState";
-import CollectionForm from "../../../components/collections/CollectionForm";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import CollectionForm from "../../../components/collections/CollectionForm";
+import { TAB_CONFIG as ORIGINAL_TAB_CONFIG } from "../../../constants/tabConfig";
 import {
   showErrorToast,
   showSuccessToast,
@@ -25,6 +26,7 @@ const CollectionDetail = () => {
   const navigate = useNavigate();
   const isNewOrder = id === "new";
   const hasFetched = useRef(false);
+  const { hasPermission } = useAuth();
   const [searchParams] = useSearchParams();
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState(1);
@@ -35,6 +37,7 @@ const CollectionDetail = () => {
   const [isDelayModalOpen, setDelayModalOpen] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [disabledSteps, setDisabledSteps] = useState(new Set());
+  const [businessDisabledSteps, setBusinessDisabledSteps] = useState(new Set());
 
   useEffect(() => {
     const statusParam = searchParams.get("status");
@@ -85,6 +88,18 @@ const CollectionDetail = () => {
         if (initialTab < 6) initialTab = 6;
         if (initialTab > 9) initialTab = 9;
 
+        const newDisabledSteps = new Set();
+        const newBusinessDisabledSteps = new Set();
+
+        // Disable steps based on permissions
+        COLLECTION_TAB_CONFIG.forEach((tab) => {
+          if (tab.permission && !hasPermission(tab.permission)) {
+            newDisabledSteps.add(tab.id);
+          }
+        });
+
+        setDisabledSteps(newDisabledSteps);
+        setBusinessDisabledSteps(newBusinessDisabledSteps);
         setActiveTab(initialTab);
 
         setSavedSteps(
@@ -138,6 +153,15 @@ const CollectionDetail = () => {
       setErrors({});
       setSavedSteps(new Set());
       setActiveTab(6);
+
+      const newDisabledSteps = new Set();
+      COLLECTION_TAB_CONFIG.forEach((tab) => {
+        if (tab.permission && !hasPermission(tab.permission)) {
+          newDisabledSteps.add(tab.id);
+        }
+      });
+      setDisabledSteps(newDisabledSteps);
+      setBusinessDisabledSteps(new Set());
 
       if (hasFetched.current) return;
       hasFetched.current = true;
@@ -491,6 +515,7 @@ const CollectionDetail = () => {
       showRejectModal={showRejectModal}
       setShowRejectModal={setShowRejectModal}
       handleConfirmReject={handleConfirmReject}
+      businessDisabledSteps={businessDisabledSteps}
     />
   );
 };
