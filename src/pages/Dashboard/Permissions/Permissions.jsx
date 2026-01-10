@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import api from "../../../services/api";
 import DataTable from "../../../components/common/DataTable";
+import { useAuth } from "../../../auth/auth-context";
 
 export default function Permissions() {
+  const { hasRole } = useAuth();
   // Data States
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
@@ -503,7 +505,11 @@ export default function Permissions() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Roles & Permissions</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div
+        className={`grid grid-cols-1 ${
+          hasRole("super admin") ? "lg:grid-cols-2" : ""
+        } gap-6`}
+      >
         {/* --- Roles Card --- */}
         <div className="flex flex-col h-full space-y-4">
           <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -539,49 +545,53 @@ export default function Permissions() {
         </div>
 
         {/* --- Permissions Card --- */}
-        <div className="flex flex-col h-full space-y-4">
-          <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="font-semibold text-gray-700 text-lg">Permissions</h2>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setIsGroupModalOpen(true)}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
-              >
-                + Group
-              </button>
-              <button
-                onClick={() => {
-                  setIsPermissionModalOpen(true);
-                  setSelectedGroupId("");
-                }}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
-              >
-                + Permission
-              </button>
+        {hasRole("super admin") && (
+          <div className="flex flex-col h-full space-y-4">
+            <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+              <h2 className="font-semibold text-gray-700 text-lg">
+                Permissions
+              </h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsGroupModalOpen(true)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                >
+                  + Group
+                </button>
+                <button
+                  onClick={() => {
+                    setIsPermissionModalOpen(true);
+                    setSelectedGroupId("");
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                >
+                  + Permission
+                </button>
+              </div>
             </div>
+
+            {permissionsError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                {permissionsError}
+              </div>
+            )}
+
+            {permissionsLoading ? (
+              <div className="text-center py-8 text-gray-400 bg-white rounded-xl shadow-sm border border-gray-100">
+                Loading permissions...
+              </div>
+            ) : (
+              <DataTable
+                data={permissions}
+                columns={permissionColumns}
+                searchable={true}
+                pagination={true}
+                itemsPerPageOptions={[5, 10, 20]}
+                defaultItemsPerPage={5}
+              />
+            )}
           </div>
-
-          {permissionsError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-              {permissionsError}
-            </div>
-          )}
-
-          {permissionsLoading ? (
-            <div className="text-center py-8 text-gray-400 bg-white rounded-xl shadow-sm border border-gray-100">
-              Loading permissions...
-            </div>
-          ) : (
-            <DataTable
-              data={permissions}
-              columns={permissionColumns}
-              searchable={true}
-              pagination={true}
-              itemsPerPageOptions={[5, 10, 20]}
-              defaultItemsPerPage={5}
-            />
-          )}
-        </div>
+        )}
       </div>
 
       {/* --- Assign Permissions Card --- */}

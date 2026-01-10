@@ -61,9 +61,13 @@ export const AuthProvider = ({ children }) => {
     setPermissions([]);
   };
 
+  const hasRole = (roleName) => {
+    return user?.roles?.includes(roleName);
+  };
+
   const hasPermission = (permissionName) => {
-    // Admin override (optional, but consistent with backend)
-    // if (user?.roles?.includes('admin')) return true;
+    // Super Admin override
+    if (hasRole("super admin")) return true;
 
     // Check specific permission
     return permissions.includes(permissionName);
@@ -82,7 +86,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, permissions, login, logout, hasPermission }}
+      value={{ user, permissions, login, logout, hasPermission, hasRole }}
     >
       {children}
     </AuthContext.Provider>
