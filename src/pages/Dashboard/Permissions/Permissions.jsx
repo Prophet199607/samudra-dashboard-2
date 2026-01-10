@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import api from "../../../services/api";
-import DataTable from "../../../components/common/DataTable";
 import { useAuth } from "../../../auth/auth-context";
+import DataTable from "../../../components/common/DataTable";
 
 export default function Permissions() {
-  const { hasRole } = useAuth();
+  const { hasRole, hasPermission } = useAuth();
   // Data States
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
@@ -510,24 +510,28 @@ export default function Permissions() {
       label: "Actions",
       render: (_, role) => (
         <div className="flex gap-2">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              openEditRole(role);
-            }}
-            className="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded transition-colors"
-          >
-            Edit
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              openDeleteRole(role);
-            }}
-            className="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded transition-colors"
-          >
-            Delete
-          </button>
+          {hasPermission("edit roles") && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                openEditRole(role);
+              }}
+              className="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded transition-colors"
+            >
+              Edit
+            </button>
+          )}
+          {hasPermission("delete roles") && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                openDeleteRole(role);
+              }}
+              className="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded transition-colors"
+            >
+              Delete
+            </button>
+          )}
         </div>
       ),
     },
@@ -579,38 +583,42 @@ export default function Permissions() {
         } gap-6`}
       >
         {/* --- Roles Card --- */}
-        <div className="flex flex-col h-full space-y-2">
-          <div className="flex justify-between items-center bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="font-semibold text-gray-700 text-lg">Roles</h2>
-            <button
-              onClick={() => setIsRoleModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors shadow-sm"
-            >
-              + Create Role
-            </button>
+        {hasPermission("view roles") && (
+          <div className="flex flex-col h-full space-y-2">
+            <div className="flex justify-between items-center bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+              <h2 className="font-semibold text-gray-700 text-lg">Roles</h2>
+              {hasPermission("create roles") && (
+                <button
+                  onClick={() => setIsRoleModalOpen(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors shadow-sm"
+                >
+                  + Create Role
+                </button>
+              )}
+            </div>
+
+            {rolesError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                {rolesError}
+              </div>
+            )}
+
+            {rolesLoading ? (
+              <div className="text-center py-8 text-gray-400 bg-white rounded-xl shadow-sm border border-gray-100">
+                Loading roles...
+              </div>
+            ) : (
+              <DataTable
+                data={roles}
+                columns={roleColumns}
+                searchable={true}
+                pagination={true}
+                itemsPerPageOptions={[5, 10, 20]}
+                defaultItemsPerPage={5}
+              />
+            )}
           </div>
-
-          {rolesError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-              {rolesError}
-            </div>
-          )}
-
-          {rolesLoading ? (
-            <div className="text-center py-8 text-gray-400 bg-white rounded-xl shadow-sm border border-gray-100">
-              Loading roles...
-            </div>
-          ) : (
-            <DataTable
-              data={roles}
-              columns={roleColumns}
-              searchable={true}
-              pagination={true}
-              itemsPerPageOptions={[5, 10, 20]}
-              defaultItemsPerPage={5}
-            />
-          )}
-        </div>
+        )}
 
         {/* --- Permissions Card --- */}
         {hasRole("super admin") && (
