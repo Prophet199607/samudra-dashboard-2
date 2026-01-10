@@ -46,6 +46,11 @@ export default function Permissions() {
     useState(false);
   const [deletingPermissionData, setDeletingPermissionData] = useState(null);
 
+  const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
+  const [editingGroupData, setEditingGroupData] = useState(null);
+  const [isDeleteGroupModalOpen, setIsDeleteGroupModalOpen] = useState(false);
+  const [deletingGroupData, setDeletingGroupData] = useState(null);
+
   // Assign Permissions State
   const [selectedRoleForAssign, setSelectedRoleForAssign] = useState("");
   const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -219,6 +224,69 @@ export default function Permissions() {
       setCreateError(error.response?.data?.message || "Failed to create group");
     } finally {
       setCreatingGroup(false);
+    }
+  };
+
+  const openEditGroup = (group) => {
+    setEditingGroupData(group);
+    setGroupName(group.name);
+    setCreateError("");
+    setIsEditGroupModalOpen(true);
+  };
+
+  const handleUpdateGroup = async (e) => {
+    e.preventDefault();
+    if (!groupName.trim() || !editingGroupData) return;
+    setUpdating(true);
+    setCreateError("");
+
+    try {
+      const response = await api.put(
+        `/permission-groups/${editingGroupData.id}`,
+        {
+          name: groupName.trim(),
+        }
+      );
+
+      if (response.data.success) {
+        await fetchPermissionGroups();
+        await fetchPermissions(); // Refresh permissions to see updated group name
+        setIsEditGroupModalOpen(false);
+        setEditingGroupData(null);
+        setGroupName("");
+      } else {
+        setCreateError(response.data.message || "Failed to update group");
+      }
+    } catch (error) {
+      setCreateError(error.response?.data?.message || "Failed to update group");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const openDeleteGroup = (group) => {
+    setDeletingGroupData(group);
+    setIsDeleteGroupModalOpen(true);
+  };
+
+  const handleDeleteGroup = async () => {
+    if (!deletingGroupData) return;
+    setDeleting(true);
+    try {
+      const response = await api.delete(
+        `/permission-groups/${deletingGroupData.id}`
+      );
+      if (response.data.success) {
+        await fetchPermissionGroups();
+        setIsDeleteGroupModalOpen(false);
+        setDeletingGroupData(null);
+      } else {
+        alert(response.data.message || "Failed to delete group");
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to delete group");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -502,8 +570,8 @@ export default function Permissions() {
   ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Roles & Permissions</h1>
+    <div className="space-y-2 p-3">
+      <h1 className="text-xl font-bold text-gray-800">Roles & Permissions</h1>
 
       <div
         className={`grid grid-cols-1 ${
@@ -511,12 +579,12 @@ export default function Permissions() {
         } gap-6`}
       >
         {/* --- Roles Card --- */}
-        <div className="flex flex-col h-full space-y-4">
-          <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div className="flex flex-col h-full space-y-2">
+          <div className="flex justify-between items-center bg-white p-2 rounded-xl shadow-sm border border-gray-100">
             <h2 className="font-semibold text-gray-700 text-lg">Roles</h2>
             <button
               onClick={() => setIsRoleModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors shadow-sm"
             >
               + Create Role
             </button>
@@ -546,24 +614,89 @@ export default function Permissions() {
 
         {/* --- Permissions Card --- */}
         {hasRole("super admin") && (
-          <div className="flex flex-col h-full space-y-4">
-            <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+          <div className="flex flex-col h-full space-y-2">
+            <div className="flex justify-between items-center bg-white p-2 rounded-xl shadow-sm border border-gray-100">
               <h2 className="font-semibold text-gray-700 text-lg">
                 Permissions
               </h2>
               <div className="flex gap-2">
                 <button
                   onClick={() => setIsGroupModalOpen(true)}
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors shadow-sm"
                 >
                   + Group
                 </button>
+                <div className="relative group/manage flex items-center">
+                  <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-xs font-medium transition-colors border border-gray-200">
+                    Manage Groups
+                  </button>
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 hidden group-hover/manage:block z-50 overflow-hidden">
+                    <div className="p-2 border-b border-gray-50 bg-gray-50 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      Select Group to Edit
+                    </div>
+                    <div className="max-h-60 overflow-y-auto">
+                      {permissionGroups.map((group) => (
+                        <div
+                          key={group.id}
+                          className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                        >
+                          <span className="text-sm text-gray-700 font-medium truncate">
+                            {group.name}
+                          </span>
+                          <div className="flex gap-1 shrink-0">
+                            <button
+                              onClick={() => openEditGroup(group)}
+                              className="text-blue-600 hover:bg-blue-50 p-1 rounded transition-colors"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => openDeleteGroup(group)}
+                              className="text-red-600 hover:bg-red-50 p-1 rounded transition-colors"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {permissionGroups.length === 0 && (
+                        <div className="p-4 text-center text-sm text-gray-400">
+                          No groups available
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
                 <button
                   onClick={() => {
                     setIsPermissionModalOpen(true);
                     setSelectedGroupId("");
                   }}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors shadow-sm"
                 >
                   + Permission
                 </button>
@@ -637,12 +770,48 @@ export default function Permissions() {
 
                       if (groupPermissions.length === 0) return null;
 
+                      const isAllGroupSelected = groupPermissions.every((p) =>
+                        selectedPermissions.includes(p.name)
+                      );
+
+                      const handleSelectAllGroup = () => {
+                        const groupPermNames = groupPermissions.map(
+                          (p) => p.name
+                        );
+                        if (isAllGroupSelected) {
+                          // Unselect all in this group
+                          setSelectedPermissions((prev) =>
+                            prev.filter((p) => !groupPermNames.includes(p))
+                          );
+                        } else {
+                          // Select all in this group (avoid duplicates)
+                          setSelectedPermissions((prev) => [
+                            ...new Set([...prev, ...groupPermNames]),
+                          ]);
+                        }
+                      };
+
                       return (
                         <div key={group.id} className="space-y-4">
-                          <h4 className="text-sm font-bold text-gray-700 flex items-center gap-2 uppercase tracking-wider">
-                            <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                            {group.name}
-                          </h4>
+                          <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                            <h4 className="text-sm font-bold text-gray-700 flex items-center gap-2 uppercase tracking-wider">
+                              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                              {group.name}
+                            </h4>
+                            <button
+                              type="button"
+                              onClick={handleSelectAllGroup}
+                              className={`text-xs font-semibold px-2 py-1 rounded transition-colors ${
+                                isAllGroupSelected
+                                  ? "text-red-500 hover:bg-red-50"
+                                  : "text-blue-600 hover:bg-blue-50"
+                              }`}
+                            >
+                              {isAllGroupSelected
+                                ? "Unselect All"
+                                : "Select All"}
+                            </button>
+                          </div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                             {groupPermissions.map((perm) => (
                               <label
@@ -677,38 +846,78 @@ export default function Permissions() {
                     {permissions.filter((p) => !p.permission_group_id).length >
                       0 && (
                       <div className="space-y-4">
-                        <h4 className="text-sm font-bold text-gray-700 flex items-center gap-2 uppercase tracking-wider">
-                          <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
-                          Uncategorized
-                        </h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                          {permissions
-                            .filter((p) => !p.permission_group_id)
-                            .map((perm) => (
-                              <label
-                                key={perm.id}
-                                className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
-                                  selectedPermissions.includes(perm.name)
-                                    ? "bg-blue-50 border-blue-200"
-                                    : "bg-gray-50 border-gray-100 hover:bg-gray-100"
-                                }`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                                  checked={selectedPermissions.includes(
-                                    perm.name
-                                  )}
-                                  onChange={() =>
-                                    handlePermissionToggle(perm.name)
-                                  }
-                                />
-                                <span className="ml-2 text-sm text-gray-700 select-none break-all">
-                                  {perm.name}
-                                </span>
-                              </label>
-                            ))}
-                        </div>
+                        {(() => {
+                          const uncategorizedPerms = permissions.filter(
+                            (p) => !p.permission_group_id
+                          );
+                          const isAllUncategorizedSelected =
+                            uncategorizedPerms.every((p) =>
+                              selectedPermissions.includes(p.name)
+                            );
+
+                          const handleSelectAllUncategorized = () => {
+                            const names = uncategorizedPerms.map((p) => p.name);
+                            if (isAllUncategorizedSelected) {
+                              setSelectedPermissions((prev) =>
+                                prev.filter((p) => !names.includes(p))
+                              );
+                            } else {
+                              setSelectedPermissions((prev) => [
+                                ...new Set([...prev, ...names]),
+                              ]);
+                            }
+                          };
+
+                          return (
+                            <>
+                              <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                                <h4 className="text-sm font-bold text-gray-700 flex items-center gap-2 uppercase tracking-wider">
+                                  <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                                  Uncategorized
+                                </h4>
+                                <button
+                                  type="button"
+                                  onClick={handleSelectAllUncategorized}
+                                  className={`text-xs font-semibold px-2 py-1 rounded transition-colors ${
+                                    isAllUncategorizedSelected
+                                      ? "text-red-500 hover:bg-red-50"
+                                      : "text-blue-600 hover:bg-blue-50"
+                                  }`}
+                                >
+                                  {isAllUncategorizedSelected
+                                    ? "Unselect All"
+                                    : "Select All"}
+                                </button>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                {uncategorizedPerms.map((perm) => (
+                                  <label
+                                    key={perm.id}
+                                    className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
+                                      selectedPermissions.includes(perm.name)
+                                        ? "bg-blue-50 border-blue-200"
+                                        : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+                                    }`}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                                      checked={selectedPermissions.includes(
+                                        perm.name
+                                      )}
+                                      onChange={() =>
+                                        handlePermissionToggle(perm.name)
+                                      }
+                                    />
+                                    <span className="ml-2 text-sm text-gray-700 select-none break-all">
+                                      {perm.name}
+                                    </span>
+                                  </label>
+                                ))}
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
                     )}
 
@@ -982,24 +1191,6 @@ export default function Permissions() {
                   disabled={updating}
                 />
               </div>
-              <div className="mb-5">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Permission Group
-                </label>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white"
-                  value={selectedGroupId}
-                  onChange={(e) => setSelectedGroupId(e.target.value)}
-                  disabled={updating}
-                >
-                  <option value="">-- Select Group --</option>
-                  {permissionGroups.map((group) => (
-                    <option key={group.id} value={group.id}>
-                      {group.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
               <div className="flex justify-end gap-3">
                 <button
                   type="button"
@@ -1079,6 +1270,25 @@ export default function Permissions() {
               )}
               <div className="mb-5">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Permission Group
+                </label>
+                <select
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white"
+                  value={selectedGroupId}
+                  onChange={(e) => setSelectedGroupId(e.target.value)}
+                  disabled={updating}
+                >
+                  <option value="">-- Select Group --</option>
+                  {permissionGroups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Permission Name
                 </label>
                 <input
@@ -1093,6 +1303,7 @@ export default function Permissions() {
                   disabled={updating}
                 />
               </div>
+
               <div className="flex justify-end gap-3">
                 <button
                   type="button"
@@ -1154,6 +1365,99 @@ export default function Permissions() {
                 disabled={deleting}
               >
                 {deleting ? "Deleting..." : "Delete Permission"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Edit Group Modal */}
+      {isEditGroupModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+              <h3 className="text-lg font-bold text-gray-800">
+                Edit Permission Group
+              </h3>
+            </div>
+            <form onSubmit={handleUpdateGroup} className="p-6">
+              {createError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                  {createError}
+                </div>
+              )}
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Group Name
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                  value={groupName}
+                  onChange={(e) => {
+                    setGroupName(e.target.value);
+                    setCreateError("");
+                  }}
+                  autoFocus
+                  disabled={updating}
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditGroupModalOpen(false);
+                    setGroupName("");
+                    setCreateError("");
+                    setEditingGroupData(null);
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
+                  disabled={updating}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium shadow-sm transition-colors disabled:opacity-50"
+                  disabled={updating || !groupName.trim()}
+                >
+                  {updating ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Group Confirmation */}
+      {isDeleteGroupModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">
+              Delete Group?
+            </h3>
+            <p className="text-gray-600 text-sm mb-6">
+              Are you sure you want to delete the group{" "}
+              <span className="font-semibold">{deletingGroupData?.name}</span>?
+              This action cannot be undone and will fail if permissions are
+              still in this group.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setIsDeleteGroupModalOpen(false);
+                  setDeletingGroupData(null);
+                }}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium"
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteGroup}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium shadow-sm"
+                disabled={deleting}
+              >
+                {deleting ? "Deleting..." : "Delete Group"}
               </button>
             </div>
           </div>
