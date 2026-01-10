@@ -177,7 +177,7 @@ export default function Users() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-3">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
         <button
@@ -217,7 +217,6 @@ export default function Users() {
               <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-semibold">
                 <tr>
                   <th className="px-6 py-4">Name</th>
-                  <th className="px-6 py-4">Location</th>
                   <th className="px-6 py-4">Role</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
@@ -232,9 +231,6 @@ export default function Users() {
                       <td className="px-6 py-4 font-medium text-gray-800">
                         {user.name}
                       </td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {user.location}
-                      </td>
                       <td className="px-6 py-4">
                         {user.roles && user.roles.length > 0 ? (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -244,21 +240,21 @@ export default function Users() {
                           <span className="text-gray-400 italic">No Role</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-2 py-2 text-right">
                         <div className="flex justify-end gap-2">
                           <button
                             onClick={() => openEditModal(user)}
                             className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg transition-colors"
                             title="Edit User"
                           >
-                            <FaEdit />
+                            <FaEdit className="w-4 h-4 opacity-70 hover:opacity-100" />
                           </button>
                           <button
                             onClick={() => openDeleteModal(user)}
                             className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors"
                             title="Delete User"
                           >
-                            <FaTrash />
+                            <FaTrash className="w-4 h-4 opacity-70 hover:opacity-100" />
                           </button>
                         </div>
                       </td>
