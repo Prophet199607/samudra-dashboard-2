@@ -25,14 +25,12 @@ export const TAB_CONFIG = [
     title: "Sales Order",
     icon: "📋",
     color: "bg-blue-600",
-    permission: "sales order",
   },
   {
     id: 5,
     title: "Quotation",
     icon: "💸",
     color: "bg-sky-600",
-    permission: "quotation",
   },
   {
     id: 6,
