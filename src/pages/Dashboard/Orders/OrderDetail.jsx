@@ -222,7 +222,7 @@ const OrderDetail = () => {
     } else {
       fetchOrderDetails(id);
     }
-  }, [id, resetForm, updateField, navigate]);
+  }, [id, resetForm, updateField, navigate, hasPermission]);
 
   const handleDelaySave = async (reason) => {
     if (!selectedOrder?.orn_number) {
@@ -538,6 +538,7 @@ const OrderDetail = () => {
       resetForm,
       disabledSteps,
       searchParams,
+      hasPermission,
     ]
   );
 
