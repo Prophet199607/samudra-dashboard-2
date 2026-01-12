@@ -113,6 +113,14 @@ const CreateOrder = ({
         } else {
           setBranches([]);
         }
+
+        if (
+          response &&
+          response.CustomerDetails &&
+          response.CustomerDetails.length > 0
+        ) {
+          updateField("customerGroup", response.CustomerDetails[0].CustGroup);
+        }
       } catch (error) {
         setBranchesError("Failed to load customer branches");
         console.error("Error fetching branches:", error);
@@ -120,7 +128,7 @@ const CreateOrder = ({
         setBranchesLoading(false);
       }
     },
-    [fetchCustomerDetails]
+    [fetchCustomerDetails, updateField]
   );
 
   const {
@@ -245,7 +253,7 @@ const CreateOrder = ({
                     : "Select a customer group"
                 }
                 required
-                disabled={groupsLoading}
+                disabled={groupsLoading || !!selectedCustomerCode}
                 error={errors.customerGroup || errors.customer_group}
               />
               {groupsError && (
