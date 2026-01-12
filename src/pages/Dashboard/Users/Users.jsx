@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../../services/api";
 import { useAuth } from "../../../auth/auth-context";
 import { FaEdit, FaTrash, FaUserPlus } from "react-icons/fa";
+import externalApi from "../../../services/externalApi";
 
 export default function Users() {
   const { hasPermission } = useAuth();
@@ -9,6 +10,7 @@ export default function Users() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [locations, setLocations] = useState([]);
   const [search, setSearch] = useState("");
 
   // Modal States
@@ -57,9 +59,21 @@ export default function Users() {
     }
   };
 
+  const fetchLocations = async () => {
+    try {
+      const response = await externalApi.get("/Master/GetLocations");
+      if (response.data && Array.isArray(response.data.locations)) {
+        setLocations(response.data.locations);
+      }
+    } catch (err) {
+      console.error("Error fetching locations:", err);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
     fetchRoles();
+    fetchLocations();
   }, []);
 
   // Filter
@@ -330,14 +344,20 @@ export default function Users() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Location
                 </label>
-                <input
-                  type="text"
+                <select
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   required
-                />
+                >
+                  <option value="">Select a location</option>
+                  {locations.map((loc) => (
+                    <option key={loc.Code} value={loc.Code}>
+                      {loc.Description}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Role */}
