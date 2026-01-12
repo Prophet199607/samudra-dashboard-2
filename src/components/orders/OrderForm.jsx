@@ -147,9 +147,7 @@ const OrderForm = ({
                           : "bg-gray-200 text-gray-400 border-2 border-gray-300 cursor-not-allowed"
                       }`}
                     >
-                      <span className="text-sm font-bold">
-                        {isCompleted ? <FaCheck size={14} /> : tab.id}
-                      </span>
+                      <span className="text-sm font-bold">{tab.id}</span>
                     </button>
                   </div>
                 );
@@ -271,14 +269,18 @@ const OrderForm = ({
                   activeTab <= 9 &&
                   !disabledSteps.has(activeTab) &&
                   (activeTab === 1 || savedSteps.has(activeTab - 1)) &&
-                  !savedSteps.has(activeTab) &&
+                  (!savedSteps.has(activeTab) || activeTab === 3) &&
                   !(activeTab === 4 || activeTab === 5) &&
                   activeTab !== 7 && (
                     <button
                       onClick={() => handleSubmit()}
                       className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-blue-700 text-white shadow-md hover:shadow-lg"
                     >
-                      <span>Save Step {activeTab}</span>
+                      <span>
+                        {savedSteps.has(activeTab)
+                          ? `Update Step ${activeTab}`
+                          : `Save Step ${activeTab}`}
+                      </span>
                     </button>
                   )}
 

@@ -453,11 +453,19 @@ const OrderDetail = () => {
             );
 
             if (activeTab === 3) {
+              const newDisabledSteps = new Set();
+
+              TAB_CONFIG.forEach((tab) => {
+                if (tab.permission && !hasPermission(tab.permission)) {
+                  newDisabledSteps.add(tab.id);
+                }
+              });
+
               if (!isCashBased) {
-                setDisabledSteps(new Set([6, 7]));
-              } else {
-                setDisabledSteps(new Set());
+                newDisabledSteps.add(6);
+                newDisabledSteps.add(7);
               }
+              setDisabledSteps(newDisabledSteps);
             }
 
             setSelectedOrder(response.data.order);
