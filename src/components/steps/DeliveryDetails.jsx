@@ -20,6 +20,11 @@ const DeliveryDetails = ({
     { value: 'Own Vehicle', label: 'Own Vehicle' }
   ];
 
+  // If order is completed, don't show delivery details
+  if (isCompleted) {
+    return null;
+  }
+
   // Editable form view
   return (
     <>
