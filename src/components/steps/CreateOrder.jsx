@@ -14,9 +14,60 @@ const CreateOrder = ({
   isCollection,
 }) => {
   const [branches, setBranches] = useState([]);
+  const [custGroupCode, setCustGroupCode] = useState("");
   const [branchesError, setBranchesError] = useState("");
   const [branchesLoading, setBranchesLoading] = useState(false);
   const [selectedCustomerCode, setSelectedCustomerCode] = useState("");
+
+  const {
+    data: customers = [],
+    loading: customersLoading,
+    error: customersError,
+  } = useExternalApiData("/Master/GetCustomers", {
+    method: "POST",
+    postData: {
+      Code: "",
+      Name: "",
+    },
+  });
+
+  const {
+    data: customerGroups = [],
+    loading: groupsLoading,
+    error: groupsError,
+  } = useExternalApiData("/Master/GetCustomerGroups");
+
+  const customerOptions = useMemo(
+    () =>
+      Array.isArray(customers)
+        ? customers
+            .map((customer) => ({
+              value: customer.Cust_Code || "",
+              label: customer.Cust_Name || "",
+            }))
+            .filter((option) => option.value && option.label)
+        : [],
+    [customers],
+  );
+
+  const customerGroupOptions = useMemo(
+    () =>
+      Array.isArray(customerGroups)
+        ? customerGroups
+            .map((group) => ({
+              value: group.Description || group.GroupCode || group.value || "",
+              label:
+                group.Description ||
+                group.GroupCode ||
+                group.label ||
+                "Unknown Group",
+            }))
+            .filter((option) => option.value && option.label)
+        : [],
+    [customerGroups],
+  );
+
+  const branchOptions = branches;
 
   const formatThousand = (value) => {
     if (!value) return "";
@@ -44,7 +95,7 @@ const CreateOrder = ({
 
   const handleCustomerChange = (value) => {
     const selectedCustomer = customerOptions.find(
-      (customer) => customer.value === value
+      (customer) => customer.value === value,
     );
 
     if (selectedCustomer) {
@@ -66,7 +117,7 @@ const CreateOrder = ({
 
   const handleBranchChange = (value) => {
     const selectedBranch = branchOptions.find(
-      (branch) => branch.value === value
+      (branch) => branch.value === value,
     );
 
     if (selectedBranch) {
@@ -119,7 +170,29 @@ const CreateOrder = ({
           response.CustomerDetails &&
           response.CustomerDetails.length > 0
         ) {
-          updateField("customerGroup", response.CustomerDetails[0].CustGroup);
+          const custDetails = response.CustomerDetails[0];
+          setCustGroupCode(custDetails.CustGroup || "");
+
+          // Also set it immediately if groups are already loaded
+          if (customerGroups.length > 0) {
+            const matchedGroup = customerGroups.find(
+              (group) =>
+                (group.GroupCode || group.Code) === custDetails.CustGroup,
+            );
+            if (matchedGroup) {
+              updateField("customerGroup", matchedGroup.Description);
+            } else {
+              updateField(
+                "customerGroup",
+                custDetails.Description || custDetails.CustGroup,
+              );
+            }
+          } else {
+            updateField(
+              "customerGroup",
+              custDetails.Description || custDetails.CustGroup,
+            );
+          }
         }
       } catch (error) {
         setBranchesError("Failed to load customer branches");
@@ -128,54 +201,19 @@ const CreateOrder = ({
         setBranchesLoading(false);
       }
     },
-    [fetchCustomerDetails, updateField]
+    [fetchCustomerDetails, updateField, customerGroups],
   );
 
-  const {
-    data: customers = [],
-    loading: customersLoading,
-    error: customersError,
-  } = useExternalApiData("/Master/GetCustomers", {
-    method: "POST",
-    postData: {
-      Code: "",
-      Name: "",
-    },
-  });
-
-  const {
-    data: customerGroups = [],
-    loading: groupsLoading,
-    error: groupsError,
-  } = useExternalApiData("/Master/GetCustomerGroups");
-
-  const customerOptions = useMemo(
-    () =>
-      Array.isArray(customers)
-        ? customers
-            .map((customer) => ({
-              value: customer.Cust_Code || "",
-              label: customer.Cust_Name || "",
-            }))
-            .filter((option) => option.value && option.label)
-        : [],
-    [customers]
-  );
-
-  const customerGroupOptions = useMemo(
-    () =>
-      Array.isArray(customerGroups)
-        ? customerGroups
-            .map((group) => ({
-              value: group.Description || group.value || "",
-              label: group.Description || group.label || "Unknown Group",
-            }))
-            .filter((option) => option.value && option.label)
-        : [],
-    [customerGroups]
-  );
-
-  const branchOptions = branches;
+  useEffect(() => {
+    if (custGroupCode && customerGroups.length > 0) {
+      const matchedGroup = customerGroups.find(
+        (group) => (group.GroupCode || group.Code) === custGroupCode,
+      );
+      if (matchedGroup) {
+        updateField("customerGroup", matchedGroup.Description);
+      }
+    }
+  }, [custGroupCode, customerGroups, updateField]);
 
   useEffect(() => {
     if (isNewOrder || !formData.customerName || customerOptions.length === 0) {
@@ -185,7 +223,7 @@ const CreateOrder = ({
       const existingCustomer = customerOptions.find(
         (customer) =>
           customer.label === formData.customerName ||
-          customer.value === formData.customerName
+          customer.value === formData.customerName,
       );
 
       if (existingCustomer) {
@@ -271,8 +309,8 @@ const CreateOrder = ({
                   branchesLoading
                     ? "Loading branches..."
                     : formData.customerName
-                    ? "Select customer branch"
-                    : "Select customer first"
+                      ? "Select customer branch"
+                      : "Select customer first"
                 }
                 required
                 disabled={branchesLoading || !formData.customerName}
