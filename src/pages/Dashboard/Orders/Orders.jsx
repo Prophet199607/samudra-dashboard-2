@@ -16,23 +16,13 @@ const Orders = () => {
       label: 'ORN Number',
       sortable: true,
       render: (value, rowData) => {
-        const maxLength = 25;
-        const fullReason = rowData.delay_reason || '';
-        const isLong = fullReason.length > maxLength;
-        const displayReason = isLong
-          ? fullReason.substring(0, maxLength) + '...'
-          : fullReason;
-
         return (
-          <div>
-            <span>{value}</span>
-            {rowData.is_delayed === 1 && rowData.delay_reason && (
-              <div
-                className='text-xs text-red-600 mt-1 truncate max-w-[180px] cursor-pointer'
-                title={fullReason}
-              >
-                ({displayReason})
-              </div>
+          <div className='flex items-center gap-2'>
+            <span className='font-medium'>{value}</span>
+            {rowData.is_delayed === 1 && (
+              <span className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-200'>
+                Delayed
+              </span>
             )}
           </div>
         );
@@ -78,12 +68,8 @@ const Orders = () => {
           colorClass = 'bg-red-600';
           statusText = 'Payment Rejected';
         } else if (value === 9) {
-          if (rowData.is_delayed === 1) {
-            colorClass = 'bg-red-600';
-          } else if (rowData.status === 9) {
-            colorClass = 'bg-green-600';
-            statusText = 'Delivered';
-          }
+          colorClass = 'bg-green-600';
+          statusText = 'Delivered';
         }
         return (
           <div className='flex items-center'>
