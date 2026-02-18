@@ -420,12 +420,15 @@ const OrderDetail = () => {
         const orderData = { ...baseData, ...stepData };
 
         Object.keys(orderData).forEach((key) => {
+          const value = orderData[key];
+          // Include the value if it's not null, not undefined, and not an empty string
+          // BUT always include is_delayed even if it's 0
           if (
-            orderData[key] !== null &&
-            orderData[key] !== undefined &&
-            orderData[key] !== ''
+            value !== null &&
+            value !== undefined &&
+            (value !== '' || key === 'is_delayed')
           ) {
-            formDataToSend.append(key, orderData[key]);
+            formDataToSend.append(key, value);
           }
         });
 
