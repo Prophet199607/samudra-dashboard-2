@@ -1,30 +1,29 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
-import api from "../../../services/api";
-import { useAuth } from "../../../auth/auth-context";
-import { useFormState } from "../../../hooks/useFormState";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import CollectionForm from "../../../components/collections/CollectionForm";
-import { TAB_CONFIG as ORIGINAL_TAB_CONFIG } from "../../../constants/tabConfig";
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import api from '../../../services/api';
+import { useAuth } from '../../../auth/auth-context';
+import { useFormState } from '../../../hooks/useFormState';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import CollectionForm from '../../../components/collections/CollectionForm';
+import { TAB_CONFIG as ORIGINAL_TAB_CONFIG } from '../../../constants/tabConfig';
 import {
   showErrorToast,
   showSuccessToast,
-  showLoadingToast,
-} from "../../../components/alert/ToastAlert";
+  showLoadingToast
+} from '../../../components/alert/ToastAlert';
 
-import Step1CreateOrder from "../../../components/steps/CreateOrder";
-import Step6CashPayment from "../../../components/steps/CashPayment";
-import Step7PaymentConfirm from "../../../components/steps/PaymentConfirm";
-import Step8AddInvoice from "../../../components/steps/AddInvoice";
-import Step9CollectionReceipt from "../../../components/steps/CollectionReceipt";
+import Step1CreateOrder from '../../../components/steps/CreateOrder';
+import Step6CashPayment from '../../../components/steps/CashPayment';
+import Step7PaymentConfirm from '../../../components/steps/PaymentConfirm';
+import Step8AddInvoice from '../../../components/steps/AddInvoice';
 
 const COLLECTION_TAB_CONFIG = ORIGINAL_TAB_CONFIG.filter((tab) =>
-  [6, 7, 8, 9].includes(tab.id)
-).map((tab) => (tab.id === 8 ? { ...tab, title: "Receipt" } : tab));
+  [6, 7, 8].includes(tab.id)
+).map((tab) => (tab.id === 8 ? { ...tab, title: 'Receipt' } : tab));
 
 const CollectionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const isNewOrder = id === "new";
+  const isNewOrder = id === 'new';
   const hasFetched = useRef(false);
   const { hasPermission } = useAuth();
   const [searchParams] = useSearchParams();
@@ -40,7 +39,7 @@ const CollectionDetail = () => {
   const [businessDisabledSteps, setBusinessDisabledSteps] = useState(new Set());
 
   useEffect(() => {
-    const statusParam = searchParams.get("status");
+    const statusParam = searchParams.get('status');
     if (statusParam && !isNewOrder && selectedOrder) {
       const targetStatus = parseInt(statusParam);
 
@@ -60,7 +59,7 @@ const CollectionDetail = () => {
           setActiveTab(adjustedStatus);
 
           const newSearchParams = new URLSearchParams(searchParams);
-          newSearchParams.set("status", adjustedStatus.toString());
+          newSearchParams.set('status', adjustedStatus.toString());
           navigate(`?${newSearchParams.toString()}`, { replace: true });
         }
       }
@@ -71,7 +70,7 @@ const CollectionDetail = () => {
     savedSteps,
     isNewOrder,
     disabledSteps,
-    navigate,
+    navigate
   ]);
 
   useEffect(() => {
@@ -111,20 +110,20 @@ const CollectionDetail = () => {
         );
 
         const fieldMappings = {
-          customer_code: "customerCode",
-          customer_name: "customerName",
-          pc_number: "ornNumber",
+          customer_code: 'customerCode',
+          customer_name: 'customerName',
+          pc_number: 'ornNumber',
 
-          payment_receipt: "paymentAttachment",
-          payment_confirmed: "paymentConfirmed",
-          payment_remark: "paymentRemark",
+          payment_receipt: 'paymentAttachment',
+          payment_confirmed: 'paymentConfirmed',
+          payment_remark: 'paymentRemark',
 
-          receipt_no: "receiptNo",
-          receipt_amount: "receiptAmount",
+          receipt_no: 'receiptNo',
+          receipt_amount: 'receiptAmount',
 
-          cash_in_no: "cashInNo",
-          cash_in_amount: "cashInAmount",
-          cash_in_remark: "cashInRemark",
+          cash_in_no: 'cashInNo',
+          cash_in_amount: 'cashInAmount',
+          cash_in_remark: 'cashInRemark'
         };
 
         Object.entries(fieldMappings).forEach(([dbField, formField]) => {
@@ -134,21 +133,21 @@ const CollectionDetail = () => {
           ) {
             let value = collection[dbField];
 
-            if (dbField === "payment_receipt" && typeof value === "string") {
-              value = value.replace(/\\/g, "");
+            if (dbField === 'payment_receipt' && typeof value === 'string') {
+              value = value.replace(/\\/g, '');
             }
 
             updateField(formField, value);
           }
         });
       } catch (error) {
-        console.error("Error fetching collection:", error);
-        showErrorToast("Failed to fetch collection");
-        navigate("/prv-collections");
+        console.error('Error fetching collection:', error);
+        showErrorToast('Failed to fetch collection');
+        navigate('/prv-collections');
       }
     };
 
-    if (id === "new") {
+    if (id === 'new') {
       resetForm();
       setErrors({});
       setSavedSteps(new Set());
@@ -168,13 +167,13 @@ const CollectionDetail = () => {
 
       const generatePC = async () => {
         try {
-          const response = await api.get("/prv-collections/generate-pc");
+          const response = await api.get('/prv-collections/generate-pc');
           if (response.data.success) {
-            updateField("ornNumber", response.data.pc_number);
+            updateField('ornNumber', response.data.pc_number);
           }
         } catch (error) {
-          console.error("Error generating PC Number:", error);
-          showErrorToast("Failed to generate PC Number");
+          console.error('Error generating PC Number:', error);
+          showErrorToast('Failed to generate PC Number');
         }
       };
       generatePC();
@@ -185,7 +184,7 @@ const CollectionDetail = () => {
 
   const handleDelaySave = async (reason) => {
     if (!selectedOrder?.pc_number) {
-      showErrorToast("PC number is not available.");
+      showErrorToast('PC number is not available.');
       return;
     }
     try {
@@ -194,18 +193,18 @@ const CollectionDetail = () => {
         { delay_reason: reason }
       );
       if (response.data.success) {
-        showSuccessToast("Delivery delay reason saved!");
+        showSuccessToast('Delivery delay reason saved!');
         setIsDelayed(true);
-        updateField("delayReason", reason);
+        updateField('delayReason', reason);
         setDelayModalOpen(false);
       }
       setTimeout(() => {
         resetForm();
-        navigate("/prv-collections");
+        navigate('/prv-collections');
       }, 1000);
     } catch (error) {
-      showErrorToast("Failed to save delay reason.");
-      console.error("Error saving delay reason:", error);
+      showErrorToast('Failed to save delay reason.');
+      console.error('Error saving delay reason:', error);
     }
   };
 
@@ -213,7 +212,7 @@ const CollectionDetail = () => {
     async (completeOrder = false, overrides = {}) => {
       let loadingToastId;
       try {
-        loadingToastId = showLoadingToast("Saving step...");
+        loadingToastId = showLoadingToast('Saving step...');
 
         const currentFormData = { ...formData, ...overrides };
 
@@ -224,11 +223,11 @@ const CollectionDetail = () => {
 
         switch (activeTab) {
           case 6:
-            requireField("ornNumber", "PC number is required");
-            requireField("customerName", "Customer name is required");
+            requireField('ornNumber', 'PC number is required');
+            requireField('customerName', 'Customer name is required');
 
             if (isNewOrder && !currentFormData.paymentAttachment) {
-              newErrors["paymentAttachment"] = "Payment receipt is required";
+              newErrors['paymentAttachment'] = 'Payment receipt is required';
             }
             break;
           default:
@@ -250,7 +249,7 @@ const CollectionDetail = () => {
           pc_number: formData.ornNumber,
           orn_number: formData.ornNumber,
           status: activeTab,
-          currentStep: activeTab,
+          currentStep: activeTab
         };
 
         let stepData = {};
@@ -261,20 +260,13 @@ const CollectionDetail = () => {
           case 7: // Payment Confirmation
             stepData = {
               payment_confirmed: currentFormData.paymentConfirmed ? 1 : 0,
-              payment_remark: currentFormData.paymentRemark,
+              payment_remark: currentFormData.paymentRemark
             };
             break;
           case 8: // Receipt Info
             stepData = {
               receipt_no: currentFormData.receiptNo,
-              receipt_amount: currentFormData.receiptAmount,
-            };
-            break;
-          case 9: // Collection Receipt
-            stepData = {
-              cash_in_no: currentFormData.cashInNo,
-              cash_in_amount: currentFormData.cashInAmount,
-              cash_in_remark: currentFormData.cashInRemark,
+              receipt_amount: currentFormData.receiptAmount
             };
             break;
           default:
@@ -283,11 +275,7 @@ const CollectionDetail = () => {
               payment_remark: currentFormData.paymentRemark,
 
               receipt_no: currentFormData.receiptNo,
-              receipt_amount: currentFormData.receiptAmount,
-
-              cash_in_no: currentFormData.cashInNo,
-              cash_in_amount: currentFormData.cashInAmount,
-              cash_in_remark: currentFormData.cashInRemark,
+              receipt_amount: currentFormData.receiptAmount
             };
             break;
         }
@@ -298,7 +286,7 @@ const CollectionDetail = () => {
           if (
             orderData[key] !== null &&
             orderData[key] !== undefined &&
-            orderData[key] !== ""
+            orderData[key] !== ''
           ) {
             formDataToSend.append(key, orderData[key]);
           }
@@ -310,20 +298,20 @@ const CollectionDetail = () => {
           currentFormData.paymentAttachment instanceof File
         ) {
           formDataToSend.append(
-            "payment_receipt",
+            'payment_receipt',
             currentFormData.paymentAttachment
           );
         }
 
         const config = {
           headers: {
-            "Content-Type": "multipart/form-data",
-          },
+            'Content-Type': 'multipart/form-data'
+          }
         };
 
         if (isNewOrder && activeTab === 6) {
           const response = await api.post(
-            "/prv-collections/new",
+            '/prv-collections/new',
             formDataToSend,
             config
           );
@@ -331,13 +319,13 @@ const CollectionDetail = () => {
             setSelectedOrder(response.data.collection);
             setSavedSteps(new Set([6]));
             showSuccessToast(
-              "Collection created successfully!",
+              'Collection created successfully!',
               loadingToastId
             );
 
             setTimeout(() => {
               resetForm();
-              navigate("/prv-collections");
+              navigate('/prv-collections');
             }, 1000);
           }
         } else if (selectedOrder) {
@@ -358,7 +346,7 @@ const CollectionDetail = () => {
             if (activeTab === 9 || completeOrder) {
               setTimeout(() => {
                 resetForm();
-                navigate("/prv-collections");
+                navigate('/prv-collections');
               }, 1000);
             } else if (
               activeTab === 7 &&
@@ -376,19 +364,19 @@ const CollectionDetail = () => {
                   setActiveTab(nextTab);
 
                   const newSearchParams = new URLSearchParams(searchParams);
-                  newSearchParams.set("status", nextTab.toString());
+                  newSearchParams.set('status', nextTab.toString());
                   navigate(`?${newSearchParams.toString()}`, { replace: true });
                 }
               }, 1000);
             }
             setTimeout(() => {
               resetForm();
-              navigate("/prv-collections");
+              navigate('/prv-collections');
             }, 1000);
           }
         }
       } catch (error) {
-        console.error("Error saving collection:", error);
+        console.error('Error saving collection:', error);
         if (error.response?.status === 422 && error.response?.data?.errors) {
           const backendErrors = error.response.data.errors;
           const normalized = {};
@@ -398,7 +386,7 @@ const CollectionDetail = () => {
           setErrors(normalized);
         } else {
           showErrorToast(
-            error.response?.data?.message || "Failed to save collection",
+            error.response?.data?.message || 'Failed to save collection',
             loadingToastId
           );
         }
@@ -412,17 +400,17 @@ const CollectionDetail = () => {
       navigate,
       resetForm,
       disabledSteps,
-      searchParams,
+      searchParams
     ]
   );
 
   const handleBackToList = useCallback(() => {
-    navigate("/prv-collections");
+    navigate('/prv-collections');
   }, [navigate]);
 
   const handlePaymentAction = (isConfirmed) => {
     if (isConfirmed) {
-      updateField("paymentConfirmed", true);
+      updateField('paymentConfirmed', true);
       handleSubmit(false, { paymentConfirmed: true });
     } else {
       setShowRejectModal(true);
@@ -431,7 +419,7 @@ const CollectionDetail = () => {
 
   const handleConfirmReject = () => {
     setShowRejectModal(false);
-    updateField("paymentConfirmed", false);
+    updateField('paymentConfirmed', false);
     handleSubmit(false, { paymentConfirmed: false });
   };
 
@@ -442,7 +430,7 @@ const CollectionDetail = () => {
       updateField,
       isNewOrder,
       errors,
-      referenceLabel: "PC Number",
+      referenceLabel: 'PC Number'
     };
 
     let currentStepToRender = activeTab;
@@ -462,11 +450,11 @@ const CollectionDetail = () => {
       case 6:
         // Render combined view for Step 6 (Create Order Info + Cash Payment)
         return (
-          <div className="space-y-8">
+          <div className='space-y-8'>
             <Step1CreateOrder {...stepProps} isCollection={true} />
-            <hr className="border-gray-200" />
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+            <hr className='border-gray-200' />
+            <div className='bg-gray-50 p-4 rounded-lg'>
+              <h3 className='text-lg font-medium text-gray-900 mb-4'>
                 Payment Details
               </h3>
               <Step6CashPayment {...stepProps} />
@@ -482,8 +470,6 @@ const CollectionDetail = () => {
         );
       case 8:
         return <Step8AddInvoice {...stepProps} isCollection={true} />;
-      case 9:
-        return <Step9CollectionReceipt {...stepProps} />;
       default:
         return null;
     }
@@ -493,7 +479,7 @@ const CollectionDetail = () => {
     <CollectionForm
       title={
         isNewOrder
-          ? "New Collection"
+          ? 'New Collection'
           : `Collection Details: ${selectedOrder?.pc_number}`
       }
       selectedOrder={selectedOrder}
