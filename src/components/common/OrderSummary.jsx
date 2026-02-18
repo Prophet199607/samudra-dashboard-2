@@ -147,9 +147,7 @@ const OrderSummary = ({
                 const attachment = formData.paymentAttachment;
                 const isFile = attachment instanceof File;
                 const isString = typeof attachment === 'string';
-                const baseUrl = `${
-                  import.meta.env.VITE_EXTERNAL_API_BASE_URL
-                }/storage/`;
+                const baseUrl = import.meta.env.VITE_IMAGE_BASE_URL;
 
                 let url = null;
                 let isPdf = false;
@@ -158,7 +156,7 @@ const OrderSummary = ({
                   url = URL.createObjectURL(attachment);
                   isPdf = attachment.type === 'application/pdf';
                 } else if (isString) {
-                  url = `${baseUrl}${attachment}`;
+                  url = `${baseUrl}/${attachment}`;
                   isPdf = attachment.toLowerCase().endsWith('.pdf');
                 } else {
                   return 'Uploaded Successfully';
