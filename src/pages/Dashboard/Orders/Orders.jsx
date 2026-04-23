@@ -44,22 +44,25 @@ const Orders = () => {
       sortable: true,
     },
     {
-      key: "customer_po_no",
-      label: "PO Number",
+      key: "invoice_no",
+      label: "Invoice Number",
       sortable: true,
       render: (value) => value || "-",
+    },
+    {
+      key: "invoice_amount",
+      label: "Invoice Amount",
+      sortable: true,
+      render: (value) => {
+        const amount = Number(value);
+        return isNaN(amount) ? "-" : `LKR ${amount.toLocaleString()}`;
+      },
     },
     {
       key: "order_request_date",
       label: "Request Date",
       sortable: true,
       render: (value) => new Date(value).toLocaleDateString(),
-    },
-    {
-      key: "po_amount",
-      label: "Amount",
-      sortable: true,
-      render: (value) => `LKR ${parseFloat(value).toLocaleString()}`,
     },
     {
       key: "status",
@@ -168,8 +171,8 @@ const Orders = () => {
               order.is_delayed === 1
                 ? "bg-red-500"
                 : order.status === 10
-                ? "bg-green-600"
-                : tab?.color || "bg-gray-500";
+                  ? "bg-green-600"
+                  : tab?.color || "bg-gray-500";
 
             let statusText = tab?.title || `Step ${order.status}`;
             if (order.status === 10 && order.is_delayed !== 1) {
@@ -200,16 +203,16 @@ const Orders = () => {
                     {order.customer_name}
                   </p>
                   <p>
-                    <span className="font-medium">PO No:</span>{" "}
-                    {order.customer_po_no || "-"}
+                    <span className="font-medium">Invoice No:</span>{" "}
+                    {order.invoice_no || "-"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Invoice Amount:</span> LKR{" "}
+                    {parseFloat(order.invoice_amount).toLocaleString()}
                   </p>
                   <p>
                     <span className="font-medium">Date:</span>{" "}
                     {new Date(order.order_request_date).toLocaleDateString()}
-                  </p>
-                  <p>
-                    <span className="font-medium">Amount:</span> LKR{" "}
-                    {parseFloat(order.po_amount).toLocaleString()}
                   </p>
                   {order.is_delayed === 1 && order.delay_reason && (
                     <p className="text-xs text-red-600 mt-1">
