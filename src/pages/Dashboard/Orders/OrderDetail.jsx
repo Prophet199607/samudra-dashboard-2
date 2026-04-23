@@ -1,32 +1,31 @@
-import api from "../../../services/api";
-import React, { useCallback, useEffect, useState, useRef } from "react";
-import { TAB_CONFIG } from "../../../constants/tabConfig";
-import { useFormState } from "../../../hooks/useFormState";
-import { useAuth } from "../../../auth/auth-context";
-import OrderForm from "../../../components/orders/OrderForm";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import api from '../../../services/api';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { TAB_CONFIG } from '../../../constants/tabConfig';
+import { useFormState } from '../../../hooks/useFormState';
+import { useAuth } from '../../../auth/auth-context';
+import OrderForm from '../../../components/orders/OrderForm';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   showErrorToast,
   showSuccessToast,
-  showLoadingToast,
-} from "../../../components/alert/ToastAlert";
+  showLoadingToast
+} from '../../../components/alert/ToastAlert';
 
-import Step1CreateOrder from "../../../components/steps/CreateOrder";
-import Step2AssignBranch from "../../../components/steps/AssignBranch";
-import Step3ApproveOrder from "../../../components/steps/ApproveOrder";
-import Step4AddSalesOrder from "../../../components/steps/AddSalesOrder";
-import Step5AddQuotation from "../../../components/steps/AddQuotation";
-import Step6CashPayment from "../../../components/steps/CashPayment";
-import Step7PaymentConfirm from "../../../components/steps/PaymentConfirm";
-import Step8AddInvoice from "../../../components/steps/AddInvoice";
-import Step9CollectionReceipt from "../../../components/steps/CollectionReceipt";
-import Step10DeliveryDetails from "../../../components/steps/DeliveryDetails";
+import Step1CreateOrder from '../../../components/steps/CreateOrder';
+import Step2AssignBranch from '../../../components/steps/AssignBranch';
+import Step3ApproveOrder from '../../../components/steps/ApproveOrder';
+import Step4AddSalesOrder from '../../../components/steps/AddSalesOrder';
+import Step5AddQuotation from '../../../components/steps/AddQuotation';
+import Step6CashPayment from '../../../components/steps/CashPayment';
+import Step7PaymentConfirm from '../../../components/steps/PaymentConfirm';
+import Step8AddInvoice from '../../../components/steps/AddInvoice';
+import Step9DeliveryDetails from '../../../components/steps/DeliveryDetails';
 
 const OrderDetail = () => {
   const { id } = useParams();
   const { hasPermission } = useAuth();
   const navigate = useNavigate();
-  const isNewOrder = id === "new";
+  const isNewOrder = id === 'new';
   const hasFetched = useRef(false);
   const [searchParams] = useSearchParams();
   const [errors, setErrors] = useState({});
@@ -38,29 +37,30 @@ const OrderDetail = () => {
   const [isDelayModalOpen, setDelayModalOpen] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [disabledSteps, setDisabledSteps] = useState(new Set());
+  const [businessDisabledSteps, setBusinessDisabledSteps] = useState(new Set());
 
   useEffect(() => {
-    const statusParam = searchParams.get("status");
+    const statusParam = searchParams.get('status');
     if (statusParam && !isNewOrder && selectedOrder) {
       const targetStatus = parseInt(statusParam);
 
       if (
         targetStatus >= 1 &&
-        targetStatus <= 10 &&
+        targetStatus <= 9 &&
         !disabledSteps.has(targetStatus) &&
         (targetStatus === 1 || savedSteps.has(targetStatus - 1))
       ) {
         setActiveTab(targetStatus);
       } else {
         let adjustedStatus = targetStatus;
-        while (adjustedStatus <= 10 && disabledSteps.has(adjustedStatus)) {
+        while (adjustedStatus <= 9 && disabledSteps.has(adjustedStatus)) {
           adjustedStatus++;
         }
-        if (adjustedStatus <= 10) {
+        if (adjustedStatus <= 9) {
           setActiveTab(adjustedStatus);
 
           const newSearchParams = new URLSearchParams(searchParams);
-          newSearchParams.set("status", adjustedStatus.toString());
+          newSearchParams.set('status', adjustedStatus.toString());
           navigate(`?${newSearchParams.toString()}`, { replace: true });
         }
       }
@@ -71,7 +71,7 @@ const OrderDetail = () => {
     savedSteps,
     isNewOrder,
     disabledSteps,
-    navigate,
+    navigate
   ]);
 
   useEffect(() => {
@@ -84,18 +84,28 @@ const OrderDetail = () => {
         const order = response.data.order;
         setSelectedOrder(order);
 
-        let initialTab = order.status < 10 ? order.status + 1 : order.status;
+        let initialTab = order.status < 9 ? order.status + 1 : order.status;
 
         const isCashBased =
           order.payment_type &&
-          ["Cash", "Cash Deposit"].includes(order.payment_type);
+          ['Cash', 'Cash Deposit'].includes(order.payment_type);
 
         const newDisabledSteps = new Set();
+        const newBusinessDisabledSteps = new Set();
 
-        // 1. Disable steps based on payment type (logic existing)
+        // 1. Disable steps based on payment type
         if (!isCashBased) {
+          // For non-cash payments, disable deposit slip and payment confirmation
           newDisabledSteps.add(6); // Deposit Slip
           newDisabledSteps.add(7); // Payment Confirm
+          newBusinessDisabledSteps.add(6);
+          newBusinessDisabledSteps.add(7);
+
+          // If quotation data hasn't arrived yet, disable invoice step
+          if (!order.quotation_no) {
+            newDisabledSteps.add(8); // Invoice
+            newBusinessDisabledSteps.add(8);
+          }
 
           if (initialTab === 6 || initialTab === 7) {
             initialTab = 8;
@@ -110,6 +120,7 @@ const OrderDetail = () => {
         });
 
         setDisabledSteps(newDisabledSteps);
+        setBusinessDisabledSteps(newBusinessDisabledSteps);
 
         setActiveTab(initialTab);
 
@@ -118,73 +129,73 @@ const OrderDetail = () => {
         );
 
         const fieldMappings = {
-          customer_code: "customerCode",
-          customer_name: "customerName",
-          customer_group: "customerGroup",
-          customer_branch: "customerBranch",
-          customer_po_no: "customerPONo",
-          po_amount: "poAmount",
-          orn_number: "ornNumber",
-          order_request_date: "ordReqDate",
-          remark: "orderRemark",
+          customer_code: 'customerCode',
+          customer_name: 'customerName',
+          customer_group: 'customerGroup',
+          customer_branch: 'customerBranch',
+          customer_po_no: 'customerPONo',
+          po_amount: 'poAmount',
+          orn_number: 'ornNumber',
+          order_request_date: 'ordReqDate',
+          remark: 'orderRemark',
 
-          sales_branch: "salesBranch",
-          sales_branch_code: "salesBranchCode",
+          sales_branch: 'salesBranch',
+          sales_branch_code: 'salesBranchCode',
 
-          payment_type: "paymentType",
-          approval_date: "approvalDate",
-          approval_remark: "approvalRemark",
+          payment_type: 'paymentType',
+          approval_date: 'approvalDate',
+          approval_remark: 'approvalRemark',
 
-          sales_order_no: "salesOrderNumber",
-          sales_order_amount: "salesOrderAmount",
-          sales_order_date: "salesOrderDate",
+          sales_order_no: 'salesOrderNumber',
+          sales_order_amount: 'salesOrderAmount',
+          sales_order_date: 'salesOrderDate',
 
-          quotation_no: "quotationNumber",
-          quotation_amount: "quotationAmount",
-          quotation_date: "quotationDate",
+          quotation_no: 'quotationNumber',
+          quotation_amount: 'quotationAmount',
+          quotation_date: 'quotationDate',
 
-          payment_receipt: "paymentAttachment",
-          payment_confirmed: "paymentConfirmed",
-          payment_remark: "paymentRemark",
+          payment_receipt: 'paymentAttachment',
+          payment_confirmed: 'paymentConfirmed',
+          payment_remark: 'paymentRemark',
 
-          invoice_no: "invoiceNumber",
-          invoice_amount: "invoiceAmount",
+          invoice_no: 'invoiceNumber',
+          invoice_amount: 'invoiceAmount',
 
-          cash_in_no: "cashInNo",
-          cash_in_amount: "cashInAmount",
-          cash_in_remark: "cashInRemark",
+          cash_in_no: 'cashInNo',
+          cash_in_amount: 'cashInAmount',
+          cash_in_remark: 'cashInRemark',
 
-          delivery_type: "deliveryType",
-          is_delayed: "isDelayed",
-          delay_reason: "delayReason",
-          bus_no: "busNo",
-          way_bill_no: "wayBillNo",
-          tracking_no: "trackingNo",
-          vehicle_no: "vehicleNo",
-          driver_name: "driverName",
-          courier_name: "courierName",
-          no_of_boxes: "noOfBoxes",
+          delivery_type: 'deliveryType',
+          is_delayed: 'isDelayed',
+          delay_reason: 'delayReason',
+          bus_no: 'busNo',
+          way_bill_no: 'wayBillNo',
+          tracking_no: 'trackingNo',
+          vehicle_no: 'vehicleNo',
+          driver_name: 'driverName',
+          courier_name: 'courierName',
+          no_of_boxes: 'noOfBoxes'
         };
 
         Object.entries(fieldMappings).forEach(([dbField, formField]) => {
           if (order[dbField] !== null && order[dbField] !== undefined) {
             let value = order[dbField];
 
-            if (dbField === "payment_receipt" && typeof value === "string") {
-              value = value.replace(/\\/g, "");
+            if (dbField === 'payment_receipt' && typeof value === 'string') {
+              value = value.replace(/\\/g, '');
             }
 
             updateField(formField, value);
           }
         });
       } catch (error) {
-        console.error("Error fetching order:", error);
-        showErrorToast("Failed to fetch order");
-        navigate("/orders");
+        console.error('Error fetching order:', error);
+        showErrorToast('Failed to fetch order');
+        navigate('/orders');
       }
     };
 
-    if (id === "new") {
+    if (id === 'new') {
       resetForm();
       setErrors({});
       setSavedSteps(new Set());
@@ -204,24 +215,48 @@ const OrderDetail = () => {
 
       const generateOrn = async () => {
         try {
-          const response = await api.get("/orders/generate-orn");
+          const response = await api.get('/orders/generate-orn');
           if (response.data.success) {
-            updateField("ornNumber", response.data.orn_number);
+            updateField('ornNumber', response.data.orn_number);
           }
         } catch (error) {
-          console.error("Error generating ORN:", error);
-          showErrorToast("Failed to generate ORN");
+          console.error('Error generating ORN:', error);
+          showErrorToast('Failed to generate ORN');
         }
       };
       generateOrn();
     } else {
       fetchOrderDetails(id);
     }
-  }, [id, resetForm, updateField, navigate]);
+  }, [id, resetForm, updateField, navigate, hasPermission]);
+
+  // Re-enable Invoice step when quotation data arrives for non-cash payments
+  useEffect(() => {
+    if (!selectedOrder) return;
+
+    const isCashBased =
+      selectedOrder.payment_type &&
+      ['Cash', 'Cash Deposit'].includes(selectedOrder.payment_type);
+
+    // Only apply this logic for non-cash payments
+    if (!isCashBased && selectedOrder.quotation_no) {
+      setDisabledSteps((prev) => {
+        const newDisabledSteps = new Set(prev);
+        newDisabledSteps.delete(8); // Enable Invoice step
+        return newDisabledSteps;
+      });
+
+      setBusinessDisabledSteps((prev) => {
+        const newBusinessDisabledSteps = new Set(prev);
+        newBusinessDisabledSteps.delete(8); // Enable Invoice step
+        return newBusinessDisabledSteps;
+      });
+    }
+  }, [selectedOrder?.quotation_no, selectedOrder?.payment_type]);
 
   const handleDelaySave = async (reason) => {
     if (!selectedOrder?.orn_number) {
-      showErrorToast("Order number is not available.");
+      showErrorToast('Order number is not available.');
       return;
     }
     try {
@@ -230,18 +265,18 @@ const OrderDetail = () => {
         { delay_reason: reason }
       );
       if (response.data.success) {
-        showSuccessToast("Delivery delay reason saved!");
+        showSuccessToast('Delivery delay reason saved!');
         setIsDelayed(true);
-        updateField("delayReason", reason);
+        updateField('delayReason', reason);
         setDelayModalOpen(false);
       }
       setTimeout(() => {
         resetForm();
-        navigate("/orders");
+        navigate('/orders');
       }, 1000);
     } catch (error) {
-      showErrorToast("Failed to save delay reason.");
-      console.error("Error saving delay reason:", error);
+      showErrorToast('Failed to save delay reason.');
+      console.error('Error saving delay reason:', error);
     }
   };
 
@@ -249,7 +284,7 @@ const OrderDetail = () => {
     async (completeOrder = false, overrides = {}) => {
       let loadingToastId;
       try {
-        loadingToastId = showLoadingToast("Saving step...");
+        loadingToastId = showLoadingToast('Saving step...');
 
         const currentFormData = { ...formData, ...overrides };
 
@@ -260,24 +295,24 @@ const OrderDetail = () => {
 
         switch (activeTab) {
           case 1:
-            requireField("ordReqDate", "Order request date is required");
-            requireField("ornNumber", "ORN number is required");
-            requireField("customerName", "Customer name is required");
-            requireField("customerGroup", "Customer group is required");
-            requireField("customerBranch", "Customer's branch is required");
+            requireField('ordReqDate', 'Order request date is required');
+            requireField('ornNumber', 'ORN number is required');
+            requireField('customerName', 'Customer name is required');
+            requireField('customerGroup', 'Customer group is required');
+            requireField('customerBranch', "Customer's branch is required");
             break;
           case 2:
-            requireField("salesBranch", "Sales branch is required");
+            requireField('salesBranch', 'Sales branch is required');
             break;
           case 3:
-            requireField("approvalDate", "Approval date is required");
-            requireField("paymentType", "Payment type is required");
+            requireField('approvalDate', 'Approval date is required');
+            requireField('paymentType', 'Payment type is required');
             break;
           case 6:
-            requireField("paymentAttachment", "Payment receipt is required");
+            requireField('paymentAttachment', 'Payment receipt is required');
             break;
           case 10:
-            requireField("deliveryType", "Delivery type is required");
+            requireField('deliveryType', 'Delivery type is required');
             break;
           default:
             break;
@@ -303,7 +338,7 @@ const OrderDetail = () => {
           order_request_date: formData.ordReqDate,
           remark: formData.orderRemark,
           status: activeTab,
-          currentStep: activeTab,
+          currentStep: activeTab
         };
 
         let stepData = {};
@@ -311,14 +346,14 @@ const OrderDetail = () => {
           case 2: // Assign Branch
             stepData = {
               sales_branch: formData.salesBranch,
-              sales_branch_code: formData.salesBranchCode,
+              sales_branch_code: formData.salesBranchCode
             };
             break;
           case 3: // Approval Info
             stepData = {
               payment_type: formData.paymentType,
               approval_date: formData.approvalDate,
-              approval_remark: formData.approvalRemark,
+              approval_remark: formData.approvalRemark
             };
             break;
           case 6: // Payment Info (File upload step)
@@ -326,23 +361,16 @@ const OrderDetail = () => {
           case 7: // Payment Confirmation
             stepData = {
               payment_confirmed: currentFormData.paymentConfirmed ? 1 : 0,
-              payment_remark: currentFormData.paymentRemark,
+              payment_remark: currentFormData.paymentRemark
             };
             break;
           case 8: // Invoice Info
             stepData = {
               invoice_no: formData.invoiceNumber,
-              invoice_amount: formData.invoiceAmount,
+              invoice_amount: formData.invoiceAmount
             };
             break;
-          case 9: // Collection Receipt
-            stepData = {
-              cash_in_no: formData.cashInNo,
-              cash_in_amount: formData.cashInAmount,
-              cash_in_remark: formData.cashInRemark,
-            };
-            break;
-          case 10: // Delivery Info
+          case 9: // Delivery Info
             stepData = {
               delivery_type: formData.deliveryType,
               is_delayed: formData.isDelayed ? 1 : 0,
@@ -353,7 +381,7 @@ const OrderDetail = () => {
               vehicle_no: formData.vehicleNo,
               driver_name: formData.driverName,
               courier_name: formData.courierName,
-              no_of_boxes: formData.noOfBoxes,
+              no_of_boxes: formData.noOfBoxes
             };
             break;
           default:
@@ -384,7 +412,7 @@ const OrderDetail = () => {
               vehicle_no: formData.vehicleNo,
               driver_name: formData.driverName,
               courier_name: formData.courierName,
-              no_of_boxes: formData.noOfBoxes,
+              no_of_boxes: formData.noOfBoxes
             };
             break;
         }
@@ -392,12 +420,15 @@ const OrderDetail = () => {
         const orderData = { ...baseData, ...stepData };
 
         Object.keys(orderData).forEach((key) => {
+          const value = orderData[key];
+          // Include the value if it's not null, not undefined, and not an empty string
+          // BUT always include is_delayed even if it's 0
           if (
-            orderData[key] !== null &&
-            orderData[key] !== undefined &&
-            orderData[key] !== ""
+            value !== null &&
+            value !== undefined &&
+            (value !== '' || key === 'is_delayed')
           ) {
-            formDataToSend.append(key, orderData[key]);
+            formDataToSend.append(key, value);
           }
         });
 
@@ -407,31 +438,31 @@ const OrderDetail = () => {
           currentFormData.paymentAttachment instanceof File
         ) {
           formDataToSend.append(
-            "payment_receipt",
+            'payment_receipt',
             currentFormData.paymentAttachment
           );
         }
 
         const config = {
           headers: {
-            "Content-Type": "multipart/form-data",
-          },
+            'Content-Type': 'multipart/form-data'
+          }
         };
 
         if (isNewOrder && activeTab === 1) {
           const response = await api.post(
-            "/orders/new",
+            '/orders/new',
             formDataToSend,
             config
           );
           if (response.data.success) {
             setSelectedOrder(response.data.order);
             setSavedSteps(new Set([1]));
-            showSuccessToast("Order created successfully!", loadingToastId);
+            showSuccessToast('Order created successfully!', loadingToastId);
 
             setTimeout(() => {
               resetForm();
-              navigate("/orders");
+              navigate('/orders');
             }, 1000);
           }
         } else if (selectedOrder) {
@@ -443,16 +474,35 @@ const OrderDetail = () => {
 
           if (response.data.success) {
             const updatedPaymentType = response.data.order.payment_type;
-            const isCashBased = ["Cash", "Cash Deposit"].includes(
+            const isCashBased = ['Cash', 'Cash Deposit'].includes(
               updatedPaymentType
             );
 
             if (activeTab === 3) {
+              const newDisabledSteps = new Set();
+              const newBusinessDisabledSteps = new Set();
+
+              TAB_CONFIG.forEach((tab) => {
+                if (tab.permission && !hasPermission(tab.permission)) {
+                  newDisabledSteps.add(tab.id);
+                }
+              });
+
               if (!isCashBased) {
-                setDisabledSteps(new Set([6, 7]));
-              } else {
-                setDisabledSteps(new Set());
+                // For non-cash payments, disable deposit slip and payment confirmation
+                newDisabledSteps.add(6);
+                newDisabledSteps.add(7);
+                newBusinessDisabledSteps.add(6);
+                newBusinessDisabledSteps.add(7);
+
+                // If quotation data hasn't arrived yet, disable invoice step
+                if (!response.data.order.quotation_no) {
+                  newDisabledSteps.add(8);
+                  newBusinessDisabledSteps.add(8);
+                }
               }
+              setDisabledSteps(newDisabledSteps);
+              setBusinessDisabledSteps(newBusinessDisabledSteps);
             }
 
             setSelectedOrder(response.data.order);
@@ -462,45 +512,55 @@ const OrderDetail = () => {
               loadingToastId
             );
 
-            if (activeTab === 10 || completeOrder) {
+            if (activeTab === 9 || completeOrder) {
               setTimeout(() => {
                 resetForm();
-                navigate("/orders");
+                navigate('/orders');
               }, 1000);
             } else if (
               activeTab === 7 &&
               currentFormData.paymentConfirmed === false
             ) {
               // Do not advance step if payment is rejected
-            } else if (activeTab < 10) {
+            } else if (activeTab < 9) {
               setTimeout(() => {
                 let nextTab = activeTab + 1;
 
-                if (activeTab === 5 && !isCashBased) {
-                  nextTab = 8;
+                // For non-cash payments, after step 3 (approval), check if quotation exists
+                if (activeTab === 3 && !isCashBased) {
+                  // If quotation data exists, jump to invoice (step 8)
+                  if (response.data.order.quotation_no) {
+                    nextTab = 8;
+                  } else {
+                    // Stay on current step or go to next available step (usually step 4 or 5)
+                    while (nextTab <= 9 && disabledSteps.has(nextTab)) {
+                      nextTab++;
+                    }
+                  }
                 } else {
-                  while (nextTab <= 10 && disabledSteps.has(nextTab)) {
+                  // Normal flow: skip disabled steps
+                  while (nextTab <= 9 && disabledSteps.has(nextTab)) {
                     nextTab++;
                   }
                 }
 
-                if (nextTab <= 10) {
+                if (nextTab <= 9) {
                   setActiveTab(nextTab);
 
                   const newSearchParams = new URLSearchParams(searchParams);
-                  newSearchParams.set("status", nextTab.toString());
+                  newSearchParams.set('status', nextTab.toString());
                   navigate(`?${newSearchParams.toString()}`, { replace: true });
                 }
               }, 1000);
             }
             setTimeout(() => {
               resetForm();
-              navigate("/orders");
+              navigate('/orders');
             }, 1000);
           }
         }
       } catch (error) {
-        console.error("Error saving order:", error);
+        console.error('Error saving order:', error);
         if (error.response?.status === 422 && error.response?.data?.errors) {
           const backendErrors = error.response.data.errors;
           const normalized = {};
@@ -510,7 +570,7 @@ const OrderDetail = () => {
           setErrors(normalized);
         } else {
           showErrorToast(
-            error.response?.data?.message || "Failed to save order",
+            error.response?.data?.message || 'Failed to save order',
             loadingToastId
           );
         }
@@ -525,16 +585,17 @@ const OrderDetail = () => {
       resetForm,
       disabledSteps,
       searchParams,
+      hasPermission
     ]
   );
 
   const handleBackToList = useCallback(() => {
-    navigate("/orders");
+    navigate('/orders');
   }, [navigate]);
 
   const handlePaymentAction = (isConfirmed) => {
     if (isConfirmed) {
-      updateField("paymentConfirmed", true);
+      updateField('paymentConfirmed', true);
       handleSubmit(false, { paymentConfirmed: true });
     } else {
       setShowRejectModal(true);
@@ -543,7 +604,7 @@ const OrderDetail = () => {
 
   const handleConfirmReject = () => {
     setShowRejectModal(false);
-    updateField("paymentConfirmed", false);
+    updateField('paymentConfirmed', false);
     handleSubmit(false, { paymentConfirmed: false });
   };
 
@@ -553,7 +614,7 @@ const OrderDetail = () => {
       formData,
       updateField,
       isNewOrder,
-      errors,
+      errors
     };
 
     let currentStepToRender = activeTab;
@@ -589,14 +650,19 @@ const OrderDetail = () => {
           />
         );
       case 8:
-        return <Step8AddInvoice {...stepProps} />;
-      case 9:
-        return <Step9CollectionReceipt {...stepProps} />;
-      case 10:
         return (
-          <Step10DeliveryDetails
+          <Step8AddInvoice
             {...stepProps}
-            isCompleted={savedSteps.has(10)}
+            savedSteps={savedSteps}
+            selectedOrder={selectedOrder}
+          />
+        );
+      case 9:
+        return (
+          <Step9DeliveryDetails
+            {...stepProps}
+            isCompleted={savedSteps.has(9)}
+            selectedOrder={selectedOrder}
           />
         );
       default:
@@ -607,7 +673,7 @@ const OrderDetail = () => {
   return (
     <OrderForm
       title={
-        isNewOrder ? "New Order" : `Order Details: ${selectedOrder?.orn_number}`
+        isNewOrder ? 'New Order' : `Order Details: ${selectedOrder?.orn_number}`
       }
       selectedOrder={selectedOrder}
       savedSteps={savedSteps}
@@ -629,6 +695,7 @@ const OrderDetail = () => {
       setShowRejectModal={setShowRejectModal}
       handleConfirmReject={handleConfirmReject}
       hasPermission={hasPermission}
+      businessDisabledSteps={businessDisabledSteps}
     />
   );
 };

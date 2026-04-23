@@ -16,23 +16,13 @@ const Orders = () => {
       label: "ORN Number",
       sortable: true,
       render: (value, rowData) => {
-        const maxLength = 25;
-        const fullReason = rowData.delay_reason || "";
-        const isLong = fullReason.length > maxLength;
-        const displayReason = isLong
-          ? fullReason.substring(0, maxLength) + "..."
-          : fullReason;
-
         return (
-          <div>
-            <span>{value}</span>
-            {rowData.is_delayed === 1 && rowData.delay_reason && (
-              <div
-                className="text-xs text-red-600 mt-1 truncate max-w-[180px] cursor-pointer"
-                title={fullReason}
-              >
-                ({displayReason})
-              </div>
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{value}</span>
+            {rowData.is_delayed === 1 && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                Delayed
+              </span>
             )}
           </div>
         );
@@ -80,13 +70,9 @@ const Orders = () => {
         ) {
           colorClass = "bg-red-600";
           statusText = "Payment Rejected";
-        } else if (value === 10) {
-          if (rowData.is_delayed === 1) {
-            colorClass = "bg-red-600";
-          } else if (rowData.status === 10) {
-            colorClass = "bg-green-600";
-            statusText = "Delivered";
-          }
+        } else if (value === 9) {
+          colorClass = "bg-green-600";
+          statusText = "Delivered";
         }
         return (
           <div className="flex items-center">
@@ -129,7 +115,7 @@ const Orders = () => {
   };
 
   const handleOrderClick = (order) => {
-    const targetStep = order.status < 10 ? order.status + 1 : order.status;
+    const targetStep = order.status < 9 ? order.status + 1 : order.status;
     navigate(`/order/${order.orn_number}?status=${targetStep}`);
   };
 
@@ -175,7 +161,7 @@ const Orders = () => {
                   : tab?.color || "bg-gray-500";
 
             let statusText = tab?.title || `Step ${order.status}`;
-            if (order.status === 10 && order.is_delayed !== 1) {
+            if (order.status === 9 && order.is_delayed !== 1) {
               statusText = "Delivered";
             }
 
@@ -203,16 +189,16 @@ const Orders = () => {
                     {order.customer_name}
                   </p>
                   <p>
-                    <span className="font-medium">Invoice No:</span>{" "}
-                    {order.invoice_no || "-"}
-                  </p>
-                  <p>
-                    <span className="font-medium">Invoice Amount:</span> LKR{" "}
-                    {parseFloat(order.invoice_amount).toLocaleString()}
+                    <span className="font-medium">PO No:</span>{" "}
+                    {order.customer_po_no || "-"}
                   </p>
                   <p>
                     <span className="font-medium">Date:</span>{" "}
                     {new Date(order.order_request_date).toLocaleDateString()}
+                  </p>
+                  <p>
+                    <span className="font-medium">Amount:</span> LKR{" "}
+                    {parseFloat(order.po_amount).toLocaleString()}
                   </p>
                   {order.is_delayed === 1 && order.delay_reason && (
                     <p className="text-xs text-red-600 mt-1">

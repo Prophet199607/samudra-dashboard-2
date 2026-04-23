@@ -18,6 +18,23 @@ function Private({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
+function PermissionRoute({ children, permission }) {
+  const { hasPermission } = useAuth();
+
+  if (permission && !hasPermission(permission)) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <h1 className="text-4xl font-bold text-red-600 mb-2">Access Denied</h1>
+        <p className="text-gray-600">
+          You do not have permission to view this page.
+        </p>
+      </div>
+    );
+  }
+
+  return children;
+}
+
 function PrivateLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -68,7 +85,9 @@ export default function App() {
         element={
           <Private>
             <PrivateLayout>
-              <Dashboard />
+              <PermissionRoute permission="view dashboard">
+                <Dashboard />
+              </PermissionRoute>
             </PrivateLayout>
           </Private>
         }
@@ -78,7 +97,9 @@ export default function App() {
         element={
           <Private>
             <PrivateLayout>
-              <Orders />
+              <PermissionRoute permission="view distribution">
+                <Orders />
+              </PermissionRoute>
             </PrivateLayout>
           </Private>
         }
@@ -88,7 +109,9 @@ export default function App() {
         element={
           <Private>
             <PrivateLayout>
-              <OrderDetail />
+              <PermissionRoute permission="view distribution">
+                <OrderDetail />
+              </PermissionRoute>
             </PrivateLayout>
           </Private>
         }
@@ -99,7 +122,9 @@ export default function App() {
         element={
           <Private>
             <PrivateLayout>
-              <Collections />
+              <PermissionRoute permission="view previous collections">
+                <Collections />
+              </PermissionRoute>
             </PrivateLayout>
           </Private>
         }
@@ -109,7 +134,9 @@ export default function App() {
         element={
           <Private>
             <PrivateLayout>
-              <CollectionDetail />
+              <PermissionRoute permission="view previous collections">
+                <CollectionDetail />
+              </PermissionRoute>
             </PrivateLayout>
           </Private>
         }
@@ -120,7 +147,9 @@ export default function App() {
         element={
           <Private>
             <PrivateLayout>
-              <Permissions />
+              <PermissionRoute permission="view permissions">
+                <Permissions />
+              </PermissionRoute>
             </PrivateLayout>
           </Private>
         }
@@ -131,7 +160,9 @@ export default function App() {
         element={
           <Private>
             <PrivateLayout>
-              <Users />
+              <PermissionRoute permission="view user management">
+                <Users />
+              </PermissionRoute>
             </PrivateLayout>
           </Private>
         }

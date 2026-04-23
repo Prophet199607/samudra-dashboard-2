@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import api from "../../../services/api";
+import { useAuth } from "../../../auth/auth-context";
 import { FaEdit, FaTrash, FaUserPlus } from "react-icons/fa";
+import externalApi from "../../../services/externalApi";
 
 export default function Users() {
+  const { hasPermission } = useAuth();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [locations, setLocations] = useState([]);
   const [search, setSearch] = useState("");
 
   // Modal States
@@ -55,9 +59,21 @@ export default function Users() {
     }
   };
 
+  const fetchLocations = async () => {
+    try {
+      const response = await externalApi.get("/Master/GetLocations");
+      if (response.data && Array.isArray(response.data.locations)) {
+        setLocations(response.data.locations);
+      }
+    } catch (err) {
+      console.error("Error fetching locations:", err);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
     fetchRoles();
+    fetchLocations();
   }, []);
 
   // Filter
@@ -177,110 +193,120 @@ export default function Users() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
-        <button
-          onClick={openCreateModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2"
-        >
-          <FaUserPlus />
-          Add User
-        </button>
-      </div>
-
-      {/* Main Content Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col">
-        <div className="p-5 border-b border-gray-100">
-          <input
-            type="text"
-            placeholder="Search users..."
-            className="w-full max-w-md border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        {error && (
-          <div className="p-4 m-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-            {error}
+    <div className="space-y-6 p-3">
+      {hasPermission("view users") && (
+        <>
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-gray-800">
+              User Management
+            </h1>
+            {hasPermission("create users") && (
+              <button
+                onClick={openCreateModal}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2"
+              >
+                <FaUserPlus />
+                Add User
+              </button>
+            )}
           </div>
-        )}
 
-        <div className="overflow-x-auto">
-          {loading ? (
-            <div className="text-center py-8 text-gray-400">
-              Loading users...
+          {/* Main Content Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col">
+            <div className="p-5 border-b border-gray-100">
+              <input
+                type="text"
+                placeholder="Search users..."
+                className="w-full max-w-md border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
-          ) : (
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-semibold">
-                <tr>
-                  <th className="px-6 py-4">Name</th>
-                  <th className="px-6 py-4">Location</th>
-                  <th className="px-6 py-4">Role</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredUsers.length > 0 ? (
-                  filteredUsers.map((user) => (
-                    <tr
-                      key={user.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-4 font-medium text-gray-800">
-                        {user.name}
-                      </td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {user.location}
-                      </td>
-                      <td className="px-6 py-4">
-                        {user.roles && user.roles.length > 0 ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {user.roles[0].name}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400 italic">No Role</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => openEditModal(user)}
-                            className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Edit User"
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={() => openDeleteModal(user)}
-                            className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Delete User"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </td>
+
+            {error && (
+              <div className="p-4 m-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+
+            <div className="overflow-x-auto">
+              {loading ? (
+                <div className="text-center py-8 text-gray-400">
+                  Loading users...
+                </div>
+              ) : (
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-semibold">
+                    <tr>
+                      <th className="px-6 py-4">Name</th>
+                      <th className="px-6 py-4">Role</th>
+                      <th className="px-6 py-4 text-right">Actions</th>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="4"
-                      className="px-6 py-8 text-center text-gray-400"
-                    >
-                      {search
-                        ? "No users match your search."
-                        : "No users found."}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredUsers.length > 0 ? (
+                      filteredUsers.map((user) => (
+                        <tr
+                          key={user.id}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <td className="px-6 py-4 font-medium text-gray-800">
+                            {user.name}
+                          </td>
+                          <td className="px-6 py-4">
+                            {user.roles && user.roles.length > 0 ? (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {user.roles[0].name}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 italic">
+                                No Role
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-2 py-2 text-right">
+                            <div className="flex justify-end gap-2">
+                              {hasPermission("edit users") && (
+                                <button
+                                  onClick={() => openEditModal(user)}
+                                  className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                                  title="Edit User"
+                                >
+                                  <FaEdit className="w-4 h-4 opacity-70 hover:opacity-100" />
+                                </button>
+                              )}
+                              {hasPermission("delete users") && (
+                                <button
+                                  onClick={() => openDeleteModal(user)}
+                                  className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                                  title="Delete User"
+                                >
+                                  <FaTrash className="w-4 h-4 opacity-70 hover:opacity-100" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan="4"
+                          className="px-6 py-8 text-center text-gray-400"
+                        >
+                          {search
+                            ? "No users match your search."
+                            : "No users found."}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Create/Edit Modal */}
       {isModalOpen && (
@@ -318,14 +344,20 @@ export default function Users() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Location
                 </label>
-                <input
-                  type="text"
+                <select
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   required
-                />
+                >
+                  <option value="">Select a location</option>
+                  {locations.map((loc) => (
+                    <option key={loc.Code} value={loc.Code}>
+                      {loc.Description}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Role */}
@@ -391,7 +423,6 @@ export default function Users() {
           </div>
         </div>
       )}
-
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">

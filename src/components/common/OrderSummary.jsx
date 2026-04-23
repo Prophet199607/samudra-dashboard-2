@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from "react";
-import { TAB_CONFIG } from "../../constants/tabConfig";
+import React, { useMemo, useState } from 'react';
+import { FaCheck } from 'react-icons/fa';
+import { TAB_CONFIG } from '../../constants/tabConfig';
 
 const OrderSummary = ({
   formData,
   selectedOrder,
   currentStep = Infinity,
-  savedSteps,
+  savedSteps
 }) => {
   const [openSections, setOpenSections] = useState(
     TAB_CONFIG.reduce((acc, tab) => ({ ...acc, [tab.id]: false }), {})
@@ -49,37 +50,37 @@ const OrderSummary = ({
     }, {});
 
     if (selectedOrder?.is_delayed === 1) {
-      colors[9] = "bg-red-600";
+      colors[9] = 'bg-red-600';
     } else if (savedSteps?.has(9)) {
-      colors[9] = "bg-green-600";
+      colors[9] = 'bg-green-600';
     }
     return colors;
   }, [selectedOrder, savedSteps]);
 
   const formatDateTime = (dateString) => {
-    if (!dateString) return "";
+    if (!dateString) return '';
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "";
+    if (isNaN(date.getTime())) return '';
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
 
   const formatThousand = (value) => {
-    if (value === null || value === undefined || value === "") return "";
-    const num = value.toString().replace(/,/g, "");
-    if (!num || isNaN(num)) return "";
-    return Number(num).toLocaleString("en-US", {
+    if (value === null || value === undefined || value === '') return '';
+    const num = value.toString().replace(/,/g, '');
+    if (!num || isNaN(num)) return '';
+    return Number(num).toLocaleString('en-US', {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 2
     });
   };
 
-  const safe = (value) => (value ? value : "—");
+  const safe = (value) => (value ? value : '—');
 
   const steps = useMemo(() => {
     if (!formData) return [];
@@ -87,89 +88,87 @@ const OrderSummary = ({
     const stepData = {
       1: [
         {
-          label: "Order Request Date",
-          value: formData.ordReqDate,
+          label: 'Order Request Date',
+          value: formData.ordReqDate
         },
-        { label: "Order Request Number", value: formData.ornNumber },
-        { label: "Customer Name", value: formData.customerName },
-        { label: "PO Number", value: formData.customerPONo },
+        { label: 'Order Request Number', value: formData.ornNumber },
+        { label: 'Customer Name', value: formData.customerName },
+        { label: 'PO Number', value: formData.customerPONo },
         {
-          label: "PO Amount",
+          label: 'PO Amount',
           value: formData.poAmount
             ? `LKR ${formatThousand(formData.poAmount)}`
-            : "",
+            : ''
         },
-        { label: "Customer Group", value: formData.customerGroup },
-        { label: "Customer Branch", value: formData.customerBranch },
-        { label: "Order Remark", value: formData.orderRemark },
+        { label: 'Customer Group', value: formData.customerGroup },
+        { label: 'Customer Branch', value: formData.customerBranch },
+        { label: 'Order Remark', value: formData.orderRemark }
       ],
-      2: [{ label: "Sales Branch", value: formData.salesBranch }],
+      2: [{ label: 'Sales Branch', value: formData.salesBranch }],
       3: [
-        { label: "Payment Type", value: formData.paymentType },
+        { label: 'Payment Type', value: formData.paymentType },
         {
-          label: "Approval Date",
-          value: formData.approvalDate,
+          label: 'Approval Date',
+          value: formData.approvalDate
         },
-        { label: "Approval Remark", value: formData.approvalRemark },
+        { label: 'Approval Remark', value: formData.approvalRemark }
       ],
       4: [
-        { label: "Sales Order Number", value: formData.salesOrderNumber },
+        { label: 'Sales Order Number', value: formData.salesOrderNumber },
         {
-          label: "Sales Order Amount",
+          label: 'Sales Order Amount',
           value: formData.salesOrderAmount
             ? `LKR ${formatThousand(formData.salesOrderAmount)}`
-            : "",
+            : ''
         },
         {
-          label: "Sales Order Date",
-          value: formData.salesOrderDate,
-        },
+          label: 'Sales Order Date',
+          value: formData.salesOrderDate
+        }
       ],
       5: [
-        { label: "Quotation Number", value: formData.quotationNumber },
+        { label: 'Quotation Number', value: formData.quotationNumber },
         {
-          label: "Quotation Amount",
+          label: 'Quotation Amount',
           value: formData.quotationAmount
             ? `LKR ${formatThousand(formData.quotationAmount)}`
-            : "",
+            : ''
         },
         {
-          label: "Quotation Date",
-          value: formData.quotationDate,
-        },
+          label: 'Quotation Date',
+          value: formData.quotationDate
+        }
       ],
       6: formData.paymentAttachment
         ? [
             {
-              label: "Payment Receipt",
+              label: 'Payment Receipt',
               value: (() => {
                 const attachment = formData.paymentAttachment;
                 const isFile = attachment instanceof File;
-                const isString = typeof attachment === "string";
-                const baseUrl = `${
-                  import.meta.env.VITE_EXTERNAL_API_BASE_URL
-                }/storage/`;
+                const isString = typeof attachment === 'string';
+                const baseUrl = import.meta.env.VITE_IMAGE_BASE_URL;
 
                 let url = null;
                 let isPdf = false;
 
                 if (isFile) {
                   url = URL.createObjectURL(attachment);
-                  isPdf = attachment.type === "application/pdf";
+                  isPdf = attachment.type === 'application/pdf';
                 } else if (isString) {
-                  url = `${baseUrl}${attachment}`;
-                  isPdf = attachment.toLowerCase().endsWith(".pdf");
+                  url = `${baseUrl}/${attachment}`;
+                  isPdf = attachment.toLowerCase().endsWith('.pdf');
                 } else {
-                  return "Uploaded Successfully";
+                  return 'Uploaded Successfully';
                 }
 
                 if (isPdf) {
                   return (
                     <a
                       href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline flex items-center gap-2 mt-1"
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-blue-600 hover:underline flex items-center gap-2 mt-1'
                     >
                       View PDF Receipt
                     </a>
@@ -177,125 +176,147 @@ const OrderSummary = ({
                 }
 
                 return (
-                  <div className="mt-2">
-                    <a href={url} target="_blank" rel="noopener noreferrer">
+                  <div className='mt-2'>
+                    <a href={url} target='_blank' rel='noopener noreferrer'>
                       <img
                         src={url}
-                        alt="Payment Receipt"
-                        className="h-32 w-auto object-cover rounded-md border border-gray-300 hover:opacity-90 transition-opacity"
+                        alt='Payment Receipt'
+                        className='h-32 w-auto object-cover rounded-md border border-gray-300 hover:opacity-90 transition-opacity'
                       />
                     </a>
                   </div>
                 );
-              })(),
-            },
+              })()
+            }
           ]
         : [],
       7: [
         formData.paymentConfirmed
-          ? [{ label: "Payment Status", value: "Payment Verified & Confirmed" }]
+          ? [{ label: 'Payment Status', value: 'Payment Verified & Confirmed' }]
           : [
               {
-                label: "Payment Status",
-                value: "Payment Not Verified & Rejected",
-              },
+                label: 'Payment Status',
+                value: 'Payment Not Verified & Rejected'
+              }
             ],
-        { label: "Payment Remark", value: formData.paymentRemark },
+        { label: 'Payment Remark', value: formData.paymentRemark }
       ],
       8: [
-        { label: "Invoice Number", value: formData.invoiceNumber },
+        { label: 'Invoice Number', value: formData.invoiceNumber },
         {
-          label: "Invoice Amount",
+          label: 'Invoice Amount',
           value: formData.invoiceAmount
             ? `LKR ${formatThousand(formData.invoiceAmount)}`
-            : "",
-        },
+            : ''
+        }
       ],
       9: [
-        { label: "Cash In No", value: formData.cashInNo },
-        {
-          label: "Cash In Amount",
-          value: formData.cashInAmount
-            ? `LKR ${formatThousand(formData.cashInAmount)}`
-            : "",
-        },
-        { label: "Cash In Remark", value: formData.cashInRemark },
-      ],
-      10: [
-        { label: "Delivery Type", value: formData.deliveryType },
-        { label: "Bus No", value: formData.busNo },
-        { label: "Way Bill No", value: formData.wayBillNo },
-        { label: "Tracking No", value: formData.tackingNo },
-        { label: "Vehicle No", value: formData.vehicleNo },
-        { label: "Driver Name", value: formData.driverName },
-        { label: "Courier Name", value: formData.courierName },
-        { label: "No Of Boxes", value: formData.noOfBoxes },
-      ],
+        { label: 'Delivery Type', value: formData.deliveryType },
+        ...(formData.deliveryType === 'Bus'
+          ? [{ label: 'Bus No', value: formData.busNo }]
+          : []),
+        ...(formData.deliveryType === 'Train'
+          ? [{ label: 'Way Bill No', value: formData.wayBillNo }]
+          : []),
+        ...(formData.deliveryType === 'Courier'
+          ? [
+              { label: 'Tracking No', value: formData.trackingNo },
+              { label: 'Courier Name', value: formData.courierName }
+            ]
+          : []),
+        ...(formData.deliveryType === 'Own Vehicle'
+          ? [
+              { label: 'Vehicle No', value: formData.vehicleNo },
+              { label: 'Driver Name', value: formData.driverName }
+            ]
+          : []),
+        { label: 'No Of Boxes', value: formData.noOfBoxes },
+        ...(selectedOrder?.is_delayed === 1
+          ? [
+              {
+                label: 'Delivery Status',
+                value: 'Delayed',
+                isDelayed: true
+              },
+              { label: 'Delay Reason', value: formData.delayReason }
+            ]
+          : [])
+      ]
     };
 
     return TAB_CONFIG.map((tab) => ({
       id: tab.id,
       title: tab.title,
-      items: stepData[tab.id] || [],
+      items: stepData[tab.id] || []
     }));
   }, [formData]);
 
   if (!formData) {
     return (
-      <div className="bg-white border border-gray-200 rounded-xl mb-5">
-        <div className="px-5 pt-5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-2.5 w-2.5 rounded-full bg-gray-300" />
-            <h3 className="text-base font-semibold text-gray-900">
+      <div className='bg-white border border-gray-200 rounded-xl mb-5'>
+        <div className='px-5 pt-5'>
+          <div className='flex items-center gap-2 mb-2'>
+            <div className='h-2.5 w-2.5 rounded-full bg-gray-300' />
+            <h3 className='text-base font-semibold text-gray-900'>
               Order Summary
             </h3>
           </div>
-          <p className="text-gray-500 pb-5">No order data available</p>
+          <p className='text-gray-500 pb-5'>No order data available</p>
         </div>
       </div>
     );
   }
 
   const highlightCards = [
-    { label: "Customer", value: safe(formData.customerName) },
-    { label: "Order No", value: safe(formData.ornNumber) },
+    { label: 'Customer', value: safe(formData.customerName) },
+    { label: 'Order No', value: safe(formData.ornNumber) },
     {
-      label: "PO Amount",
+      label: 'PO Amount',
       value: formData.poAmount
         ? `LKR ${formatThousand(formData.poAmount)}`
-        : "—",
-    },
+        : '—'
+    }
   ];
 
   // Determine which sections to show based on currentStep
+  // Always show saved steps. If step 9 (delivery) is saved, include it in the summary
   const maxIndexExclusive = Number.isFinite(currentStep)
     ? Math.max(0, currentStep - 1)
     : steps.length;
-  const visibleSteps = steps.filter((_, idx) => idx < maxIndexExclusive);
+
+  let visibleSteps = steps.filter((_, idx) => idx < maxIndexExclusive);
+
+  // If step 9 (delivery) is completed, add it to the visible steps
+  if (savedSteps?.has(9) && !visibleSteps.find((s) => s.id === 9)) {
+    const deliveryStep = steps.find((s) => s.id === 9);
+    if (deliveryStep) {
+      visibleSteps = [...visibleSteps, deliveryStep];
+    }
+  }
 
   if (visibleSteps.length === 0) {
     return null;
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl mb-5">
-      <div className="px-5 pt-5">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-gray-900">
+    <div className='bg-white border border-gray-200 rounded-xl mb-5'>
+      <div className='px-5 pt-5'>
+        <div className='flex items-center justify-between mb-4'>
+          <div className='flex items-center gap-2'>
+            <h3 className='text-base font-semibold text-gray-900'>
               Order Summary
             </h3>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-3 mb-4'>
           {highlightCards.map((card) => (
             <div
               key={card.label}
-              className="border border-gray-200 rounded-lg p-3 bg-gray-50"
+              className='border border-gray-200 rounded-lg p-3 bg-gray-50'
             >
-              <p className="text-xs font-medium text-gray-500">{card.label}</p>
-              <p className="text-sm font-semibold text-gray-900 mt-0.5">
+              <p className='text-xs font-medium text-gray-500'>{card.label}</p>
+              <p className='text-sm font-semibold text-gray-900 mt-0.5'>
                 {card.value}
               </p>
             </div>
@@ -303,35 +324,38 @@ const OrderSummary = ({
         </div>
       </div>
 
-      <div className="divide-y divide-gray-200">
-        {visibleSteps.map((section, index) => {
+      <div className='divide-y divide-gray-200'>
+        {visibleSteps.map((section) => {
           const hasAnyValue = section.items.some((i) => i.value);
           if (!hasAnyValue) return null;
-          const stepId = index + 1;
+          const stepId = section.id;
           const stepDetail = stepDetailsMap.get(stepId);
           const isSaved = savedSteps?.has?.(stepId);
-          const dotColor = isSaved ? statusColors[stepId] : "bg-gray-300";
+          const dotColor = isSaved ? statusColors[stepId] : 'bg-gray-300';
           return (
             <div key={section.id}>
               <button
-                type="button"
-                className="w-full px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:bg-gray-50 text-left"
+                type='button'
+                className='w-full px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:bg-gray-50 text-left'
                 onClick={() => toggle(section.id)}
               >
-                <div className="flex flex-col items-start gap-1 flex-1">
-                  <div className="flex items-center gap-2">
+                <div className='flex flex-col items-start gap-1 flex-1'>
+                  <div className='flex items-center gap-2'>
                     <div className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className='text-sm font-semibold text-gray-900 flex items-center gap-2'>
                       {section.title}
+                      {isSaved && (
+                        <FaCheck className='text-green-600 w-3 h-3' />
+                      )}
                     </span>
                     {stepDetail && (
-                      <div className="text-xs text-gray-500 font-normal ml-4">
-                        by{" "}
-                        <span className="font-medium text-gray-700">
-                          {stepDetail.user?.name || "System"}
-                        </span>{" "}
-                        on{" "}
-                        <span className="font-medium text-gray-700">
+                      <div className='text-xs text-gray-500 font-normal ml-4'>
+                        by{' '}
+                        <span className='font-medium text-gray-700'>
+                          {stepDetail.user?.name || 'System'}
+                        </span>{' '}
+                        on{' '}
+                        <span className='font-medium text-gray-700'>
                           {formatDateTime(stepDetail.created_at)}
                         </span>
                       </div>
@@ -340,34 +364,46 @@ const OrderSummary = ({
                 </div>
                 <svg
                   className={`h-4 w-4 text-gray-500 transition-transform flex-shrink-0 mt-2 sm:mt-0 ${
-                    openSections[section.id] ? "rotate-180" : "rotate-0"
+                    openSections[section.id] ? 'rotate-180' : 'rotate-0'
                   }`}
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
+                  viewBox='0 0 20 20'
+                  fill='currentColor'
+                  aria-hidden='true'
                 >
                   <path
-                    fillRule="evenodd"
-                    d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.27a.75.75 0 01-.02-1.06z"
-                    clipRule="evenodd"
+                    fillRule='evenodd'
+                    d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.27a.75.75 0 01-.02-1.06z'
+                    clipRule='evenodd'
                   />
                 </svg>
               </button>
 
               {openSections[section.id] && (
-                <div className="px-5 pb-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className='px-5 pb-4'>
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                     {section.items
                       .filter((i) => i.value)
                       .map((item) => (
                         <div
                           key={item.label}
-                          className="rounded-lg border border-gray-200 p-3 bg-white"
+                          className={`rounded-lg border p-3 ${
+                            item.isDelayed
+                              ? 'border-red-300 bg-red-50'
+                              : 'border-gray-200 bg-white'
+                          }`}
                         >
-                          <p className="text-xs font-medium text-gray-500">
+                          <p
+                            className={`text-xs font-medium ${
+                              item.isDelayed ? 'text-red-600' : 'text-gray-500'
+                            }`}
+                          >
                             {item.label}
                           </p>
-                          <div className="text-sm font-semibold text-gray-900 mt-0.5 break-words">
+                          <div
+                            className={`text-sm font-semibold mt-0.5 break-words ${
+                              item.isDelayed ? 'text-red-700' : 'text-gray-900'
+                            }`}
+                          >
                             {item.value}
                           </div>
                         </div>
