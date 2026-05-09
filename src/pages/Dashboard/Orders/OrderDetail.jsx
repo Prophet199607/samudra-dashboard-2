@@ -87,9 +87,9 @@ const OrderDetail = () => {
 
         let initialTab = order.status < 10 ? order.status + 1 : order.status;
 
-        const isCashBased =
-          order.payment_type &&
-          ["Cash", "Cash Deposit"].includes(order.payment_type);
+        // const isCashBased =
+        //   order.payment_type && ["Cash", "Cash Deposit"].includes(order.payment_type);
+        const isCashBased = order.payment_type === "Cash Deposit";
 
         const newDisabledSteps = new Set();
         const newBusinessDisabledSteps = new Set();
@@ -119,7 +119,7 @@ const OrderDetail = () => {
         setActiveTab(initialTab);
 
         setSavedSteps(
-          new Set(Array.from({ length: order.status }, (_, i) => i + 1))
+          new Set(Array.from({ length: order.status }, (_, i) => i + 1)),
         );
 
         const fieldMappings = {
@@ -232,7 +232,7 @@ const OrderDetail = () => {
     try {
       const response = await api.put(
         `/orders/${selectedOrder.orn_number}/delay`,
-        { delay_reason: reason }
+        { delay_reason: reason },
       );
       if (response.data.success) {
         showSuccessToast("Delivery delay reason saved!");
@@ -413,7 +413,7 @@ const OrderDetail = () => {
         ) {
           formDataToSend.append(
             "payment_receipt",
-            currentFormData.paymentAttachment
+            currentFormData.paymentAttachment,
           );
         }
 
@@ -427,7 +427,7 @@ const OrderDetail = () => {
           const response = await api.post(
             "/orders/new",
             formDataToSend,
-            config
+            config,
           );
           if (response.data.success) {
             setSelectedOrder(response.data.order);
@@ -443,14 +443,15 @@ const OrderDetail = () => {
           const response = await api.put(
             `/orders/${selectedOrder.orn_number}`,
             formDataToSend,
-            config
+            config,
           );
 
           if (response.data.success) {
             const updatedPaymentType = response.data.order.payment_type;
-            const isCashBased = ["Cash", "Cash Deposit"].includes(
-              updatedPaymentType
-            );
+            // const isCashBased = ["Cash", "Cash Deposit"].includes(
+            //   updatedPaymentType,
+            // );
+            const isCashBased = updatedPaymentType === "Cash Deposit";
 
             if (activeTab === 3) {
               const newDisabledSteps = new Set();
@@ -472,7 +473,7 @@ const OrderDetail = () => {
             setSavedSteps((prev) => new Set([...prev, activeTab]));
             showSuccessToast(
               `Step ${activeTab} saved successfully!`,
-              loadingToastId
+              loadingToastId,
             );
 
             if (activeTab === 10 || completeOrder) {
@@ -524,7 +525,7 @@ const OrderDetail = () => {
         } else {
           showErrorToast(
             error.response?.data?.message || "Failed to save order",
-            loadingToastId
+            loadingToastId,
           );
         }
       }
@@ -539,7 +540,7 @@ const OrderDetail = () => {
       disabledSteps,
       searchParams,
       hasPermission,
-    ]
+    ],
   );
 
   const handleBackToList = useCallback(() => {
