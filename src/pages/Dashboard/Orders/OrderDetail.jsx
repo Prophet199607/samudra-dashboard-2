@@ -1,31 +1,31 @@
-import api from '../../../services/api';
-import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { TAB_CONFIG } from '../../../constants/tabConfig';
-import { useFormState } from '../../../hooks/useFormState';
-import { useAuth } from '../../../auth/auth-context';
-import OrderForm from '../../../components/orders/OrderForm';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import api from "../../../services/api";
+import React, { useCallback, useEffect, useState, useRef } from "react";
+import { TAB_CONFIG } from "../../../constants/tabConfig";
+import { useFormState } from "../../../hooks/useFormState";
+import { useAuth } from "../../../auth/auth-context";
+import OrderForm from "../../../components/orders/OrderForm";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
   showErrorToast,
   showSuccessToast,
-  showLoadingToast
-} from '../../../components/alert/ToastAlert';
+  showLoadingToast,
+} from "../../../components/alert/ToastAlert";
 
-import Step1CreateOrder from '../../../components/steps/CreateOrder';
-import Step2AssignBranch from '../../../components/steps/AssignBranch';
-import Step3ApproveOrder from '../../../components/steps/ApproveOrder';
-import Step4AddSalesOrder from '../../../components/steps/AddSalesOrder';
-import Step5AddQuotation from '../../../components/steps/AddQuotation';
-import Step6CashPayment from '../../../components/steps/CashPayment';
-import Step7PaymentConfirm from '../../../components/steps/PaymentConfirm';
-import Step8AddInvoice from '../../../components/steps/AddInvoice';
-import Step9DeliveryDetails from '../../../components/steps/DeliveryDetails';
+import Step1CreateOrder from "../../../components/steps/CreateOrder";
+import Step2AssignBranch from "../../../components/steps/AssignBranch";
+import Step3ApproveOrder from "../../../components/steps/ApproveOrder";
+import Step4AddSalesOrder from "../../../components/steps/AddSalesOrder";
+import Step5AddQuotation from "../../../components/steps/AddQuotation";
+import Step6CashPayment from "../../../components/steps/CashPayment";
+import Step7PaymentConfirm from "../../../components/steps/PaymentConfirm";
+import Step8AddInvoice from "../../../components/steps/AddInvoice";
+import Step9DeliveryDetails from "../../../components/steps/DeliveryDetails";
 
 const OrderDetail = () => {
   const { id } = useParams();
   const { hasPermission } = useAuth();
   const navigate = useNavigate();
-  const isNewOrder = id === 'new';
+  const isNewOrder = id === "new";
   const hasFetched = useRef(false);
   const [searchParams] = useSearchParams();
   const [errors, setErrors] = useState({});
@@ -40,7 +40,7 @@ const OrderDetail = () => {
   const [businessDisabledSteps, setBusinessDisabledSteps] = useState(new Set());
 
   useEffect(() => {
-    const statusParam = searchParams.get('status');
+    const statusParam = searchParams.get("status");
     if (statusParam && !isNewOrder && selectedOrder) {
       const targetStatus = parseInt(statusParam);
 
@@ -60,7 +60,7 @@ const OrderDetail = () => {
           setActiveTab(adjustedStatus);
 
           const newSearchParams = new URLSearchParams(searchParams);
-          newSearchParams.set('status', adjustedStatus.toString());
+          newSearchParams.set("status", adjustedStatus.toString());
           navigate(`?${newSearchParams.toString()}`, { replace: true });
         }
       }
@@ -71,7 +71,7 @@ const OrderDetail = () => {
     savedSteps,
     isNewOrder,
     disabledSteps,
-    navigate
+    navigate,
   ]);
 
   useEffect(() => {
@@ -86,9 +86,9 @@ const OrderDetail = () => {
 
         let initialTab = order.status < 9 ? order.status + 1 : order.status;
 
-        const isCashBased =
-          order.payment_type &&
-          ['Cash', 'Cash Deposit'].includes(order.payment_type);
+        // const isCashBased =
+        //   order.payment_type && ["Cash", "Cash Deposit"].includes(order.payment_type);
+        const isCashBased = order.payment_type === "Cash Deposit";
 
         const newDisabledSteps = new Set();
         const newBusinessDisabledSteps = new Set();
@@ -125,77 +125,77 @@ const OrderDetail = () => {
         setActiveTab(initialTab);
 
         setSavedSteps(
-          new Set(Array.from({ length: order.status }, (_, i) => i + 1))
+          new Set(Array.from({ length: order.status }, (_, i) => i + 1)),
         );
 
         const fieldMappings = {
-          customer_code: 'customerCode',
-          customer_name: 'customerName',
-          customer_group: 'customerGroup',
-          customer_branch: 'customerBranch',
-          customer_po_no: 'customerPONo',
-          po_amount: 'poAmount',
-          orn_number: 'ornNumber',
-          order_request_date: 'ordReqDate',
-          remark: 'orderRemark',
+          customer_code: "customerCode",
+          customer_name: "customerName",
+          customer_group: "customerGroup",
+          customer_branch: "customerBranch",
+          customer_po_no: "customerPONo",
+          po_amount: "poAmount",
+          orn_number: "ornNumber",
+          order_request_date: "ordReqDate",
+          remark: "orderRemark",
 
-          sales_branch: 'salesBranch',
-          sales_branch_code: 'salesBranchCode',
+          sales_branch: "salesBranch",
+          sales_branch_code: "salesBranchCode",
 
-          payment_type: 'paymentType',
-          approval_date: 'approvalDate',
-          approval_remark: 'approvalRemark',
+          payment_type: "paymentType",
+          approval_date: "approvalDate",
+          approval_remark: "approvalRemark",
 
-          sales_order_no: 'salesOrderNumber',
-          sales_order_amount: 'salesOrderAmount',
-          sales_order_date: 'salesOrderDate',
+          sales_order_no: "salesOrderNumber",
+          sales_order_amount: "salesOrderAmount",
+          sales_order_date: "salesOrderDate",
 
-          quotation_no: 'quotationNumber',
-          quotation_amount: 'quotationAmount',
-          quotation_date: 'quotationDate',
+          quotation_no: "quotationNumber",
+          quotation_amount: "quotationAmount",
+          quotation_date: "quotationDate",
 
-          payment_receipt: 'paymentAttachment',
-          payment_confirmed: 'paymentConfirmed',
-          payment_remark: 'paymentRemark',
+          payment_receipt: "paymentAttachment",
+          payment_confirmed: "paymentConfirmed",
+          payment_remark: "paymentRemark",
 
-          invoice_no: 'invoiceNumber',
-          invoice_amount: 'invoiceAmount',
+          invoice_no: "invoiceNumber",
+          invoice_amount: "invoiceAmount",
 
-          cash_in_no: 'cashInNo',
-          cash_in_amount: 'cashInAmount',
-          cash_in_remark: 'cashInRemark',
+          cash_in_no: "cashInNo",
+          cash_in_amount: "cashInAmount",
+          cash_in_remark: "cashInRemark",
 
-          delivery_type: 'deliveryType',
-          is_delayed: 'isDelayed',
-          delay_reason: 'delayReason',
-          bus_no: 'busNo',
-          way_bill_no: 'wayBillNo',
-          tracking_no: 'trackingNo',
-          vehicle_no: 'vehicleNo',
-          driver_name: 'driverName',
-          courier_name: 'courierName',
-          no_of_boxes: 'noOfBoxes'
+          delivery_type: "deliveryType",
+          is_delayed: "isDelayed",
+          delay_reason: "delayReason",
+          bus_no: "busNo",
+          way_bill_no: "wayBillNo",
+          tracking_no: "trackingNo",
+          vehicle_no: "vehicleNo",
+          driver_name: "driverName",
+          courier_name: "courierName",
+          no_of_boxes: "noOfBoxes",
         };
 
         Object.entries(fieldMappings).forEach(([dbField, formField]) => {
           if (order[dbField] !== null && order[dbField] !== undefined) {
             let value = order[dbField];
 
-            if (dbField === 'payment_receipt' && typeof value === 'string') {
-              value = value.replace(/\\/g, '');
+            if (dbField === "payment_receipt" && typeof value === "string") {
+              value = value.replace(/\\/g, "");
             }
 
             updateField(formField, value);
           }
         });
       } catch (error) {
-        console.error('Error fetching order:', error);
-        showErrorToast('Failed to fetch order');
-        navigate('/orders');
+        console.error("Error fetching order:", error);
+        showErrorToast("Failed to fetch order");
+        navigate("/orders");
       }
     };
 
-    if (id === 'new') {
+    if (id === "new") {
       resetForm();
       setErrors({});
       setSavedSteps(new Set());
@@ -215,13 +215,13 @@ const OrderDetail = () => {
 
       const generateOrn = async () => {
         try {
-          const response = await api.get('/orders/generate-orn');
+          const response = await api.get("/orders/generate-orn");
           if (response.data.success) {
-            updateField('ornNumber', response.data.orn_number);
+            updateField("ornNumber", response.data.orn_number);
           }
         } catch (error) {
-          console.error('Error generating ORN:', error);
-          showErrorToast('Failed to generate ORN');
+          console.error("Error generating ORN:", error);
+          showErrorToast("Failed to generate ORN");
         }
       };
       generateOrn();
@@ -236,7 +236,7 @@ const OrderDetail = () => {
 
     const isCashBased =
       selectedOrder.payment_type &&
-      ['Cash', 'Cash Deposit'].includes(selectedOrder.payment_type);
+      ["Cash", "Cash Deposit"].includes(selectedOrder.payment_type);
 
     // Only apply this logic for non-cash payments
     if (!isCashBased && selectedOrder.quotation_no) {
@@ -256,27 +256,27 @@ const OrderDetail = () => {
 
   const handleDelaySave = async (reason) => {
     if (!selectedOrder?.orn_number) {
-      showErrorToast('Order number is not available.');
+      showErrorToast("Order number is not available.");
       return;
     }
     try {
       const response = await api.put(
         `/orders/${selectedOrder.orn_number}/delay`,
-        { delay_reason: reason }
+        { delay_reason: reason },
       );
       if (response.data.success) {
-        showSuccessToast('Delivery delay reason saved!');
+        showSuccessToast("Delivery delay reason saved!");
         setIsDelayed(true);
-        updateField('delayReason', reason);
+        updateField("delayReason", reason);
         setDelayModalOpen(false);
       }
       setTimeout(() => {
         resetForm();
-        navigate('/orders');
+        navigate("/orders");
       }, 1000);
     } catch (error) {
-      showErrorToast('Failed to save delay reason.');
-      console.error('Error saving delay reason:', error);
+      showErrorToast("Failed to save delay reason.");
+      console.error("Error saving delay reason:", error);
     }
   };
 
@@ -284,7 +284,7 @@ const OrderDetail = () => {
     async (completeOrder = false, overrides = {}) => {
       let loadingToastId;
       try {
-        loadingToastId = showLoadingToast('Saving step...');
+        loadingToastId = showLoadingToast("Saving step...");
 
         const currentFormData = { ...formData, ...overrides };
 
@@ -295,24 +295,24 @@ const OrderDetail = () => {
 
         switch (activeTab) {
           case 1:
-            requireField('ordReqDate', 'Order request date is required');
-            requireField('ornNumber', 'ORN number is required');
-            requireField('customerName', 'Customer name is required');
-            requireField('customerGroup', 'Customer group is required');
-            requireField('customerBranch', "Customer's branch is required");
+            requireField("ordReqDate", "Order request date is required");
+            requireField("ornNumber", "ORN number is required");
+            requireField("customerName", "Customer name is required");
+            requireField("customerGroup", "Customer group is required");
+            requireField("customerBranch", "Customer's branch is required");
             break;
           case 2:
-            requireField('salesBranch', 'Sales branch is required');
+            requireField("salesBranch", "Sales branch is required");
             break;
           case 3:
-            requireField('approvalDate', 'Approval date is required');
-            requireField('paymentType', 'Payment type is required');
+            requireField("approvalDate", "Approval date is required");
+            requireField("paymentType", "Payment type is required");
             break;
           case 6:
-            requireField('paymentAttachment', 'Payment receipt is required');
+            requireField("paymentAttachment", "Payment receipt is required");
             break;
           case 10:
-            requireField('deliveryType', 'Delivery type is required');
+            requireField("deliveryType", "Delivery type is required");
             break;
           default:
             break;
@@ -338,7 +338,7 @@ const OrderDetail = () => {
           order_request_date: formData.ordReqDate,
           remark: formData.orderRemark,
           status: activeTab,
-          currentStep: activeTab
+          currentStep: activeTab,
         };
 
         let stepData = {};
@@ -346,14 +346,14 @@ const OrderDetail = () => {
           case 2: // Assign Branch
             stepData = {
               sales_branch: formData.salesBranch,
-              sales_branch_code: formData.salesBranchCode
+              sales_branch_code: formData.salesBranchCode,
             };
             break;
           case 3: // Approval Info
             stepData = {
               payment_type: formData.paymentType,
               approval_date: formData.approvalDate,
-              approval_remark: formData.approvalRemark
+              approval_remark: formData.approvalRemark,
             };
             break;
           case 6: // Payment Info (File upload step)
@@ -361,13 +361,13 @@ const OrderDetail = () => {
           case 7: // Payment Confirmation
             stepData = {
               payment_confirmed: currentFormData.paymentConfirmed ? 1 : 0,
-              payment_remark: currentFormData.paymentRemark
+              payment_remark: currentFormData.paymentRemark,
             };
             break;
           case 8: // Invoice Info
             stepData = {
               invoice_no: formData.invoiceNumber,
-              invoice_amount: formData.invoiceAmount
+              invoice_amount: formData.invoiceAmount,
             };
             break;
           case 9: // Delivery Info
@@ -381,7 +381,7 @@ const OrderDetail = () => {
               vehicle_no: formData.vehicleNo,
               driver_name: formData.driverName,
               courier_name: formData.courierName,
-              no_of_boxes: formData.noOfBoxes
+              no_of_boxes: formData.noOfBoxes,
             };
             break;
           default:
@@ -412,7 +412,7 @@ const OrderDetail = () => {
               vehicle_no: formData.vehicleNo,
               driver_name: formData.driverName,
               courier_name: formData.courierName,
-              no_of_boxes: formData.noOfBoxes
+              no_of_boxes: formData.noOfBoxes,
             };
             break;
         }
@@ -426,7 +426,7 @@ const OrderDetail = () => {
           if (
             value !== null &&
             value !== undefined &&
-            (value !== '' || key === 'is_delayed')
+            (value !== "" || key === "is_delayed")
           ) {
             formDataToSend.append(key, value);
           }
@@ -438,45 +438,46 @@ const OrderDetail = () => {
           currentFormData.paymentAttachment instanceof File
         ) {
           formDataToSend.append(
-            'payment_receipt',
-            currentFormData.paymentAttachment
+            "payment_receipt",
+            currentFormData.paymentAttachment,
           );
         }
 
         const config = {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+            "Content-Type": "multipart/form-data",
+          },
         };
 
         if (isNewOrder && activeTab === 1) {
           const response = await api.post(
-            '/orders/new',
+            "/orders/new",
             formDataToSend,
-            config
+            config,
           );
           if (response.data.success) {
             setSelectedOrder(response.data.order);
             setSavedSteps(new Set([1]));
-            showSuccessToast('Order created successfully!', loadingToastId);
+            showSuccessToast("Order created successfully!", loadingToastId);
 
             setTimeout(() => {
               resetForm();
-              navigate('/orders');
+              navigate("/orders");
             }, 1000);
           }
         } else if (selectedOrder) {
           const response = await api.put(
             `/orders/${selectedOrder.orn_number}`,
             formDataToSend,
-            config
+            config,
           );
 
           if (response.data.success) {
             const updatedPaymentType = response.data.order.payment_type;
-            const isCashBased = ['Cash', 'Cash Deposit'].includes(
-              updatedPaymentType
-            );
+            // const isCashBased = ["Cash", "Cash Deposit"].includes(
+            //   updatedPaymentType,
+            // );
+            const isCashBased = updatedPaymentType === "Cash Deposit";
 
             if (activeTab === 3) {
               const newDisabledSteps = new Set();
@@ -509,13 +510,13 @@ const OrderDetail = () => {
             setSavedSteps((prev) => new Set([...prev, activeTab]));
             showSuccessToast(
               `Step ${activeTab} saved successfully!`,
-              loadingToastId
+              loadingToastId,
             );
 
             if (activeTab === 9 || completeOrder) {
               setTimeout(() => {
                 resetForm();
-                navigate('/orders');
+                navigate("/orders");
               }, 1000);
             } else if (
               activeTab === 7 &&
@@ -548,19 +549,19 @@ const OrderDetail = () => {
                   setActiveTab(nextTab);
 
                   const newSearchParams = new URLSearchParams(searchParams);
-                  newSearchParams.set('status', nextTab.toString());
+                  newSearchParams.set("status", nextTab.toString());
                   navigate(`?${newSearchParams.toString()}`, { replace: true });
                 }
               }, 1000);
             }
             setTimeout(() => {
               resetForm();
-              navigate('/orders');
+              navigate("/orders");
             }, 1000);
           }
         }
       } catch (error) {
-        console.error('Error saving order:', error);
+        console.error("Error saving order:", error);
         if (error.response?.status === 422 && error.response?.data?.errors) {
           const backendErrors = error.response.data.errors;
           const normalized = {};
@@ -570,8 +571,8 @@ const OrderDetail = () => {
           setErrors(normalized);
         } else {
           showErrorToast(
-            error.response?.data?.message || 'Failed to save order',
-            loadingToastId
+            error.response?.data?.message || "Failed to save order",
+            loadingToastId,
           );
         }
       }
@@ -585,17 +586,17 @@ const OrderDetail = () => {
       resetForm,
       disabledSteps,
       searchParams,
-      hasPermission
-    ]
+      hasPermission,
+    ],
   );
 
   const handleBackToList = useCallback(() => {
-    navigate('/orders');
+    navigate("/orders");
   }, [navigate]);
 
   const handlePaymentAction = (isConfirmed) => {
     if (isConfirmed) {
-      updateField('paymentConfirmed', true);
+      updateField("paymentConfirmed", true);
       handleSubmit(false, { paymentConfirmed: true });
     } else {
       setShowRejectModal(true);
@@ -604,7 +605,7 @@ const OrderDetail = () => {
 
   const handleConfirmReject = () => {
     setShowRejectModal(false);
-    updateField('paymentConfirmed', false);
+    updateField("paymentConfirmed", false);
     handleSubmit(false, { paymentConfirmed: false });
   };
 
@@ -614,7 +615,7 @@ const OrderDetail = () => {
       formData,
       updateField,
       isNewOrder,
-      errors
+      errors,
     };
 
     let currentStepToRender = activeTab;
@@ -673,7 +674,7 @@ const OrderDetail = () => {
   return (
     <OrderForm
       title={
-        isNewOrder ? 'New Order' : `Order Details: ${selectedOrder?.orn_number}`
+        isNewOrder ? "New Order" : `Order Details: ${selectedOrder?.orn_number}`
       }
       selectedOrder={selectedOrder}
       savedSteps={savedSteps}
