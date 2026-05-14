@@ -153,7 +153,7 @@ const CreateOrder = ({
       try {
         const response = await fetchCustomerDetails(customerCode);
 
-        if (response && response.Branches) {
+        if (response && response.Branches && response.Branches.length > 0) {
           const branchOptions = response.Branches.map((branch) => ({
             value: branch.Branch,
             label: branch.Branch,
@@ -162,7 +162,10 @@ const CreateOrder = ({
           setBranches(branchOptions);
           console.log("Fetched branches:", branchOptions);
         } else {
-          setBranches([]);
+          setBranches([{ value: "Default", label: "Default" }]);
+          if (!formData.customerBranch) {
+            updateField("customerBranch", "Default");
+          }
         }
 
         if (
