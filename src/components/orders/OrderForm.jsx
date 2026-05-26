@@ -62,6 +62,7 @@ const OrderForm = ({
   };
 
   const isStepAccessible = (tabId) => {
+    if (tabId === 3 && savedSteps.has(8)) return false;
     if (tabId === 1) return true;
     const prevRequiredSteps = TAB_CONFIG.filter(
       (t) => t.id < tabId && !businessDisabledSteps.has(t.id)

@@ -44,15 +44,23 @@ const OrderDetail = () => {
     if (statusParam && !isNewOrder && selectedOrder) {
       const targetStatus = parseInt(statusParam);
 
-      if (
+      const isTargetAccessible =
         targetStatus >= 1 &&
         targetStatus <= 9 &&
         !disabledSteps.has(targetStatus) &&
-        (targetStatus === 1 || savedSteps.has(targetStatus - 1))
-      ) {
+        (targetStatus === 1 || savedSteps.has(targetStatus - 1)) &&
+        !(targetStatus === 3 && savedSteps.has(8));
+
+      if (isTargetAccessible) {
         setActiveTab(targetStatus);
       } else {
-        let adjustedStatus = targetStatus;
+        const safeTab = selectedOrder
+          ? selectedOrder.status < 9
+            ? selectedOrder.status + 1
+            : selectedOrder.status
+          : 1;
+
+        let adjustedStatus = safeTab;
         while (adjustedStatus <= 9 && disabledSteps.has(adjustedStatus)) {
           adjustedStatus++;
         }
@@ -506,8 +514,20 @@ const OrderDetail = () => {
               setBusinessDisabledSteps(newBusinessDisabledSteps);
             }
 
-            setSelectedOrder(response.data.order);
-            setSavedSteps((prev) => new Set([...prev, activeTab]));
+            const returnedOrder = response.data.order;
+            setSelectedOrder(returnedOrder);
+            setSavedSteps(
+              new Set(
+                Array.from({ length: returnedOrder.status }, (_, i) => i + 1)
+              )
+            );
+
+            if (activeTab === 3) {
+              updateField("paymentAttachment", null);
+              updateField("paymentConfirmed", false);
+              updateField("paymentRemark", "");
+            }
+
             showSuccessToast(
               `Step ${activeTab} saved successfully!`,
               loadingToastId,
