@@ -95,8 +95,8 @@ const OrderDetail = () => {
         let initialTab = order.status < 9 ? order.status + 1 : order.status;
 
         // const isCashBased =
-        //   order.payment_type && ["Cash", "Cash Deposit"].includes(order.payment_type);
-        const isCashBased = order.payment_type === "Cash Deposit";
+        //   order.payment_type && ["Cash", "Online"].includes(order.payment_type);
+        const isCashBased = order.payment_type === "Online";
 
         const newDisabledSteps = new Set();
         const newBusinessDisabledSteps = new Set();
@@ -244,7 +244,7 @@ const OrderDetail = () => {
 
     const isCashBased =
       selectedOrder.payment_type &&
-      ["Cash", "Cash Deposit"].includes(selectedOrder.payment_type);
+      ["Cash", "Online"].includes(selectedOrder.payment_type);
 
     // Only apply this logic for non-cash payments
     if (!isCashBased && selectedOrder.quotation_no) {
@@ -482,10 +482,10 @@ const OrderDetail = () => {
 
           if (response.data.success) {
             const updatedPaymentType = response.data.order.payment_type;
-            // const isCashBased = ["Cash", "Cash Deposit"].includes(
+            // const isCashBased = ["Cash", "Online"].includes(
             //   updatedPaymentType,
             // );
-            const isCashBased = updatedPaymentType === "Cash Deposit";
+            const isCashBased = updatedPaymentType === "Online";
 
             if (activeTab === 3) {
               const newDisabledSteps = new Set();
@@ -518,8 +518,8 @@ const OrderDetail = () => {
             setSelectedOrder(returnedOrder);
             setSavedSteps(
               new Set(
-                Array.from({ length: returnedOrder.status }, (_, i) => i + 1)
-              )
+                Array.from({ length: returnedOrder.status }, (_, i) => i + 1),
+              ),
             );
 
             if (activeTab === 3) {
